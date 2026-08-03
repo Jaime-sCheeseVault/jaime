@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<!-- saved from url=(0059)https://vaultgamesdevelopment.github.io/thevault.github.io/ -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="en">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fairview Unified — Digital Learning Portal</title>
-<link rel="icon" type="image/png" href="https://vaultgamesdevelopment.github.io/thevault.github.io/g/assets/favicon-96x96.png" sizes="96x96">
-<link rel="icon" type="image/svg+xml" href="https://vaultgamesdevelopment.github.io/thevault.github.io/g/assets/favicon.svg">
-<link rel="shortcut icon" href="https://vaultgamesdevelopment.github.io/thevault.github.io/g/assets/favicon.ico">
-<link rel="apple-touch-icon" sizes="180x180" href="https://vaultgamesdevelopment.github.io/thevault.github.io/g/assets/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-title" content="Archive">
-<link rel="manifest" href="https://vaultgamesdevelopment.github.io/thevault.github.io/g/assets/site.webmanifest">
+<link rel="icon" type="image/png" href="./g/assets/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/svg+xml" href="./g/assets/favicon.svg" />
+<link rel="shortcut icon" href="./g/assets/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="./g/assets/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-title" content="Archive" />
+<link rel="manifest" href="./g/assets/site.webmanifest" />
 <style>
   :root{
     /* Disguise (educational) palette */
@@ -248,7 +248,7 @@
     letter-spacing: -0.01em;
     position:relative;
     opacity: 0;
-    background: linear-gradient(to bottom,#ffffff 0%,#9a9a9a 50%,#333333 100%);
+    background: linear-gradient(120deg, #ffffff 0%, #9a9a9a 50%, #333333 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -310,13 +310,7 @@
     to{ width:100%; }
   }
 
-  
-.loader-ripple{width:140px;height:140px;position:relative}
-.loader-ripple:before,.loader-ripple:after{content:'';position:absolute;inset:0;border:2px solid var(--phosphor-dim);border-radius:50%;animation:ripple 2s infinite}
-.loader-ripple:after{animation-delay:1s}
-@keyframes ripple{from{transform:scale(.2);opacity:1}to{transform:scale(1.4);opacity:0}}
-
-/* ===================== SETTINGS PANEL ===================== */
+  /* ===================== SETTINGS PANEL ===================== */
   #settings-overlay{
     position:fixed; inset:0;
     background: rgba(5,7,10,0.85);
@@ -415,13 +409,13 @@
     font-size: 20px;
     font-weight: 800;
     letter-spacing: -0.01em;
-    background: linear-gradient(to bottom,#ffffff 0%,#8a8a8a 55%,#333333 100%);
+    background: linear-gradient(120deg, #ffffff 0%, #8a8a8a 55%, #333333 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
   .arc-logo span{
-    background: linear-gradient(to bottom,#ffffff 0%,#8a8a8a 55%,#333333 100%);
+    background: linear-gradient(120deg, #ffffff 0%, #8a8a8a 55%, #333333 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -609,7 +603,7 @@
 <body>
 
 <!-- ============ EDUCATIONAL DISGUISE SITE ============ -->
-<div id="edu-site" style="display: none;">
+<div id="edu-site">
   <div class="edu-topbar">
     <span>Fairview Unified School District</span>
     <span>Student &amp; Family Portal</span>
@@ -622,13 +616,13 @@
     </div>
   </header>
   <nav class="edu-nav">
-    <a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Home</a>
-    <a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Announcements</a>
-    <a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Assignments</a>
-    <a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Library</a>
-    <a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Resources</a>
-    <a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Staff Directory</a>
-    <a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Contact</a>
+    <a href="#">Home</a>
+    <a href="#">Announcements</a>
+    <a href="#">Assignments</a>
+    <a href="#">Library</a>
+    <a href="#">Resources</a>
+    <a href="#">Staff Directory</a>
+    <a href="#">Contact</a>
   </nav>
 
   <main class="edu-main">
@@ -682,10 +676,10 @@
       <div class="edu-box">
         <h4>Quick Links</h4>
         <ul>
-          <li><a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Assignment Calendar</a></li>
-          <li><a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Gradebook Login</a></li>
-          <li><a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Library Catalog</a></li>
-          <li><a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Bus Route Finder</a></li>
+          <li><a href="#">Assignment Calendar</a></li>
+          <li><a href="#">Gradebook Login</a></li>
+          <li><a href="#">Library Catalog</a></li>
+          <li><a href="#">Bus Route Finder</a></li>
         </ul>
       </div>
     </aside>
@@ -698,132 +692,44 @@
   <div class="edu-hint">press e</div>
 </div>
 
-<div id="flash" style="transition: opacity 0.15s; opacity: 0;"></div>
+<div id="flash"></div>
 
 <!-- ============ LOADER ============ -->
-<div id="archive-root" aria-hidden="false" class="">
+<div id="archive-root" aria-hidden="true">
   <div class="loader-wrap">
     <div class="loader-noise"></div>
     <div class="loader-text">The Archive</div>
     <div class="loader-sub">one sec</div>
-    <div class="loader-ripple"></div>
+    <div class="loader-bar"><div class="loader-bar-fill"></div></div>
   </div>
 </div>
 
 <!-- ============ REAL SITE ============ -->
-<div id="archive-site" class="active">
+<div id="archive-site">
   <header class="arc-header">
     <div class="arc-logo">THE <span>ARCHIVE</span></div>
     <nav class="arc-nav">
-      <a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#" class="active">All</a>
-      <a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Arcade</a>
-      <a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Shooter</a>
-      <a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Puzzle</a>
-      <a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Sports</a>
-      <a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#">Retro</a>
-      <a href="https://vaultgamesdevelopment.github.io/thevault.github.io/#" id="settings-btn">Settings</a>
+      <a href="#" class="active">All</a>
+      <a href="#">Arcade</a>
+      <a href="#">Shooter</a>
+      <a href="#">Puzzle</a>
+      <a href="#">Sports</a>
+      <a href="#">Retro</a>
+      <a href="#" id="settings-btn">Settings</a>
     </nav>
   </header>
 
   <section class="arc-hero">
     <h1>Every game they blocked. All in one place.</h1>
     <div class="arc-search">
-      <input type="text" placeholder="search the archive...">
+      <input type="text" placeholder="search the archive..." />
       <button>Find</button>
     </div>
   </section>
 
   <section class="arc-grid" id="game-grid">
-      <div class="arc-tile" tabindex="0" data-index="0">
-        <div class="tile-thumb">
-          <img class="tile-icon" src="./index_files/slope.png" alt="Slope" onerror="this.style.display=&#39;none&#39;">
-          <div class="tile-play-overlay">
-            <button class="tile-play-btn" data-index="0" aria-label="Play Slope">
-              <svg viewBox="0 0 24 24" fill="#111"><path d="M8 5v14l11-7z"></path></svg>
-            </button>
-          </div>
-        </div>
-        <div class="tile-caption">
-          <span class="tile-name">Slope</span>
-          <span class="tile-genre">Arcade</span>
-        </div>
-      </div>
-    
-      <div class="arc-tile" tabindex="0" data-index="1">
-        <div class="tile-thumb">
-          <img class="tile-icon" src="./index_files/1v1.lol.png" alt="1v1.LOL" onerror="this.style.display=&#39;none&#39;">
-          <div class="tile-play-overlay">
-            <button class="tile-play-btn" data-index="1" aria-label="Play 1v1.LOL">
-              <svg viewBox="0 0 24 24" fill="#111"><path d="M8 5v14l11-7z"></path></svg>
-            </button>
-          </div>
-        </div>
-        <div class="tile-caption">
-          <span class="tile-name">1v1.LOL</span>
-          <span class="tile-genre">Shooter</span>
-        </div>
-      </div>
-    
-      <div class="arc-tile" tabindex="0" data-index="2">
-        <div class="tile-thumb">
-          <img class="tile-icon" src="./index_files/basket-bros.png" alt="Basket Bros" onerror="this.style.display=&#39;none&#39;">
-          <div class="tile-play-overlay">
-            <button class="tile-play-btn" data-index="2" aria-label="Play Basket Bros">
-              <svg viewBox="0 0 24 24" fill="#111"><path d="M8 5v14l11-7z"></path></svg>
-            </button>
-          </div>
-        </div>
-        <div class="tile-caption">
-          <span class="tile-name">Basket Bros</span>
-          <span class="tile-genre">Sports</span>
-        </div>
-      </div>
-    
-      <div class="arc-tile" tabindex="0" data-index="3">
-        <div class="tile-thumb">
-          <img class="tile-icon" src="./index_files/moto-x3m.png" alt="Moto X3M" onerror="this.style.display=&#39;none&#39;">
-          <div class="tile-play-overlay">
-            <button class="tile-play-btn" data-index="3" aria-label="Play Moto X3M">
-              <svg viewBox="0 0 24 24" fill="#111"><path d="M8 5v14l11-7z"></path></svg>
-            </button>
-          </div>
-        </div>
-        <div class="tile-caption">
-          <span class="tile-name">Moto X3M</span>
-          <span class="tile-genre">Arcade</span>
-        </div>
-      </div>
-    
-      <div class="arc-tile" tabindex="0" data-index="4">
-        <div class="tile-thumb">
-          <img class="tile-icon" src="./index_files/cookie-clicker.png" alt="Cookie Clicker" onerror="this.style.display=&#39;none&#39;">
-          <div class="tile-play-overlay">
-            <button class="tile-play-btn" data-index="4" aria-label="Play Cookie Clicker">
-              <svg viewBox="0 0 24 24" fill="#111"><path d="M8 5v14l11-7z"></path></svg>
-            </button>
-          </div>
-        </div>
-        <div class="tile-caption">
-          <span class="tile-name">Cookie Clicker</span>
-          <span class="tile-genre">Puzzle</span>
-        </div>
-      </div>
-    
-      <div class="arc-tile" tabindex="0" data-index="5">
-        <div class="tile-thumb">
-          <img class="tile-icon" src="./index_files/escape-road-city-2.png" alt="Escape Road City 2" onerror="this.style.display=&#39;none&#39;">
-          <div class="tile-play-overlay">
-            <button class="tile-play-btn" data-index="5" aria-label="Play Escape Road City 2">
-              <svg viewBox="0 0 24 24" fill="#111"><path d="M8 5v14l11-7z"></path></svg>
-            </button>
-          </div>
-        </div>
-        <div class="tile-caption">
-          <span class="tile-name">Escape Road City 2</span>
-          <span class="tile-genre">Arcade</span>
-        </div>
-      </div>
-    </section>
+    <!-- game tiles populate here -->
+  </section>
 
   <footer class="arc-footer">THE ARCHIVE — this device leaves no logs</footer>
 
@@ -854,7 +760,7 @@
             <span class="label">Grid size<small>Adjust tile density</small></span>
             <select class="settings-select" id="grid-size-select">
               <option value="140">Compact</option>
-              <option value="180" selected="">Default</option>
+              <option value="180" selected>Default</option>
               <option value="220">Large</option>
             </select>
           </div>
@@ -1079,5 +985,5 @@
 })();
 </script>
 
-
-</body></html>
+</body>
+</html>
