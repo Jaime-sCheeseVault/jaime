@@ -30,7 +30,7 @@
   }
 
   *{ box-sizing: border-box; }
-  html,body{ margin:0; padding:0; height:100%; }
+  html,body{ margin:0; padding:0; height:100%; -webkit-tap-highlight-color: transparent; overscroll-behavior:none; }
   body{
     font-family: 'Georgia', 'Iowan Old Style', serif;
     background: var(--edu-bg);
@@ -441,8 +441,33 @@
   }
 
   @media (max-width: 720px){
-    .edu-main{ grid-template-columns: 1fr; }
+    .edu-main{ grid-template-columns: 1fr; padding: 24px 18px; }
     .edu-cards{ grid-template-columns: 1fr 1fr; }
+    .edu-header{ padding: 16px 18px; }
+    .edu-header h1{ font-size:18px; }
+    .edu-header p{ font-size:11px; }
+    .edu-nav{ padding: 0 18px; overflow-x:auto; white-space:nowrap; -webkit-overflow-scrolling:touch; }
+    .edu-nav a{ padding: 12px 12px; font-size:12.5px; }
+    .edu-topbar{ padding:6px 18px; font-size:10.5px; flex-direction:column; gap:2px; text-align:center; }
+
+    .arc-header{ padding: 16px 18px; flex-wrap: wrap; gap:10px; }
+    .arc-nav{ gap:16px; overflow-x:auto; width:100%; -webkit-overflow-scrolling:touch; }
+    .arc-hero{ padding: 40px 18px 24px; }
+    .arc-search{ margin-top:22px; }
+    .arc-grid{ padding: 0 18px; margin: 28px auto 50px; gap:14px; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); }
+
+    .loader-text{ font-size: clamp(30px, 11vw, 60px); letter-spacing: 0.03em; padding: 0 16px; text-align:center; }
+    .loader-wrap{ padding: 0 16px; }
+  }
+
+  @media (max-width: 420px){
+    .edu-cards{ grid-template-columns: 1fr; }
+    .edu-crest{ width:36px; height:36px; }
+  }
+
+  @media (hover: none){
+    .arc-tile:hover{ transform:none; }
+    .edu-nav a:hover{ background:transparent; border-bottom-color:transparent; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -597,26 +622,59 @@
 
   // Placeholder game tiles — replace hrefs with real embeds later
   const games = [
-    { tag:'Arcade',   name:'Slope',        desc:'Endless downhill runner. One wrong move ends it.' },
-    { tag:'Shooter',  name:'1v1.LOL',      desc:'Build, fight, survive. Classic browser battler.' },
-    { tag:'Puzzle',   name:'2048',         desc:'Merge tiles to reach the number. Simple, brutal.' },
-    { tag:'Retro',    name:'Pac-Man',      desc:'The original maze chase, ghosts included.' },
-    { tag:'Sports',   name:'Basket Bros',  desc:'Fast 1v1 basketball with ragdoll physics.' },
-    { tag:'Arcade',   name:'Moto X3M',     desc:'Bike stunts across explosive obstacle courses.' },
-    { tag:'Shooter',  name:'Krunker',      desc:'Fast-paced voxel FPS, browser-based.' },
-    { tag:'Puzzle',   name:'Cookie Clicker', desc:'Click. Upgrade. Repeat until the universe ends.' },
+    { tag:'Arcade',   name:'Slope',        desc:'Endless downhill runner. One wrong move ends it.', file:'./g/slope.html' },
+    { tag:'Shooter',  name:'1v1.LOL',      desc:'Build, fight, survive. Classic browser battler.', file:'./g/1v1.lol.html' },
+    { tag:'Puzzle',   name:'2048',         desc:'Merge tiles to reach the number. Simple, brutal.', file:'./g/2048.html' },
+    { tag:'Retro',    name:'Pac-Man',      desc:'The original maze chase, ghosts included.', file:'./g/pacman.html' },
+    { tag:'Sports',   name:'Basket Bros',  desc:'Fast 1v1 basketball with ragdoll physics.', file:'./g/basket-bros.html' },
+    { tag:'Arcade',   name:'Moto X3M',     desc:'Bike stunts across explosive obstacle courses.', file:'./g/moto-x3m.html' },
+    { tag:'Shooter',  name:'Krunker',      desc:'Fast-paced voxel FPS, browser-based.', file:'./g/krunker.html' },
+    { tag:'Puzzle',   name:'Cookie Clicker', desc:'Click. Upgrade. Repeat until the universe ends.', file:'./g/cookie-clicker.html' },
   ];
 
   function renderGrid(){
-    grid.innerHTML = games.map(g => `
-      <div class="arc-tile" tabindex="0">
+    grid.innerHTML = games.map((g, i) => `
+      <div class="arc-tile" tabindex="0" data-index="${i}">
         <span class="tag">${g.tag}</span>
         <h3>${g.name}</h3>
         <p>${g.desc}</p>
       </div>
     `).join('');
+
+    grid.querySelectorAll('.arc-tile').forEach(tile => {
+      const open = () => openGame(games[tile.dataset.index]);
+      tile.addEventListener('click', open);
+      tile.addEventListener('keydown', (e) => { if (e.key === 'Enter') open(); });
+    });
   }
   renderGrid();
+
+  function openGame(game){
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position:fixed; inset:0; background:#000; z-index:9997;
+      display:flex; flex-direction:column;
+    `;
+    overlay.innerHTML = `
+      <div style="display:flex; align-items:center; justify-content:space-between;
+        padding:10px 16px; background:var(--void-2); border-bottom:1px solid var(--line-dim);
+        font-family:'Courier New',monospace; color:var(--phosphor); font-size:12px;
+        letter-spacing:0.06em; text-transform:uppercase;">
+        <span>${game.name}</span>
+        <button id="close-game" style="background:transparent; border:1px solid var(--line-dim);
+          color:var(--phosphor); font-family:inherit; font-size:11px; padding:6px 12px;
+          cursor:pointer; letter-spacing:0.06em;">close [esc]</button>
+      </div>
+      <iframe src="${game.file}" style="flex:1; width:100%; border:none;"
+        allow="fullscreen; gamepad; autoplay" allowfullscreen></iframe>
+    `;
+    document.body.appendChild(overlay);
+
+    const close = () => overlay.remove();
+    overlay.querySelector('#close-game').addEventListener('click', close);
+    const escHandler = (e) => { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', escHandler); } };
+    document.addEventListener('keydown', escHandler);
+  }
 
   function activateArchive(){
     if (activated) return;
@@ -646,6 +704,19 @@
       activateArchive();
     }
   });
+
+  // mobile fallback: no physical keyboard, so 5 quick taps on the crest triggers it
+  const crest = document.querySelector('.edu-crest');
+  let tapCount = 0;
+  let tapTimer = null;
+  if (crest){
+    crest.addEventListener('touchstart', () => {
+      tapCount++;
+      clearTimeout(tapTimer);
+      tapTimer = setTimeout(() => { tapCount = 0; }, 1200);
+      if (tapCount >= 5) activateArchive();
+    }, { passive: true });
+  }
 })();
 </script>
 
