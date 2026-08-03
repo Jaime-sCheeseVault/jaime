@@ -23,6 +23,7 @@
     /* Archive (real) palette */
     --void: #05070a;
     --void-2: #0a0e14;
+    --void-header: rgba(5,7,10,0.85);
     --phosphor: #b8f4e0;
     --phosphor-dim: #4a9c85;
     --ember: #ff5c38;
@@ -45,6 +46,7 @@
 
   /* theme variants — applied to <html>, cascade everywhere */
   html[data-theme="mono"]{
+    --void:#0e0e0e; --void-2:#181818; --void-header:rgba(14,14,14,0.88); --line-dim:#2e2e2e;
     --phosphor:#f5f5f5; --phosphor-dim:#b0b0b0; --ember:#ffffff;
     --arc-fg-bright:#ffffff; --arc-fg:#f2f2f2; --arc-fg-mid:#c7c7c7; --arc-fg-dim:#8a8a8a; --arc-ink:#111111;
     --arc-accent:#ffffff; --arc-accent-strong:#ffffff; --arc-accent-soft:#b0b0b0;
@@ -52,6 +54,7 @@
     --arc-ring:rgba(255,255,255,0.14); --arc-glow-ring:rgba(255,255,255,0.08);
   }
   html[data-theme="blue"]{
+    --void:#020b1c; --void-2:#041226; --void-header:rgba(2,11,28,0.88); --line-dim:#0d2040;
     --phosphor:#8fb4ff; --phosphor-dim:#3d7bff; --ember:#3d7bff;
     --arc-fg-bright:#ffffff; --arc-fg:#cddfff; --arc-fg-mid:#8fb4ff; --arc-fg-dim:#6d84a8; --arc-ink:#051022;
     --arc-accent:#3d7bff; --arc-accent-strong:#2b5cd6; --arc-accent-soft:#3d7bff;
@@ -59,6 +62,7 @@
     --arc-ring:rgba(61,123,255,0.22); --arc-glow-ring:rgba(61,123,255,0.14);
   }
   html[data-theme="teal"]{
+    --void:#021510; --void-2:#031f17; --void-header:rgba(2,21,16,0.88); --line-dim:#083d28;
     --phosphor:#8ff0d4; --phosphor-dim:#2fcf9e; --ember:#2fcf9e;
     --arc-fg-bright:#ffffff; --arc-fg:#d4f7ec; --arc-fg-mid:#8ff0d4; --arc-fg-dim:#5f9c8a; --arc-ink:#02221a;
     --arc-accent:#2fcf9e; --arc-accent-strong:#23b08a; --arc-accent-soft:#2fcf9e;
@@ -66,6 +70,7 @@
     --arc-ring:rgba(47,207,158,0.22); --arc-glow-ring:rgba(47,207,158,0.14);
   }
   html[data-theme="red"]{
+    --void:#160101; --void-2:#200202; --void-header:rgba(22,1,1,0.88); --line-dim:#3d0909;
     --phosphor:#ff9a9a; --phosphor-dim:#ef4444; --ember:#ef4444;
     --arc-fg-bright:#ffffff; --arc-fg:#ffdada; --arc-fg-mid:#ff9a9a; --arc-fg-dim:#b06b6b; --arc-ink:#200303;
     --arc-accent:#ef4444; --arc-accent-strong:#dc2626; --arc-accent-soft:#ef4444;
@@ -73,6 +78,7 @@
     --arc-ring:rgba(239,68,68,0.22); --arc-glow-ring:rgba(239,68,68,0.14);
   }
   html[data-theme="amber"]{
+    --void:#140c01; --void-2:#1e1202; --void-header:rgba(20,12,1,0.88); --line-dim:#3a2508;
     --phosphor:#ffcf8a; --phosphor-dim:#f5a623; --ember:#f5a623;
     --arc-fg-bright:#ffffff; --arc-fg:#ffe7c4; --arc-fg-mid:#ffcf8a; --arc-fg-dim:#b08c55; --arc-ink:#221404;
     --arc-accent:#f5a623; --arc-accent-strong:#d98f12; --arc-accent-soft:#f5a623;
@@ -80,6 +86,7 @@
     --arc-ring:rgba(245,166,35,0.22); --arc-glow-ring:rgba(245,166,35,0.14);
   }
   html[data-theme="purple"]{
+    --void:#060416; --void-2:#0c0820; --void-header:rgba(6,4,22,0.88); --line-dim:#1c1340;
     --phosphor:#b3a8ff; --phosphor-dim:#6a5cff; --ember:#6a5cff;
     --arc-fg-bright:#ffffff; --arc-fg:#e0dcff; --arc-fg-mid:#b3a8ff; --arc-fg-dim:#6f6a9e; --arc-ink:#0b0822;
     --arc-accent:#6a5cff; --arc-accent-strong:#4d3fd6; --arc-accent-soft:#6a5cff;
@@ -87,6 +94,7 @@
     --arc-ring:rgba(106,92,255,0.22); --arc-glow-ring:rgba(106,92,255,0.14);
   }
   html[data-theme="magenta"]{
+    --void:#160216; --void-2:#200320; --void-header:rgba(22,2,22,0.88); --line-dim:#3d0a3d;
     --phosphor:#f0a8f0; --phosphor-dim:#d94fd9; --ember:#d94fd9;
     --arc-fg-bright:#ffffff; --arc-fg:#f7d9f7; --arc-fg-mid:#f0a8f0; --arc-fg-dim:#a06ba0; --arc-ink:#220422;
     --arc-accent:#d94fd9; --arc-accent-strong:#b93ab9; --arc-accent-soft:#d94fd9;
@@ -348,7 +356,7 @@
   /* ===================== SETTINGS PANEL ===================== */
   #settings-overlay{
     position:fixed; inset:0;
-    background: rgba(5,7,10,0.85);
+    background: var(--void-header);
     z-index:9996;
     display:none;
     align-items:center;
@@ -454,7 +462,7 @@
     padding: 22px 40px;
     border-bottom: 1px solid var(--line-dim);
     position:sticky; top:0;
-    background: rgba(5,7,10,0.85);
+    background: var(--void-header);
     backdrop-filter: blur(6px);
     z-index:10;
     animation: slide-down 0.5s ease backwards;
@@ -994,6 +1002,7 @@
             <div class="toggle" id="toggle-reduce-motion"></div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -1047,9 +1056,22 @@
         }
       } else if (mode === 'matrix'){
         const size = 14;
-        const ncol = Math.ceil(W / size);
-        for (let i = 0; i < ncol; i++){
-          cols.push({ x: i * size, y: Math.random() * H, sp: 0.12 + Math.random() * 0.35 });
+        const totalCols = Math.floor(W / size);
+        // Build streams: each is { col, headRow, tailLen, stepTimer, stepInterval }
+        const maxStreams = Math.min(18, Math.max(8, Math.floor(totalCols * 0.12)));
+        const usedCols = new Set();
+        for (let i = 0; i < maxStreams; i++){
+          let col;
+          do { col = Math.floor(Math.random() * totalCols); } while (usedCols.has(col) && usedCols.size < totalCols);
+          usedCols.add(col);
+          const tailLen = 8 + Math.floor(Math.random() * 14);
+          cols.push({
+            x: col * size,
+            headRow: -Math.floor(Math.random() * (H / size)),  // stagger start
+            tailLen,
+            interval: 60 + Math.floor(Math.random() * 80),     // ms per step
+            timer: 0
+          });
         }
       } else if (mode === 'particles'){
         const n = count(500);
@@ -1065,7 +1087,7 @@
       const rgb = hexToRgb(getColor());
       const A = (o) => 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + o + ')';
       const R = 130;
-      ctx.clearRect(0, 0, W, H);
+      if (mode !== 'matrix') ctx.clearRect(0, 0, W, H);
 
       if (mode === 'rain'){
         ctx.strokeStyle = A(0.45); ctx.lineWidth = 1;
@@ -1102,18 +1124,48 @@
           ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.2832); ctx.fillStyle = A(0.85); ctx.fill();
         }
       } else if (mode === 'matrix'){
-        ctx.fillStyle = 'rgba(5,7,10,0.85)'; ctx.fillRect(0, 0, W, H);
-        ctx.font = '14px monospace';
+        const size = 14;
+        const totalRows = Math.ceil(H / size);
+        const bgRgb = hexToRgb(getComputedStyle(document.documentElement).getPropertyValue('--void').trim() || '#05070a');
+        ctx.fillStyle = 'rgba(' + bgRgb[0] + ',' + bgRgb[1] + ',' + bgRgb[2] + ',0.16)';
+        ctx.fillRect(0, 0, W, H);
+        ctx.font = size + 'px monospace';
         for (const c of cols){
-          ctx.fillStyle = A(0.5);
-          ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], c.x, c.y);
-          ctx.fillStyle = A(1);
-          ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], c.x, c.y - 14);
-          c.y += c.sp * (dt / 16.7);
-          if (mouse.active && Math.abs(c.x - mouse.x) < R){
-            c.y += ((R - Math.abs(c.x - mouse.x)) / R) * 1.5;
+          c.timer += dt;
+          if (c.timer < c.interval) continue;
+          c.timer -= c.interval;
+          c.headRow++;
+
+          // Draw the bright head character
+          const headY = c.headRow * size;
+          if (headY >= 0 && headY <= H + size){
+            ctx.fillStyle = A(1);
+            ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], c.x, headY);
           }
-          if (c.y > H + 40) c.y = -40;
+          // Draw a dim mid-trail char just behind the head
+          if (c.headRow > 1){
+            const midY = (c.headRow - 1) * size;
+            if (midY >= 0){
+              ctx.fillStyle = A(0.45);
+              ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], c.x, midY);
+            }
+          }
+
+          // When the tail has fully scrolled off, reset this stream in a new random column
+          if (c.headRow - c.tailLen > totalRows){
+            // pick a new random column
+            const usedCols = new Set(cols.map(s => Math.round(s.x / size)));
+            const totalCols = Math.floor(W / size);
+            const freeCols = [];
+            for (let i = 0; i < totalCols; i++) if (!usedCols.has(i)) freeCols.push(i);
+            const newCol = freeCols.length
+              ? freeCols[Math.floor(Math.random() * freeCols.length)]
+              : Math.floor(Math.random() * totalCols);
+            c.x = newCol * size;
+            c.headRow = -Math.floor(Math.random() * 4);
+            c.tailLen = 8 + Math.floor(Math.random() * 14);
+            c.interval = 60 + Math.floor(Math.random() * 80);
+          }
         }
       } else if (mode === 'stars' || mode === 'constellations'){
         for (const s of stars){
@@ -1524,6 +1576,7 @@
       if (tapCount >= 5) activateArchive();
     }, { passive: true });
   }
+
 })();
 </script>
 
