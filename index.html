@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fairview Unified — Digital Learning Portal</title>
+<link rel="icon" type="image/png" href="./g/assets/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/svg+xml" href="./g/assets/favicon.svg" />
+<link rel="shortcut icon" href="./g/assets/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="./g/assets/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-title" content="Archive" />
+<link rel="manifest" href="./g/assets/site.webmanifest" />
 <style>
   :root{
     /* Disguise (educational) palette */
@@ -396,51 +402,72 @@
     margin: 40px auto 80px;
     padding: 0 40px;
     display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 14px;
   }
   .arc-tile{
     background: var(--void-2);
     border: 1px solid var(--line-dim);
-    padding: 20px 16px;
     cursor:pointer;
     transition: border-color 0.2s, transform 0.2s;
     position:relative;
+    aspect-ratio: 1 / 1;
+    overflow:hidden;
+    padding:0;
   }
   .arc-tile:hover{
     border-color: var(--phosphor-dim);
     transform: translateY(-2px);
   }
   .arc-tile .tile-icon{
-    width: 40px;
-    height: 40px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    border: 1px solid var(--line-dim);
-    margin-bottom: 10px;
+    border:none;
+    margin:0;
     display:block;
     image-rendering: pixelated;
   }
-  .arc-tile .tag{
-    font-size:10px;
-    letter-spacing:0.1em;
-    color: var(--ember);
-    text-transform:uppercase;
-    margin-bottom:8px;
-    display:block;
+  .arc-tile .tag{ display:none; }
+  .arc-tile p{ display:none; }
+  .arc-tile h3{ display:none; }
+
+  .tile-overlay{
+    position:absolute; inset:0;
+    background: rgba(5,7,10,0.82);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    opacity:0;
+    transition: opacity 0.2s ease;
+    padding: 10px;
+    text-align:center;
   }
-  .arc-tile h3{
-    font-size:15px;
-    margin:0 0 6px;
+  .arc-tile:hover .tile-overlay,
+  .arc-tile:focus .tile-overlay{
+    opacity:1;
+  }
+  .tile-overlay .tile-name{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
     color: var(--phosphor);
+    font-family: 'Courier New', monospace;
+  }
+  .tile-overlay .tile-play{
+    background: var(--phosphor-dim);
+    color: var(--void);
+    border:none;
+    font-family: 'Courier New', monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
     text-transform:uppercase;
-    letter-spacing:0.03em;
+    padding: 8px 16px;
+    cursor:pointer;
   }
-  .arc-tile p{
-    font-size:11.5px;
-    color: var(--phosphor-dim);
-    margin:0;
-    line-height:1.5;
-  }
+  .tile-overlay .tile-play:hover{ background: var(--phosphor); }
 
   .arc-footer{
     text-align:center;
@@ -645,10 +672,11 @@
   function renderGrid(){
     grid.innerHTML = games.map((g, i) => `
       <div class="arc-tile" tabindex="0" data-index="${i}">
-        <img class="tile-icon" src="${g.icon}" alt="" onerror="this.style.display='none'" />
-        <span class="tag">${g.tag}</span>
-        <h3>${g.name}</h3>
-        <p>${g.desc}</p>
+        <img class="tile-icon" src="${g.icon}" alt="${g.name}" onerror="this.style.display='none'" />
+        <div class="tile-overlay">
+          <span class="tile-name">${g.name}</span>
+          <button class="tile-play" data-index="${i}">Play</button>
+        </div>
       </div>
     `).join('');
 
@@ -656,6 +684,12 @@
       const open = () => openGame(games[tile.dataset.index]);
       tile.addEventListener('click', open);
       tile.addEventListener('keydown', (e) => { if (e.key === 'Enter') open(); });
+    });
+    grid.querySelectorAll('.tile-play').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openGame(games[btn.dataset.index]);
+      });
     });
   }
   renderGrid();
