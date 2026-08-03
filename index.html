@@ -489,6 +489,11 @@
   .arc-tile:hover{
     transform: translateY(-2px);
   }
+  .arc-tile .tile-thumb{
+    position:relative;
+    border-radius: 6px;
+    overflow:hidden;
+  }
   .arc-tile .tile-icon{
     width: 100%;
     aspect-ratio: 1 / 1;
@@ -497,6 +502,34 @@
     display:block;
     image-rendering: pixelated;
   }
+  .tile-play-overlay{
+    position:absolute; inset:0;
+    background: rgba(0,0,0,0.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    opacity:0;
+    transition: opacity 0.15s ease;
+  }
+  .arc-tile:hover .tile-play-overlay,
+  .arc-tile:focus .tile-play-overlay{
+    opacity:1;
+  }
+  .tile-play-btn{
+    width:48px; height:48px;
+    border-radius:50%;
+    background: #fff;
+    border:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transform: scale(0.9);
+    transition: transform 0.15s ease;
+  }
+  .arc-tile:hover .tile-play-btn{ transform: scale(1); }
+  .tile-play-btn:hover{ background:#e4e4e4; }
+  .tile-play-btn svg{ width:18px; height:18px; margin-left:2px; }
   .tile-caption{
     padding-top: 8px;
   }
@@ -777,7 +810,14 @@
   function renderGrid(){
     grid.innerHTML = games.map((g, i) => `
       <div class="arc-tile" tabindex="0" data-index="${i}">
-        <img class="tile-icon" src="${g.icon}" alt="${g.name}" onerror="this.style.display='none'" />
+        <div class="tile-thumb">
+          <img class="tile-icon" src="${g.icon}" alt="${g.name}" onerror="this.style.display='none'" />
+          <div class="tile-play-overlay">
+            <button class="tile-play-btn" data-index="${i}" aria-label="Play ${g.name}">
+              <svg viewBox="0 0 24 24" fill="#111"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+          </div>
+        </div>
         <div class="tile-caption">
           <span class="tile-name">${g.name}</span>
           <span class="tile-genre">${g.tag}</span>
@@ -789,6 +829,12 @@
       const open = () => openGame(games[tile.dataset.index]);
       tile.addEventListener('click', open);
       tile.addEventListener('keydown', (e) => { if (e.key === 'Enter') open(); });
+    });
+    grid.querySelectorAll('.tile-play-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openGame(games[btn.dataset.index]);
+      });
     });
   }
   renderGrid();
