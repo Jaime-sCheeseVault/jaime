@@ -348,15 +348,10 @@
     font-size: clamp(28px, 5vw, 46px);
     letter-spacing:0.04em;
     margin:0 0 14px;
-    text-shadow: 0 0 20px rgba(184,244,224,0.35);
-  }
-  .arc-hero p{
-    color: var(--phosphor-dim);
-    font-size: 13px;
-    letter-spacing: 0.04em;
-    max-width: 520px;
-    margin: 0 auto;
-    line-height:1.7;
+    background: linear-gradient(120deg, #ffffff 0%, #8a8a8a 50%, #2a2a2a 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   .arc-search{
@@ -604,7 +599,6 @@
 
   <section class="arc-hero">
     <h1>Every game they blocked. All in one place.</h1>
-    <p>No install. No account. No trace. Search the index or browse below.</p>
     <div class="arc-search">
       <input type="text" placeholder="search the archive..." />
       <button>Find</button>
