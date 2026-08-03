@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fairview Unified — Digital Learning Portal</title>
-<link rel="icon" type="image/png" href="./g/assets/favicon-96x96.png" sizes="96x96" />
-<link rel="icon" type="image/svg+xml" href="./g/assets/favicon.svg" />
-<link rel="shortcut icon" href="./g/assets/favicon.ico" />
-<link rel="apple-touch-icon" sizes="180x180" href="./g/assets/apple-touch-icon.png" />
-<meta name="apple-mobile-web-app-title" content="Archive" />
-<link rel="manifest" href="./g/assets/site.webmanifest" />
+<link rel="icon" type="image/png" href="https://vaultgamesdevelopment.github.io/thevault.github.io/g/assets/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/svg+xml" href="https://vaultgamesdevelopment.github.io/thevault.github.io/g/assets/favicon.svg">
+<link rel="shortcut icon" href="https://vaultgamesdevelopment.github.io/thevault.github.io/g/assets/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="https://vaultgamesdevelopment.github.io/thevault.github.io/g/assets/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Archive">
+<link rel="manifest" href="https://vaultgamesdevelopment.github.io/thevault.github.io/g/assets/site.webmanifest">
 <style>
   :root{
     /* Disguise (educational) palette */
@@ -28,7 +28,7 @@
     --ember: #ff5c38;
     --line-dim: #1c2530;
 
-    /* theme-aware derived vars (used across the whole archive site + modals) */
+    /* theme-aware derived vars (cascade to the whole archive site + modals) */
     --arc-fg-bright: #ffffff;
     --arc-fg: #f0f0f0;
     --arc-fg-mid: #9a9a9a;
@@ -43,7 +43,7 @@
     --arc-glow-ring: rgba(184,244,224,0.10);
   }
 
-  /* theme variants — applied to <html>, cascade to every element incl. modals */
+  /* theme variants — applied to <html>, cascade everywhere */
   html[data-theme="mono"]{
     --phosphor:#f5f5f5; --phosphor-dim:#b0b0b0; --ember:#ffffff;
     --arc-fg-bright:#ffffff; --arc-fg:#f2f2f2; --arc-fg-mid:#c7c7c7; --arc-fg-dim:#8a8a8a; --arc-ink:#111111;
@@ -397,10 +397,11 @@
   .theme-swatch:hover{ transform: scale(1.08); }
   .theme-swatch.selected{ border-color: #fff; }
   .settings-row{
-    display:flex; align-items:center; justify-content:space-between;
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
     font-size:12.5px; padding: 10px 0; border-bottom: 1px solid var(--line-dim);
   }
   .settings-row:last-child{ border-bottom:none; }
+  .settings-row .label{ text-align:left; }
   .settings-row .label small{ display:block; color: var(--phosphor-dim); font-size:10.5px; margin-top:2px; }
   .toggle{
     width:38px; height:20px; background: var(--line-dim); border-radius:10px;
@@ -416,7 +417,7 @@
   .toggle.on::after{ left:20px; }
   select.settings-select{
     background: var(--void); border:1px solid var(--line-dim); color:var(--phosphor);
-    font-family:inherit; font-size:12px; padding:6px 8px;
+    font-family:inherit; font-size:12px; padding:6px 8px; flex-shrink:0;
   }
 
   /* ===================== ARCHIVE MAIN SITE ===================== */
@@ -431,6 +432,20 @@
     font-family: 'Courier New', monospace;
   }
   #archive-site.active{ display:block; }
+
+  /* weather / particle background canvas — sits above the bg, below content */
+  #fx{
+    position:fixed; inset:0;
+    z-index:1;
+    pointer-events:none;
+  }
+  .arc-header,
+  .arc-hero,
+  .arc-grid,
+  .arc-footer{
+    position:relative;
+    z-index:2;
+  }
 
   .arc-header{
     display:flex;
@@ -458,6 +473,12 @@
     background-clip: text;
     color: transparent;
     filter: drop-shadow(0 0 18px var(--arc-glow-ring));
+  }
+  .arc-logo span{
+    background: linear-gradient(120deg, var(--arc-fg-bright) 0%, var(--arc-fg-mid) 55%, var(--arc-fg-dim) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   .arc-nav{ display:flex; gap:28px; font-size:13px; font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; }
@@ -629,15 +650,6 @@
     color: var(--arc-fg);
     letter-spacing: 0;
   }
-  .tile-caption .tile-genre{
-    display:block;
-    font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
-    font-size: 10.5px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--arc-fg-dim);
-    margin-top: 2px;
-  }
 
   .arc-footer{
     text-align:center;
@@ -770,7 +782,7 @@
 <body>
 
 <!-- ============ EDUCATIONAL DISGUISE SITE ============ -->
-<div id="edu-site">
+<div id="edu-site" style="display: none;">
   <div class="edu-topbar">
     <span>Fairview Unified School District</span>
     <span>Student &amp; Family Portal</span>
@@ -871,16 +883,10 @@
 </div>
 
 <!-- ============ REAL SITE ============ -->
-<div id="archive-site">
+<div id="archive-site" class="active">
   <header class="arc-header">
     <div class="arc-logo">THE <span>ARCHIVE</span></div>
     <nav class="arc-nav">
-      <a href="#" class="active">All</a>
-      <a href="#">Arcade</a>
-      <a href="#">Shooter</a>
-      <a href="#">Puzzle</a>
-      <a href="#">Sports</a>
-      <a href="#">Retro</a>
       <a href="#" id="settings-btn">Settings</a>
     </nav>
   </header>
@@ -921,6 +927,47 @@
         </div>
 
         <div class="settings-group">
+          <h4>Tab Cloak</h4>
+          <div class="settings-row">
+            <span class="label">Open games in a cloaked tab<small>Instead of the popup</small></span>
+            <select class="settings-select" id="cloak-select">
+              <option value="off">Off</option>
+              <option value="blank">about:blank</option>
+              <option value="blob">blob URL</option>
+              <option value="classroom">Google Classroom</option>
+              <option value="docs">Google Docs</option>
+              <option value="canvas">Canvas</option>
+              <option value="wikipedia">Wikipedia</option>
+              <option value="disguise">School Portal</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h4>Background FX</h4>
+          <div class="settings-row">
+            <span class="label">Weather / particles<small>All react to your cursor</small></span>
+            <select class="settings-select" id="fx-select">
+              <option value="off">Off</option>
+              <option value="rain">Rain</option>
+              <option value="snow">Snow</option>
+              <option value="matrix">Matrix</option>
+              <option value="stars">Stars</option>
+              <option value="constellations">Constellations</option>
+              <option value="particles">Particles</option>
+            </select>
+          </div>
+          <div class="settings-row">
+            <span class="label">Density<small>Amount of particles</small></span>
+            <select class="settings-select" id="fx-density">
+              <option value="0.5">Low</option>
+              <option value="1" selected>Normal</option>
+              <option value="1.8">High</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-group">
           <h4>Layout</h4>
           <div class="settings-row">
             <span class="label">Grid size<small>Adjust tile density</small></span>
@@ -952,8 +999,212 @@
   </div>
 </div>
 
+<!-- ============ BACKGROUND FX CANVAS ============ -->
+<canvas id="fx"></canvas>
+
 <script>
 (function(){
+  /* ============================ BACKGROUND FX ============================ */
+  (function fx(){
+    const cv = document.getElementById('fx');
+    const ctx = cv.getContext('2d');
+    let W = 0, H = 0, DPR = 1;
+    let mode = 'off', density = 1;
+    let parts = [], drops = [], flakes = [], cols = [], stars = [];
+    let running = false, raf = 0, last = 0;
+    const mouse = { x: -9999, y: -9999, vx: 0, vy: 0, px: -9999, py: -9999, active: false };
+    const GLYPHS = 'アィウェエオカキクケコサシスセソタチツテトナニヌネノ01ABCDEF'.split('');
+
+    function hexToRgb(h){
+      h = (h || '').replace('#', '');
+      if (h.length === 3) h = h.split('').map(c => c + c).join('');
+      const n = parseInt(h || 'b8f4e0', 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    function getColor(){
+      const cs = getComputedStyle(document.documentElement);
+      return cs.getPropertyValue('--phosphor').trim() || '#b8f4e0';
+    }
+    function count(base){
+      return Math.max(8, Math.round(base * density * (W * H) / 1200000));
+    }
+    function build(){
+      parts = []; drops = []; flakes = []; cols = []; stars = [];
+      if (mode === 'stars' || mode === 'constellations'){
+        const n = Math.min(count(mode === 'constellations' ? 260 : 500), 900);
+        for (let i = 0; i < n; i++){
+          stars.push({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.2 + 0.3, tw: Math.random() * Math.PI * 2, sp: Math.random() * 0.02 + 0.006 });
+        }
+      } else if (mode === 'rain'){
+        const n = count(300);
+        for (let i = 0; i < n; i++){
+          drops.push({ x: Math.random() * W, y: Math.random() * H, l: 8 + Math.random() * 14, s: 9 + Math.random() * 7 });
+        }
+      } else if (mode === 'snow'){
+        const n = count(220);
+        for (let i = 0; i < n; i++){
+          flakes.push({ x: Math.random() * W, y: Math.random() * H, r: 1 + Math.random() * 2.5, vy: 0.4 + Math.random() * 0.9, sw: 0.01 + Math.random() * 0.02, ph: Math.random() * Math.PI * 2 });
+        }
+      } else if (mode === 'matrix'){
+        const size = 14;
+        const ncol = Math.ceil(W / size);
+        for (let i = 0; i < ncol; i++){
+          cols.push({ x: i * size, y: Math.random() * H, sp: 0.12 + Math.random() * 0.35 });
+        }
+      } else if (mode === 'particles'){
+        const n = count(500);
+        for (let i = 0; i < n; i++){
+          parts.push({ x: Math.random() * W, y: Math.random() * H, r: 1 + Math.random() * 2.2, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4 });
+        }
+      }
+    }
+
+    function tick(now){
+      if (!running) return;
+      const dt = Math.min(50, now - last); last = now;
+      const rgb = hexToRgb(getColor());
+      const A = (o) => 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + o + ')';
+      const R = 130;
+      ctx.clearRect(0, 0, W, H);
+
+      if (mode === 'rain'){
+        ctx.strokeStyle = A(0.45); ctx.lineWidth = 1;
+        for (const d of drops){
+          if (mouse.active){
+            const dx = d.x - mouse.x, dy = d.y - mouse.y, dist = Math.hypot(dx, dy);
+            if (dist < R && dist > 0.001){
+              const f = (R - dist) / R;
+              d.x += (dx / dist) * f * 7;
+              d.y += (dy / dist) * f * 7 - 2;
+            }
+          }
+          d.y += d.s * (dt / 16.7);
+          d.x -= d.s * 0.25;
+          ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x + 1.5, d.y - d.l); ctx.stroke();
+          if (d.y > H + d.l){ d.y = -d.l - 20; d.x = Math.random() * W; }
+        }
+      } else if (mode === 'snow'){
+        for (const f of flakes){
+          f.ph += f.sw * (dt / 16.7);
+          let wind = mouse.vx * 0.04;
+          if (mouse.active){
+            const dx = f.x - mouse.x, dy = f.y - mouse.y, dist = Math.hypot(dx, dy);
+            if (dist < R){
+              const k = (R - dist) / R;
+              wind += (dx / dist) * k * 2.2;
+              f.y += (dy / dist) * k * 1.2;
+            }
+          }
+          f.x += Math.sin(f.ph) * 0.8 + wind;
+          f.y += f.vy * (dt / 16.7);
+          if (f.y > H + 4){ f.y = -4; f.x = Math.random() * W; }
+          if (f.x < -6) f.x = W + 6; if (f.x > W + 6) f.x = -6;
+          ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.2832); ctx.fillStyle = A(0.85); ctx.fill();
+        }
+      } else if (mode === 'matrix'){
+        ctx.fillStyle = 'rgba(5,7,10,0.85)'; ctx.fillRect(0, 0, W, H);
+        ctx.font = '14px monospace';
+        for (const c of cols){
+          ctx.fillStyle = A(0.5);
+          ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], c.x, c.y);
+          ctx.fillStyle = A(1);
+          ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], c.x, c.y - 14);
+          c.y += c.sp * (dt / 16.7);
+          if (mouse.active && Math.abs(c.x - mouse.x) < R){
+            c.y += ((R - Math.abs(c.x - mouse.x)) / R) * 1.5;
+          }
+          if (c.y > H + 40) c.y = -40;
+        }
+      } else if (mode === 'stars' || mode === 'constellations'){
+        for (const s of stars){
+          s.tw += s.sp * (dt / 16.7);
+          const tw = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(s.tw));
+          let r = s.r;
+          if (mouse.active){
+            const d = Math.hypot(s.x - mouse.x, s.y - mouse.y);
+            if (d < R) r += (R - d) / R * 1.6;
+          }
+          ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, 6.2832); ctx.fillStyle = A(tw); ctx.fill();
+        }
+        if (mode === 'constellations'){
+          ctx.lineWidth = 0.6;
+          for (let i = 0; i < stars.length; i++){
+            const s = stars[i];
+            let links = 0;
+            for (let j = i + 1; j < stars.length && links < 3; j++){
+              const o = stars[j];
+              const dx = s.x - o.x, dy = s.y - o.y;
+              if (dx * dx + dy * dy < 70 * 70){
+                let alpha = 0.12;
+                if (mouse.active){
+                  const dm = Math.hypot((s.x + o.x) / 2 - mouse.x, (s.y + o.y) / 2 - mouse.y);
+                  if (dm < R) alpha += (R - dm) / R * 0.45;
+                }
+                ctx.strokeStyle = A(alpha);
+                ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(o.x, o.y); ctx.stroke();
+                links++;
+              }
+            }
+          }
+        }
+      } else if (mode === 'particles'){
+        for (const p of parts){
+          if (mouse.active){
+            const dx = p.x - mouse.x, dy = p.y - mouse.y, dist = Math.hypot(dx, dy);
+            if (dist < R && dist > 1){
+              const f = ((R - dist) / R) * 0.14;
+              p.vx += (dx / dist) * f;
+              p.vy += (dy / dist) * f;
+            }
+          }
+          p.x += p.vx * (dt / 16.7);
+          p.y += p.vy * (dt / 16.7);
+          p.vx *= 0.99; p.vy *= 0.99;
+          if (p.x < -4) p.x = W + 4; if (p.x > W + 4) p.x = -4;
+          if (p.y < -4) p.y = H + 4; if (p.y > H + 4) p.y = -4;
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fillStyle = A(0.7); ctx.fill();
+        }
+      }
+
+      if (mouse.active && mode !== 'off' && mode !== 'matrix'){
+        const g = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, R);
+        g.addColorStop(0, A(0.16)); g.addColorStop(1, A(0));
+        ctx.fillStyle = g;
+        ctx.fillRect(mouse.x - R, mouse.y - R, R * 2, R * 2);
+      }
+      raf = requestAnimationFrame(tick);
+    }
+
+    function start(){ if (running) return; running = true; last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(tick); }
+    function stop(){ running = false; cancelAnimationFrame(raf); }
+    function setMode(m){ mode = m; build(); if (mode === 'off') stop(); else start(); }
+    function setDensity(d){ density = d; build(); }
+
+    function resize(){
+      DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+      W = window.innerWidth; H = window.innerHeight;
+      cv.width = W * DPR; cv.height = H * DPR;
+      cv.style.width = W + 'px'; cv.style.height = H + 'px';
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      build();
+    }
+
+    window.addEventListener('resize', resize);
+    window.addEventListener('mousemove', (e) => {
+      mouse.vx = e.clientX - mouse.px; mouse.vy = e.clientY - mouse.py;
+      mouse.px = e.clientX; mouse.py = e.clientY;
+      mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true;
+    }, { passive: true });
+    window.addEventListener('mouseout', () => { mouse.active = false; });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop(); else if (mode !== 'off') start();
+    });
+
+    resize();
+    window.__fx = { setMode, setDensity };
+  })();
+
+  /* ============================ MAIN SITE ============================ */
   const eduSite = document.getElementById('edu-site');
   const archiveRoot = document.getElementById('archive-root');
   const archiveSite = document.getElementById('archive-site');
@@ -961,27 +1212,32 @@
   const grid = document.getElementById('game-grid');
 
   const TRIGGER_KEY = 'e';
-  let activated = false;
+  let activated = archiveSite.classList.contains('active');
 
-  const state = {
-    fullscreenOnPlay: false,
-    confirmBeforeClose: false,
-    reduceMotion: false,
-  };
-
-  // ---- Tab cloaking ----
   const DISGUISE_TITLE = 'Fairview Unified — Digital Learning Portal';
   const ARCHIVE_TITLE = 'The Archive';
-  const EDU_FAVICON = './g/assets/favicon-96x96.png';
-  const ARC_FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305070a'/%3E%3Cpath d='M21 43 32 19l11 24' stroke='%23b8f4e0' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M25 36h14' stroke='%23b8f4e0' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E";
 
   const iconLinks = Array.from(document.querySelectorAll('link[rel*="icon"], link[rel="shortcut icon"]'));
+  const EDU_FAVICON = (document.querySelector('link[rel="shortcut icon"]') || {}).href
+    || new URL('./g/assets/favicon-96x96.png', location.href).href;
+  const ARC_FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305070a'/%3E%3Cpath d='M21 43 32 19l11 24' stroke='%23b8f4e0' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M25 36h14' stroke='%23b8f4e0' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E";
+
   function setFavicon(href){
-    iconLinks.forEach(l => {
-      if (l.getAttribute('href') !== href) l.setAttribute('href', href);
-    });
+    iconLinks.forEach(l => { if (l.getAttribute('href') !== href) l.setAttribute('href', href); });
   }
 
+  // ---- settings persistence ----
+  const SKEY = 'thevault.settings';
+  const DEFAULTS = {
+    theme: 'default', cloak: 'off', fx: 'off', fxDensity: 1,
+    gridSize: 180, fullscreenOnPlay: false, confirmBeforeClose: false, reduceMotion: false,
+  };
+  let state;
+  try { state = Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(SKEY) || '{}')); }
+  catch (e) { state = Object.assign({}, DEFAULTS); }
+  function save(){ try { localStorage.setItem(SKEY, JSON.stringify(state)); } catch (e) {} }
+
+  // ---- tab cloaking (title/favicon swap on blur) ----
   let tabHidden = false;
   function updateCloak(){
     if (tabHidden){
@@ -999,14 +1255,14 @@
     updateCloak();
   });
 
-  // Placeholder game tiles — replace hrefs with real embeds later
+  // ---- games ----
   const games = [
-    { tag:'Arcade',   name:'Slope',        desc:'Endless downhill runner. One wrong move ends it.', file:'./g/slope.html', icon:'./g/assets/slope.png' },
-    { tag:'Shooter',  name:'1v1.LOL',      desc:'Build, fight, survive. Classic browser battler.', file:'./g/1v1.lol.html', icon:'./g/assets/1v1.lol.png' },
-    { tag:'Sports',   name:'Basket Bros',  desc:'Fast 1v1 basketball with ragdoll physics.', file:'./g/basket-bros.html', icon:'./g/assets/basket-bros.png' },
-    { tag:'Arcade',   name:'Moto X3M',     desc:'Bike stunts across explosive obstacle courses.', file:'./g/moto-x3m.html', icon:'./g/assets/moto-x3m.png' },
-    { tag:'Puzzle',   name:'Cookie Clicker', desc:'Click. Upgrade. Repeat until the universe ends.', file:'./g/cookie-clicker.html', icon:'./g/assets/cookie-clicker.png' },
-    { tag:'Arcade',   name:'Escape Road City 2', desc:'Escape Road City 2 is the sequel to the popular Escape Road City game, but with a unique twist. With a lot of new added features, this racing game promises to bring players an extremely satisfying and interesting experience. ', file:'./g/escape-road-city-2.html', icon:'./g/assets/escape-road-city-2.png' },
+    { tag:'Arcade',   name:'Slope',             file:'./g/slope.html',             icon:'./g/assets/slope.png' },
+    { tag:'Shooter',  name:'1v1.LOL',           file:'./g/1v1.lol.html',           icon:'./g/assets/1v1.lol.png' },
+    { tag:'Sports',   name:'Basket Bros',       file:'./g/basket-bros.html',       icon:'./g/assets/basket-bros.png' },
+    { tag:'Arcade',   name:'Moto X3M',          file:'./g/moto-x3m.html',          icon:'./g/assets/moto-x3m.png' },
+    { tag:'Puzzle',   name:'Cookie Clicker',    file:'./g/cookie-clicker.html',    icon:'./g/assets/cookie-clicker.png' },
+    { tag:'Arcade',   name:'Escape Road City 2', file:'./g/escape-road-city-2.html', icon:'./g/assets/escape-road-city-2.png' },
   ];
 
   function renderGrid(){
@@ -1022,7 +1278,6 @@
         </div>
         <div class="tile-caption">
           <span class="tile-name">${g.name}</span>
-          <span class="tile-genre">${g.tag}</span>
         </div>
       </div>
     `).join('');
@@ -1033,16 +1288,47 @@
       tile.addEventListener('keydown', (e) => { if (e.key === 'Enter') open(); });
     });
     grid.querySelectorAll('.tile-play-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        openGame(games[btn.dataset.index]);
-      });
+      btn.addEventListener('click', (e) => { e.stopPropagation(); openGame(games[btn.dataset.index]); });
     });
   }
   renderGrid();
 
-  // ---- Game popup modal ----
+  // ---- cloaked new-tab profiles ----
+  const CLOAKS = {
+    blank:     { title: '',                      favicon: '' },
+    blob:      { title: '',                      favicon: '' },
+    classroom: { title: 'Classes',               favicon: 'https://ssl.gstatic.com/classroom/ic_product_classroom_32.png' },
+    docs:      { title: 'Google Docs',           favicon: 'https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico' },
+    canvas:    { title: 'Dashboard',             favicon: 'https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon.ico' },
+    wikipedia: { title: 'Wikipedia',             favicon: 'https://en.wikipedia.org/static/favicon/wikipedia.ico' },
+    disguise:  { title: DISGUISE_TITLE,          favicon: EDU_FAVICON },
+  };
+
+  function openCloakedTab(game){
+    const cfg = CLOAKS[state.cloak];
+    const absFile = new URL(game.file, location.href).href;
+    const page =
+      '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+      '<title>' + cfg.title + '</title>' +
+      (cfg.favicon ? '<link rel="icon" href="' + cfg.favicon + '">' : '') +
+      '<style>html,body{margin:0;height:100%;overflow:hidden;background:#000}iframe{width:100%;height:100%;border:0;display:block}</style>' +
+      '</head><body><iframe src="' + absFile + '" allow="fullscreen; gamepad; autoplay" allowfullscreen></iframe></body></html>';
+    if (state.cloak === 'blob'){
+      const url = URL.createObjectURL(new Blob([page], { type: 'text/html' }));
+      window.open(url, '_blank');
+    } else {
+      const win = window.open('about:blank', '_blank');
+      if (!win) return;
+      win.document.open();
+      win.document.write(page);
+      win.document.close();
+    }
+  }
+
+  // ---- game popup modal ----
   function openGame(game){
+    if (state.cloak !== 'off'){ openCloakedTab(game); return; }
+
     const scrim = document.createElement('div');
     scrim.className = 'game-scrim';
     scrim.innerHTML = `
@@ -1069,19 +1355,16 @@
     const exitFullscreen = () => {
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     };
-
     const close = () => {
       if (state.confirmBeforeClose && !window.confirm('Exit this game?')) return;
       exitFullscreen();
       scrim.classList.remove('open');
       setTimeout(() => scrim.remove(), 200);
     };
-
     const toggleFullscreen = () => {
       if (document.fullscreenElement) exitFullscreen();
       else if (modal.requestFullscreen) modal.requestFullscreen().catch(() => {});
     };
-
     const syncFsLabel = () => {
       fsBtn.textContent = document.fullscreenElement ? '⤢ exit full' : '⛶ full';
     };
@@ -1119,7 +1402,6 @@
     activated = true;
     updateCloak();
 
-    // quick flash transition
     flash.style.transition = 'opacity 0.15s ease';
     flash.style.opacity = '1';
 
@@ -1129,7 +1411,6 @@
       archiveRoot.classList.add('active');
       archiveRoot.setAttribute('aria-hidden', 'false');
 
-      // after loader animation completes, reveal the real site
       setTimeout(() => {
         archiveRoot.classList.remove('active');
         archiveSite.classList.add('active');
@@ -1139,9 +1420,7 @@
 
   window.addEventListener('keydown', (e) => {
     if (activated) return;
-    if (e.key && e.key.toLowerCase() === TRIGGER_KEY) {
-      activateArchive();
-    }
+    if (e.key && e.key.toLowerCase() === TRIGGER_KEY) activateArchive();
   });
 
   // ---- Settings panel ----
@@ -1149,6 +1428,9 @@
   const settingsOverlay = document.getElementById('settings-overlay');
   const settingsClose = document.getElementById('settings-close');
   const themeRow = document.getElementById('theme-row');
+  const cloakSelect = document.getElementById('cloak-select');
+  const fxSelect = document.getElementById('fx-select');
+  const fxDensity = document.getElementById('fx-density');
   const gridSizeSelect = document.getElementById('grid-size-select');
   const toggleFullscreen = document.getElementById('toggle-fullscreen');
   const toggleConfirmClose = document.getElementById('toggle-confirm-close');
@@ -1170,43 +1452,70 @@
     if (e.target === settingsOverlay) settingsOverlay.classList.remove('active');
   });
 
-  // themes apply to <html> so they cascade to the whole document
+  function applyTheme(){
+    if (state.theme === 'default') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', state.theme);
+    themeRow.querySelectorAll('.theme-swatch').forEach(s =>
+      s.classList.toggle('selected', s.dataset.theme === state.theme));
+  }
   themeRow.querySelectorAll('.theme-swatch').forEach(swatch => {
     swatch.addEventListener('click', () => {
-      themeRow.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('selected'));
-      swatch.classList.add('selected');
-      const theme = swatch.dataset.theme;
-      if (theme === 'default'){
-        document.documentElement.removeAttribute('data-theme');
-      } else {
-        document.documentElement.setAttribute('data-theme', theme);
-      }
+      state.theme = swatch.dataset.theme;
+      applyTheme();
+      save();
     });
   });
 
+  cloakSelect.value = state.cloak;
+  cloakSelect.addEventListener('change', () => { state.cloak = cloakSelect.value; save(); });
+
+  function applyFx(){
+    fxSelect.value = state.fx;
+    fxDensity.value = String(state.fxDensity);
+    window.__fx.setDensity(state.fxDensity);
+    if (state.reduceMotion) window.__fx.setMode('off');
+    else window.__fx.setMode(state.fx);
+  }
+  fxSelect.addEventListener('change', () => { state.fx = fxSelect.value; save(); applyFx(); });
+  fxDensity.addEventListener('change', () => { state.fxDensity = parseFloat(fxDensity.value) || 1; save(); applyFx(); });
+
+  gridSizeSelect.value = String(state.gridSize);
+  grid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${state.gridSize}px, 1fr))`;
   gridSizeSelect.addEventListener('change', () => {
-    document.getElementById('game-grid').style.gridTemplateColumns =
-      `repeat(auto-fill, minmax(${gridSizeSelect.value}px, 1fr))`;
+    state.gridSize = parseInt(gridSizeSelect.value, 10);
+    grid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${state.gridSize}px, 1fr))`;
+    save();
   });
 
   function bindToggle(el, key){
+    el.classList.toggle('on', !!state[key]);
     el.addEventListener('click', () => {
       state[key] = !state[key];
       el.classList.toggle('on', state[key]);
+      save();
     });
   }
   bindToggle(toggleFullscreen, 'fullscreenOnPlay');
   bindToggle(toggleConfirmClose, 'confirmBeforeClose');
+
+  toggleReduceMotion.classList.toggle('on', !!state.reduceMotion);
   toggleReduceMotion.addEventListener('click', () => {
     state.reduceMotion = !state.reduceMotion;
     toggleReduceMotion.classList.toggle('on', state.reduceMotion);
     document.body.classList.toggle('reduce-motion', state.reduceMotion);
+    save();
+    applyFx();
   });
 
-  // mobile fallback: no physical keyboard, so 5 quick taps on the crest triggers it
+  // init
+  applyTheme();
+  applyFx();
+  document.body.classList.toggle('reduce-motion', state.reduceMotion);
+  updateCloak();
+
+  // mobile fallback: 5 quick taps on the crest triggers it
   const crest = document.querySelector('.edu-crest');
-  let tapCount = 0;
-  let tapTimer = null;
+  let tapCount = 0, tapTimer = null;
   if (crest){
     crest.addEventListener('touchstart', () => {
       tapCount++;
@@ -1218,5 +1527,4 @@
 })();
 </script>
 
-</body>
-</html>
+</body></html>
