@@ -242,11 +242,11 @@
   }
 
   .loader-text{
-    font-family: 'Courier New', monospace;
-    font-size: clamp(38px, 8vw, 96px);
-    letter-spacing: 0.06em;
+    font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    font-size: clamp(38px, 8vw, 80px);
+    font-weight: 800;
+    letter-spacing: -0.01em;
     position:relative;
-    text-transform:uppercase;
     opacity: 0;
     background: linear-gradient(120deg, #ffffff 0%, #9a9a9a 50%, #333333 100%);
     -webkit-background-clip: text;
@@ -310,6 +310,79 @@
     to{ width:100%; }
   }
 
+  /* ===================== SETTINGS PANEL ===================== */
+  #settings-overlay{
+    position:fixed; inset:0;
+    background: rgba(5,7,10,0.85);
+    z-index:9996;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding: 20px;
+  }
+  #settings-overlay.active{ display:flex; }
+  .settings-panel{
+    background: var(--void-2);
+    border: 1px solid var(--line-dim);
+    width: min(420px, 100%);
+    max-height: 80vh;
+    overflow-y:auto;
+    font-family: 'Courier New', monospace;
+    color: var(--phosphor);
+  }
+  .settings-header{
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--line-dim);
+    font-size:13px; letter-spacing:0.08em; text-transform:uppercase;
+  }
+  .settings-header button{
+    background:transparent; border:1px solid var(--line-dim); color:var(--phosphor);
+    font-family:inherit; font-size:11px; padding:5px 10px; cursor:pointer;
+  }
+  .settings-body{ padding: 18px 20px; }
+  .settings-group{ margin-bottom: 22px; }
+  .settings-group h4{
+    font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
+    color: var(--phosphor-dim); margin:0 0 10px;
+  }
+  .theme-row{ display:flex; gap:10px; flex-wrap:wrap; }
+  .theme-swatch{
+    width:44px; height:44px; border-radius:10px; cursor:pointer;
+    border: 2px solid transparent;
+  }
+  .theme-swatch.selected{ border-color: #fff; }
+  .settings-row{
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:12.5px; padding: 10px 0; border-bottom: 1px solid var(--line-dim);
+  }
+  .settings-row:last-child{ border-bottom:none; }
+  .settings-row .label small{ display:block; color: var(--phosphor-dim); font-size:10.5px; margin-top:2px; }
+  .toggle{
+    width:38px; height:20px; background: var(--line-dim); border-radius:10px;
+    position:relative; cursor:pointer; flex-shrink:0;
+  }
+  .toggle.on{ background: var(--phosphor-dim); }
+  .toggle::after{
+    content:''; position:absolute; top:2px; left:2px;
+    width:16px; height:16px; border-radius:50%; background:#fff;
+    transition: left 0.15s ease;
+  }
+  .toggle.on::after{ left:20px; }
+  select.settings-select{
+    background: var(--void); border:1px solid var(--line-dim); color:var(--phosphor);
+    font-family:inherit; font-size:12px; padding:6px 8px;
+  }
+
+  /* selectable theme variants, applied to #archive-site via data-theme */
+  #archive-site[data-theme="mono"]{ --phosphor:#f5f5f5; --phosphor-dim:#b0b0b0; --ember:#ffffff; }
+  #archive-site[data-theme="blue"]{ --phosphor:#8fb4ff; --phosphor-dim:#3d7bff; --ember:#3d7bff; }
+  #archive-site[data-theme="teal"]{ --phosphor:#8ff0d4; --phosphor-dim:#2fcf9e; --ember:#2fcf9e; }
+  #archive-site[data-theme="red"]{ --phosphor:#ff9a9a; --phosphor-dim:#ef4444; --ember:#ef4444; }
+  #archive-site[data-theme="amber"]{ --phosphor:#ffcf8a; --phosphor-dim:#f5a623; --ember:#f5a623; }
+  #archive-site[data-theme="purple"]{ --phosphor:#b3a8ff; --phosphor-dim:#6a5cff; --ember:#6a5cff; }
+  #archive-site[data-theme="magenta"]{ --phosphor:#f0a8f0; --phosphor-dim:#d94fd9; --ember:#d94fd9; }
+
   /* ===================== ARCHIVE MAIN SITE ===================== */
   #archive-site{
     display:none;
@@ -332,9 +405,10 @@
     z-index:10;
   }
   .arc-logo{
+    font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
     font-size: 20px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: -0.01em;
     background: linear-gradient(120deg, #ffffff 0%, #8a8a8a 55%, #333333 100%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -347,9 +421,9 @@
     color: transparent;
   }
 
-  .arc-nav{ display:flex; gap:28px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;}
-  .arc-nav a{ color: var(--phosphor-dim); text-decoration:none; transition:color 0.2s; }
-  .arc-nav a:hover, .arc-nav a.active{ color: var(--phosphor); }
+  .arc-nav{ display:flex; gap:28px; font-size:13px; font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; }
+  .arc-nav a{ color: #9a9a9a; text-decoration:none; transition:color 0.2s; }
+  .arc-nav a:hover, .arc-nav a.active{ color: #fff; }
 
   .arc-hero{
     padding: 70px 40px 40px;
@@ -358,116 +432,91 @@
     text-align:center;
   }
   .arc-hero h1{
-    font-size: clamp(28px, 5vw, 46px);
-    letter-spacing:0.04em;
-    margin:0 0 14px;
-    background: linear-gradient(120deg, #ffffff 0%, #8a8a8a 50%, #2a2a2a 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    font-size: clamp(32px, 6vw, 52px);
+    font-weight: 800;
+    letter-spacing:-0.01em;
+    margin:0 0 24px;
+    color: #fff;
   }
 
   .arc-search{
-    margin: 30px auto 0;
+    margin: 0 auto;
     max-width: 480px;
     display:flex;
-    border: 1px solid var(--line-dim);
-    background: var(--void-2);
+    border-radius: 6px;
+    background: #fff;
+    overflow:hidden;
   }
   .arc-search input{
     flex:1;
     background:transparent;
     border:none;
     outline:none;
-    color: var(--phosphor);
-    font-family: inherit;
-    padding: 12px 14px;
+    color: #111;
+    font-family: -apple-system, Arial, sans-serif;
+    padding: 13px 16px;
     font-size:13px;
   }
   .arc-search button{
-    background: var(--phosphor-dim);
-    color: var(--void);
+    background: #e4e4e4;
+    color: #111;
     border:none;
     padding: 0 20px;
     font-family: inherit;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    font-size:11px;
+    letter-spacing:0.04em;
+    font-size:12px;
     cursor:pointer;
   }
-  .arc-search button:hover{ background: var(--phosphor); }
+  .arc-search button:hover{ background: #d4d4d4; }
 
   .arc-grid{
     max-width: 1100px;
     margin: 40px auto 80px;
     padding: 0 40px;
     display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 24px 20px;
   }
   .arc-tile{
-    background: var(--void-2);
-    border: 1px solid var(--line-dim);
+    background: transparent;
+    border:none;
     cursor:pointer;
-    transition: border-color 0.2s, transform 0.2s;
+    transition: transform 0.15s ease;
     position:relative;
-    aspect-ratio: 1 / 1;
-    overflow:hidden;
     padding:0;
   }
   .arc-tile:hover{
-    border-color: var(--phosphor-dim);
     transform: translateY(-2px);
   }
   .arc-tile .tile-icon{
     width: 100%;
-    height: 100%;
+    aspect-ratio: 1 / 1;
     object-fit: cover;
-    border:none;
-    margin:0;
+    border-radius: 6px;
     display:block;
     image-rendering: pixelated;
   }
-  .arc-tile .tag{ display:none; }
-  .arc-tile p{ display:none; }
-  .arc-tile h3{ display:none; }
-
-  .tile-overlay{
-    position:absolute; inset:0;
-    background: rgba(5,7,10,0.82);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:12px;
-    opacity:0;
-    transition: opacity 0.2s ease;
-    padding: 10px;
-    text-align:center;
+  .tile-caption{
+    padding-top: 8px;
   }
-  .arc-tile:hover .tile-overlay,
-  .arc-tile:focus .tile-overlay{
-    opacity:1;
+  .tile-caption .tile-name{
+    display:block;
+    font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #f0f0f0;
+    letter-spacing: 0;
   }
-  .tile-overlay .tile-name{
-    font-size:13px;
-    text-transform:uppercase;
-    letter-spacing:0.05em;
-    color: var(--phosphor);
-    font-family: 'Courier New', monospace;
+  .tile-caption .tile-genre{
+    display:block;
+    font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #7a7a7a;
+    margin-top: 2px;
   }
-  .tile-overlay .tile-play{
-    background: var(--phosphor-dim);
-    color: var(--void);
-    border:none;
-    font-family: 'Courier New', monospace;
-    font-size:11px;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    padding: 8px 16px;
-    cursor:pointer;
-  }
-  .tile-overlay .tile-play:hover{ background: var(--phosphor); }
 
   .arc-footer{
     text-align:center;
@@ -506,6 +555,11 @@
   @media (hover: none){
     .arc-tile:hover{ transform:none; }
     .edu-nav a:hover{ background:transparent; border-bottom-color:transparent; }
+  }
+
+  body.reduce-motion *{
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -628,6 +682,7 @@
       <a href="#">Puzzle</a>
       <a href="#">Sports</a>
       <a href="#">Retro</a>
+      <a href="#" id="settings-btn">Settings</a>
     </nav>
   </header>
 
@@ -644,6 +699,58 @@
   </section>
 
   <footer class="arc-footer">THE ARCHIVE — this device leaves no logs</footer>
+
+  <div id="settings-overlay">
+    <div class="settings-panel">
+      <div class="settings-header">
+        <span>Settings</span>
+        <button id="settings-close">close [esc]</button>
+      </div>
+      <div class="settings-body">
+        <div class="settings-group">
+          <h4>Theme</h4>
+          <div class="theme-row" id="theme-row">
+            <div class="theme-swatch selected" data-theme="default" style="background:#0a0a0a; border-color:#3a3a3a;" title="Black"></div>
+            <div class="theme-swatch" data-theme="mono" style="background:#e8e8e8;" title="White"></div>
+            <div class="theme-swatch" data-theme="blue" style="background:#3d7bff;" title="Blue"></div>
+            <div class="theme-swatch" data-theme="teal" style="background:#2fcf9e;" title="Teal"></div>
+            <div class="theme-swatch" data-theme="red" style="background:#ef4444;" title="Red"></div>
+            <div class="theme-swatch" data-theme="amber" style="background:#f5a623;" title="Orange"></div>
+            <div class="theme-swatch" data-theme="purple" style="background:#6a5cff;" title="Purple"></div>
+            <div class="theme-swatch" data-theme="magenta" style="background:#d94fd9;" title="Magenta"></div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h4>Layout</h4>
+          <div class="settings-row">
+            <span class="label">Grid size<small>Adjust tile density</small></span>
+            <select class="settings-select" id="grid-size-select">
+              <option value="140">Compact</option>
+              <option value="180" selected>Default</option>
+              <option value="220">Large</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h4>Behavior</h4>
+          <div class="settings-row">
+            <span class="label">Fullscreen on play<small>Auto-expand game window</small></span>
+            <div class="toggle" id="toggle-fullscreen"></div>
+          </div>
+          <div class="settings-row">
+            <span class="label">Confirm before closing game<small>Ask before exiting a game</small></span>
+            <div class="toggle" id="toggle-confirm-close"></div>
+          </div>
+          <div class="settings-row">
+            <span class="label">Reduce motion<small>Disable hover/transition animations</small></span>
+            <div class="toggle" id="toggle-reduce-motion"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -670,9 +777,9 @@
     grid.innerHTML = games.map((g, i) => `
       <div class="arc-tile" tabindex="0" data-index="${i}">
         <img class="tile-icon" src="${g.icon}" alt="${g.name}" onerror="this.style.display='none'" />
-        <div class="tile-overlay">
+        <div class="tile-caption">
           <span class="tile-name">${g.name}</span>
-          <button class="tile-play" data-index="${i}">Play</button>
+          <span class="tile-genre">${g.tag}</span>
         </div>
       </div>
     `).join('');
@@ -681,12 +788,6 @@
       const open = () => openGame(games[tile.dataset.index]);
       tile.addEventListener('click', open);
       tile.addEventListener('keydown', (e) => { if (e.key === 'Enter') open(); });
-    });
-    grid.querySelectorAll('.tile-play').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        openGame(games[btn.dataset.index]);
-      });
     });
   }
   renderGrid();
@@ -712,7 +813,15 @@
     `;
     document.body.appendChild(overlay);
 
-    const close = () => overlay.remove();
+    if (state.fullscreenOnPlay && overlay.requestFullscreen) {
+      overlay.requestFullscreen().catch(() => {});
+    }
+
+    const close = () => {
+      if (state.confirmBeforeClose && !window.confirm('Exit this game?')) return;
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      overlay.remove();
+    };
     overlay.querySelector('#close-game').addEventListener('click', close);
     const escHandler = (e) => { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', escHandler); } };
     document.addEventListener('keydown', escHandler);
@@ -745,6 +854,73 @@
     if (e.key && e.key.toLowerCase() === TRIGGER_KEY) {
       activateArchive();
     }
+  });
+
+  // ---- Settings panel ----
+  const settingsBtn = document.getElementById('settings-btn');
+  const settingsOverlay = document.getElementById('settings-overlay');
+  const settingsClose = document.getElementById('settings-close');
+  const themeRow = document.getElementById('theme-row');
+  const gridSizeSelect = document.getElementById('grid-size-select');
+  const toggleFullscreen = document.getElementById('toggle-fullscreen');
+  const toggleConfirmClose = document.getElementById('toggle-confirm-close');
+  const toggleReduceMotion = document.getElementById('toggle-reduce-motion');
+
+  const state = {
+    fullscreenOnPlay: false,
+    confirmBeforeClose: false,
+    reduceMotion: false,
+  };
+
+  if (settingsBtn){
+    settingsBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      settingsOverlay.classList.add('active');
+    });
+  }
+  if (settingsClose){
+    settingsClose.addEventListener('click', () => settingsOverlay.classList.remove('active'));
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') settingsOverlay.classList.remove('active');
+  });
+  settingsOverlay.addEventListener('click', (e) => {
+    if (e.target === settingsOverlay) settingsOverlay.classList.remove('active');
+  });
+
+  themeRow.querySelectorAll('.theme-swatch').forEach(swatch => {
+    swatch.addEventListener('click', () => {
+      themeRow.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('selected'));
+      swatch.classList.add('selected');
+      const theme = swatch.dataset.theme;
+      if (theme === 'default') {
+        archiveSite.removeAttribute('data-theme');
+      } else {
+        archiveSite.setAttribute('data-theme', theme);
+      }
+    });
+  });
+
+  gridSizeSelect.addEventListener('change', () => {
+    document.getElementById('game-grid').style.gridTemplateColumns =
+      `repeat(auto-fill, minmax(${gridSizeSelect.value}px, 1fr))`;
+  });
+
+  function bindToggle(el, key){
+    el.addEventListener('click', () => {
+      state[key] = !state[key];
+      el.classList.toggle('on', state[key]);
+    });
+  }
+  bindToggle(toggleFullscreen, 'fullscreenOnPlay');
+  bindToggle(toggleConfirmClose, 'confirmBeforeClose');
+  toggleReduceMotion.addEventListener('click', () => {
+    state.reduceMotion = !state.reduceMotion;
+    toggleReduceMotion.classList.toggle('on', state.reduceMotion);
+    document.documentElement.style.setProperty(
+      '--motion-scale', state.reduceMotion ? '0.01ms' : ''
+    );
+    document.body.classList.toggle('reduce-motion', state.reduceMotion);
   });
 
   // mobile fallback: no physical keyboard, so 5 quick taps on the crest triggers it
