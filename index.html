@@ -4,15 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fairview Unified — Digital Learning Portal</title>
-<link rel="icon" type="image/png" href="https://vaultgamesdevelopment.github.io/thevault.github.io/g/assets/favicon-96x96.png" sizes="96x96">
-<link rel="icon" type="image/svg+xml" href="https://vaultgamesdevelopment.github.io/thevault.github.io/g/assets/favicon.svg">
-<link rel="shortcut icon" href="https://vaultgamesdevelopment.github.io/thevault.github.io/g/assets/favicon.ico">
-<link rel="apple-touch-icon" sizes="180x180" href="https://vaultgamesdevelopment.github.io/thevault.github.io/g/assets/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-title" content="Archive">
-<link rel="manifest" href="https://vaultgamesdevelopment.github.io/thevault.github.io/g/assets/site.webmanifest">
+<link rel="icon" type="image/png" href="./g/assets/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/svg+xml" href="./g/assets/favicon.svg">
+<link rel="shortcut icon" href="./g/assets/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="./g/assets/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Learning Portal">
+<link rel="manifest" href="./g/assets/site.webmanifest">
 <style>
   :root{
-    /* Disguise (educational) palette */
     --edu-bg: #f6f4ee;
     --edu-blue: #1f3a5f;
     --edu-blue-dark: #142842;
@@ -20,7 +19,6 @@
     --edu-ink: #24272b;
     --edu-line: #d8d3c6;
 
-    /* Archive (real) palette */
     --void: #05070a;
     --void-2: #0a0e14;
     --void-header: rgba(5,7,10,0.85);
@@ -29,7 +27,6 @@
     --ember: #ff5c38;
     --line-dim: #1c2530;
 
-    /* theme-aware derived vars (cascade to the whole archive site + modals) */
     --arc-fg-bright: #ffffff;
     --arc-fg: #f0f0f0;
     --arc-fg-mid: #9a9a9a;
@@ -44,7 +41,6 @@
     --arc-glow-ring: rgba(184,244,224,0.10);
   }
 
-  /* theme variants — applied to <html>, cascade everywhere */
   html[data-theme="mono"]{
     --void:#0e0e0e; --void-2:#181818; --void-header:rgba(14,14,14,0.88); --line-dim:#2e2e2e;
     --phosphor:#f5f5f5; --phosphor-dim:#b0b0b0; --ember:#ffffff;
@@ -114,7 +110,6 @@
 
   ::selection{ background: var(--edu-accent); color: #fff; }
 
-  /* ===================== EDU SITE ===================== */
   #edu-site{
     position:relative;
     min-height:100vh;
@@ -260,7 +255,6 @@
     padding: 18px;
   }
 
-  /* subtle hint — barely visible, rewards curious users */
   .edu-hint{
     position:fixed;
     bottom:10px;
@@ -273,7 +267,6 @@
     user-select:none;
   }
 
-  /* ===================== TRANSITION FLASH ===================== */
   #flash{
     position:fixed; inset:0;
     background:#eef4f0;
@@ -282,7 +275,6 @@
     z-index:9998;
   }
 
-  /* ===================== LOADER (THE ARCHIVE) ===================== */
   #archive-root{
     position:fixed;
     inset:0;
@@ -329,7 +321,6 @@
     8%{ opacity:1; }
     100%{ opacity:1; transform: scale(1); }
   }
-  /* the bloom — animated filter, works in all modern browsers */
   @keyframes text-bloom{
     0%{ filter: blur(4px) drop-shadow(0 0 0 rgba(255,255,255,0)); }
     15%{ filter: blur(1px) drop-shadow(0 0 12px rgba(255,255,255,0.8)) drop-shadow(0 0 30px rgba(255,255,255,0.4)); }
@@ -353,7 +344,6 @@
     to{ opacity:1; transform: translateY(0); }
   }
 
-  /* ===================== SETTINGS PANEL ===================== */
   #settings-overlay{
     position:fixed; inset:0;
     background: var(--void-header);
@@ -428,7 +418,6 @@
     font-family:inherit; font-size:12px; padding:6px 8px; flex-shrink:0;
   }
 
-  /* ===================== ARCHIVE MAIN SITE ===================== */
   #archive-site{
     display:none;
     min-height:100vh;
@@ -441,7 +430,6 @@
   }
   #archive-site.active{ display:block; }
 
-  /* weather / particle background canvas — sits above the bg, below content */
   #fx{
     position:fixed; inset:0;
     z-index:1;
@@ -669,7 +657,6 @@
     animation: fade-in 0.8s ease 0.3s backwards;
   }
 
-  /* ===================== GAME MODAL (popup) ===================== */
   .game-scrim{
     position:fixed; inset:0; z-index:9997;
     background: rgba(0,0,0,0.72);
@@ -789,8 +776,7 @@
 </head>
 <body>
 
-<!-- ============ EDUCATIONAL DISGUISE SITE ============ -->
-<div id="edu-site" style="display: none;">
+<div id="edu-site">
   <div class="edu-topbar">
     <span>Fairview Unified School District</span>
     <span>Student &amp; Family Portal</span>
@@ -881,7 +867,6 @@
 
 <div id="flash"></div>
 
-<!-- ============ LOADER ============ -->
 <div id="archive-root" aria-hidden="true">
   <div class="loader-wrap">
     <div class="loader-noise"></div>
@@ -890,8 +875,7 @@
   </div>
 </div>
 
-<!-- ============ REAL SITE ============ -->
-<div id="archive-site" class="active">
+<div id="archive-site">
   <header class="arc-header">
     <div class="arc-logo">THE <span>ARCHIVE</span></div>
     <nav class="arc-nav">
@@ -907,9 +891,7 @@
     </div>
   </section>
 
-  <section class="arc-grid" id="game-grid">
-    <!-- game tiles populate here -->
-  </section>
+  <section class="arc-grid" id="game-grid"></section>
 
   <footer class="arc-footer">THE ARCHIVE — this device leaves no logs</footer>
 
@@ -931,23 +913,6 @@
             <div class="theme-swatch" data-theme="amber" style="background:#f5a623;" title="Orange"></div>
             <div class="theme-swatch" data-theme="purple" style="background:#6a5cff;" title="Purple"></div>
             <div class="theme-swatch" data-theme="magenta" style="background:#d94fd9;" title="Magenta"></div>
-          </div>
-        </div>
-
-        <div class="settings-group">
-          <h4>Tab Cloak</h4>
-          <div class="settings-row">
-            <span class="label">Open games in a cloaked tab<small>Instead of the popup</small></span>
-            <select class="settings-select" id="cloak-select">
-              <option value="off">Off</option>
-              <option value="blank">about:blank</option>
-              <option value="blob">blob URL</option>
-              <option value="classroom">Google Classroom</option>
-              <option value="docs">Google Docs</option>
-              <option value="canvas">Canvas</option>
-              <option value="wikipedia">Wikipedia</option>
-              <option value="disguise">School Portal</option>
-            </select>
           </div>
         </div>
 
@@ -1008,12 +973,10 @@
   </div>
 </div>
 
-<!-- ============ BACKGROUND FX CANVAS ============ -->
 <canvas id="fx"></canvas>
 
 <script>
 (function(){
-  /* ============================ BACKGROUND FX ============================ */
   (function fx(){
     const cv = document.getElementById('fx');
     const ctx = cv.getContext('2d');
@@ -1057,7 +1020,6 @@
       } else if (mode === 'matrix'){
         const size = 14;
         const totalCols = Math.floor(W / size);
-        // Build streams: each is { col, headRow, tailLen, stepTimer, stepInterval }
         const maxStreams = Math.min(18, Math.max(8, Math.floor(totalCols * 0.12)));
         const usedCols = new Set();
         for (let i = 0; i < maxStreams; i++){
@@ -1067,9 +1029,9 @@
           const tailLen = 8 + Math.floor(Math.random() * 14);
           cols.push({
             x: col * size,
-            headRow: -Math.floor(Math.random() * (H / size)),  // stagger start
+            headRow: -Math.floor(Math.random() * (H / size)),
             tailLen,
-            interval: 60 + Math.floor(Math.random() * 80),     // ms per step
+            interval: 60 + Math.floor(Math.random() * 80),
             timer: 0
           });
         }
@@ -1136,13 +1098,11 @@
           c.timer -= c.interval;
           c.headRow++;
 
-          // Draw the bright head character
           const headY = c.headRow * size;
           if (headY >= 0 && headY <= H + size){
             ctx.fillStyle = A(1);
             ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], c.x, headY);
           }
-          // Draw a dim mid-trail char just behind the head
           if (c.headRow > 1){
             const midY = (c.headRow - 1) * size;
             if (midY >= 0){
@@ -1151,9 +1111,7 @@
             }
           }
 
-          // When the tail has fully scrolled off, reset this stream in a new random column
           if (c.headRow - c.tailLen > totalRows){
-            // pick a new random column
             const usedCols = new Set(cols.map(s => Math.round(s.x / size)));
             const totalCols = Math.floor(W / size);
             const freeCols = [];
@@ -1256,7 +1214,6 @@
     window.__fx = { setMode, setDensity };
   })();
 
-  /* ============================ MAIN SITE ============================ */
   const eduSite = document.getElementById('edu-site');
   const archiveRoot = document.getElementById('archive-root');
   const archiveSite = document.getElementById('archive-site');
@@ -1264,24 +1221,11 @@
   const grid = document.getElementById('game-grid');
 
   const TRIGGER_KEY = 'e';
-  let activated = archiveSite.classList.contains('active');
+  let activated = false;
 
-  const DISGUISE_TITLE = 'Fairview Unified — Digital Learning Portal';
-  const ARCHIVE_TITLE = 'The Archive';
-
-  const iconLinks = Array.from(document.querySelectorAll('link[rel*="icon"], link[rel="shortcut icon"]'));
-  const EDU_FAVICON = (document.querySelector('link[rel="shortcut icon"]') || {}).href
-    || new URL('./g/assets/favicon-96x96.png', location.href).href;
-  const ARC_FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305070a'/%3E%3Cpath d='M21 43 32 19l11 24' stroke='%23b8f4e0' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M25 36h14' stroke='%23b8f4e0' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E";
-
-  function setFavicon(href){
-    iconLinks.forEach(l => { if (l.getAttribute('href') !== href) l.setAttribute('href', href); });
-  }
-
-  // ---- settings persistence ----
-  const SKEY = 'thevault.settings';
+  const SKEY = 'thearchive.settings';
   const DEFAULTS = {
-    theme: 'default', cloak: 'off', fx: 'off', fxDensity: 1,
+    theme: 'default', fx: 'off', fxDensity: 1,
     gridSize: 180, fullscreenOnPlay: false, confirmBeforeClose: false, reduceMotion: false,
   };
   let state;
@@ -1289,25 +1233,6 @@
   catch (e) { state = Object.assign({}, DEFAULTS); }
   function save(){ try { localStorage.setItem(SKEY, JSON.stringify(state)); } catch (e) {} }
 
-  // ---- tab cloaking (title/favicon swap on blur) ----
-  let tabHidden = false;
-  function updateCloak(){
-    if (tabHidden){
-      document.title = DISGUISE_TITLE;
-      setFavicon(EDU_FAVICON);
-    } else {
-      document.title = activated ? ARCHIVE_TITLE : DISGUISE_TITLE;
-      setFavicon(activated ? ARC_FAVICON : EDU_FAVICON);
-    }
-  }
-  window.addEventListener('blur', () => { tabHidden = true; updateCloak(); });
-  window.addEventListener('focus', () => { tabHidden = false; updateCloak(); });
-  document.addEventListener('visibilitychange', () => {
-    tabHidden = document.hidden;
-    updateCloak();
-  });
-
-  // ---- games ----
   const games = [
     { tag:'Arcade',   name:'Slope',             file:'./g/slope.html',             icon:'./g/assets/slope.png' },
     { tag:'Shooter',  name:'1v1.LOL',           file:'./g/1v1.lol.html',           icon:'./g/assets/1v1.lol.png' },
@@ -1346,42 +1271,7 @@
   }
   renderGrid();
 
-  // ---- cloaked new-tab profiles ----
-  const CLOAKS = {
-    blank:     { title: '',                      favicon: '' },
-    blob:      { title: '',                      favicon: '' },
-    classroom: { title: 'Classes',               favicon: 'https://www.gstatic.com/classroom/logo_square_rounded.svg' },
-    docs:      { title: 'Google Docs',           favicon: 'https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico' },
-    canvas:    { title: 'Dashboard',             favicon: 'https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon.ico' },
-    wikipedia: { title: 'Wikipedia',             favicon: 'https://en.wikipedia.org/static/favicon/wikipedia.ico' },
-    disguise:  { title: DISGUISE_TITLE,          favicon: EDU_FAVICON },
-  };
-
-  function openCloakedTab(game){
-    const cfg = CLOAKS[state.cloak];
-    const absFile = new URL(game.file, location.href).href;
-    const page =
-      '<!DOCTYPE html><html><head><meta charset="utf-8">' +
-      '<title>' + cfg.title + '</title>' +
-      (cfg.favicon ? '<link rel="icon" href="' + cfg.favicon + '">' : '') +
-      '<style>html,body{margin:0;height:100%;overflow:hidden;background:#000}iframe{width:100%;height:100%;border:0;display:block}</style>' +
-      '</head><body><iframe src="' + absFile + '" allow="fullscreen; gamepad; autoplay" allowfullscreen></iframe></body></html>';
-    if (state.cloak === 'blob'){
-      const url = URL.createObjectURL(new Blob([page], { type: 'text/html' }));
-      window.open(url, '_blank');
-    } else {
-      const win = window.open('about:blank', '_blank');
-      if (!win) return;
-      win.document.open();
-      win.document.write(page);
-      win.document.close();
-    }
-  }
-
-  // ---- game popup modal ----
   function openGame(game){
-    if (state.cloak !== 'off'){ openCloakedTab(game); return; }
-
     const scrim = document.createElement('div');
     scrim.className = 'game-scrim';
     scrim.innerHTML = `
@@ -1453,7 +1343,6 @@
   function activateArchive(){
     if (activated) return;
     activated = true;
-    updateCloak();
 
     flash.style.transition = 'opacity 0.15s ease';
     flash.style.opacity = '1';
@@ -1476,12 +1365,10 @@
     if (e.key && e.key.toLowerCase() === TRIGGER_KEY) activateArchive();
   });
 
-  // ---- Settings panel ----
   const settingsBtn = document.getElementById('settings-btn');
   const settingsOverlay = document.getElementById('settings-overlay');
   const settingsClose = document.getElementById('settings-close');
   const themeRow = document.getElementById('theme-row');
-  const cloakSelect = document.getElementById('cloak-select');
   const fxSelect = document.getElementById('fx-select');
   const fxDensity = document.getElementById('fx-density');
   const gridSizeSelect = document.getElementById('grid-size-select');
@@ -1518,9 +1405,6 @@
       save();
     });
   });
-
-  cloakSelect.value = state.cloak;
-  cloakSelect.addEventListener('change', () => { state.cloak = cloakSelect.value; save(); });
 
   function applyFx(){
     fxSelect.value = state.fx;
@@ -1560,13 +1444,10 @@
     applyFx();
   });
 
-  // init
   applyTheme();
   applyFx();
   document.body.classList.toggle('reduce-motion', state.reduceMotion);
-  updateCloak();
 
-  // mobile fallback: 5 quick taps on the crest triggers it
   const crest = document.querySelector('.edu-crest');
   let tapCount = 0, tapTimer = null;
   if (crest){
@@ -1581,4 +1462,5 @@
 })();
 </script>
 
-</body></html>
+</body>
+</html>
