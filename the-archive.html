@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fairview Unified — Digital Learning Portal</title>
+<style>
+  :root{
+    /* Disguise (educational) palette */
+    --edu-bg: #f6f4ee;
+    --edu-blue: #1f3a5f;
+    --edu-blue-dark: #142842;
+    --edu-accent: #7c9c7a;
+    --edu-ink: #24272b;
+    --edu-line: #d8d3c6;
+
+    /* Archive (real) palette */
+    --void: #05070a;
+    --void-2: #0a0e14;
+    --phosphor: #b8f4e0;
+    --phosphor-dim: #4a9c85;
+    --ember: #ff5c38;
+    --line-dim: #1c2530;
+  }
+
+  @property --glow{
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; height:100%; }
+  body{
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    background: var(--edu-bg);
+    color: var(--edu-ink);
+    overflow-x:hidden;
+    transition: background 0.4s ease;
+  }
+
+  ::selection{ background: var(--edu-accent); color: #fff; }
+
+  /* ===================== EDU SITE ===================== */
+  #edu-site{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .edu-topbar{
+    background: var(--edu-blue-dark);
+    color: #eef1e8;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    padding: 6px 24px;
+    display:flex;
+    justify-content: space-between;
+  }
+
+  .edu-header{
+    background: var(--edu-blue);
+    color:#fff;
+    padding: 22px 40px;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    border-bottom: 4px solid var(--edu-accent);
+  }
+  .edu-crest{
+    width:46px; height:46px;
+    border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #cfe0c9, var(--edu-accent) 70%);
+    border: 2px solid #eef1e8;
+    flex-shrink:0;
+  }
+  .edu-header h1{
+    font-size: 22px;
+    margin:0;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .edu-header p{
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    font-family: Arial, Helvetica, sans-serif;
+    opacity:0.85;
+  }
+
+  .edu-nav{
+    background: #eceadf;
+    border-bottom: 1px solid var(--edu-line);
+    font-family: Arial, Helvetica, sans-serif;
+    display:flex;
+    gap: 0;
+    padding: 0 40px;
+    font-size: 13.5px;
+  }
+  .edu-nav a{
+    color: var(--edu-blue-dark);
+    text-decoration:none;
+    padding: 13px 16px;
+    display:inline-block;
+    border-bottom: 3px solid transparent;
+  }
+  .edu-nav a:hover{ border-bottom-color: var(--edu-accent); background:#e2e0d3; }
+
+  .edu-main{
+    flex:1;
+    display:grid;
+    grid-template-columns: 1fr 300px;
+    gap: 36px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px;
+    width:100%;
+  }
+
+  .edu-hero{
+    background:#fff;
+    border:1px solid var(--edu-line);
+    border-radius:3px;
+    padding: 30px 34px;
+    margin-bottom: 24px;
+  }
+  .edu-hero h2{
+    margin-top:0;
+    font-size: 24px;
+    color: var(--edu-blue-dark);
+  }
+  .edu-hero p{ line-height:1.65; color:#3c3f34; font-size:15px; }
+
+  .edu-cards{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  .edu-card{
+    background:#fff;
+    border:1px solid var(--edu-line);
+    border-radius:3px;
+    padding: 18px;
+  }
+  .edu-card h3{
+    margin:0 0 6px;
+    font-size:15px;
+    color: var(--edu-blue);
+  }
+  .edu-card p{
+    font-size:12.5px;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#5a5d52;
+    line-height:1.5;
+    margin:0;
+  }
+
+  .edu-sidebar{
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .edu-box{
+    background:#fff;
+    border:1px solid var(--edu-line);
+    border-radius:3px;
+    padding:16px 18px;
+    margin-bottom:16px;
+  }
+  .edu-box h4{
+    margin:0 0 10px;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color: var(--edu-blue-dark);
+    border-bottom:1px solid var(--edu-line);
+    padding-bottom:8px;
+  }
+  .edu-box ul{ margin:0; padding-left:18px; font-size:12.5px; color:#4a4d42; line-height:1.9;}
+  .edu-box a { color: var(--edu-blue); }
+
+  .edu-footer{
+    background: var(--edu-blue-dark);
+    color:#c9cfc3;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size:11.5px;
+    text-align:center;
+    padding: 18px;
+  }
+
+  /* subtle hint — barely visible, rewards curious users */
+  .edu-hint{
+    position:fixed;
+    bottom:10px;
+    right:14px;
+    font-family: monospace;
+    font-size:10px;
+    color: rgba(31,58,95,0.18);
+    letter-spacing:0.05em;
+    pointer-events:none;
+    user-select:none;
+  }
+
+  /* ===================== TRANSITION FLASH ===================== */
+  #flash{
+    position:fixed; inset:0;
+    background:#eef4f0;
+    opacity:0;
+    pointer-events:none;
+    z-index:9998;
+  }
+
+  /* ===================== LOADER (THE ARCHIVE) ===================== */
+  #archive-root{
+    position:fixed;
+    inset:0;
+    background: var(--void);
+    z-index: 9999;
+    display:none;
+    overflow:hidden;
+  }
+  #archive-root.active{ display:block; }
+
+  .loader-wrap{
+    position:absolute; inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap: 28px;
+  }
+
+  .loader-noise{
+    position:absolute; inset:0;
+    background: var(--void);
+    pointer-events:none;
+  }
+
+  .loader-text{
+    font-family: 'Courier New', monospace;
+    font-size: clamp(38px, 8vw, 96px);
+    letter-spacing: 0.06em;
+    color: var(--phosphor);
+    position:relative;
+    text-transform:uppercase;
+    opacity: 0;
+    animation: text-arrive 3s cubic-bezier(.2,.7,.3,1) forwards;
+    /* real bloom: stacked text-shadow acting as a glow filter, driven by --glow */
+    text-shadow:
+      0 0 calc(var(--glow, 0) * 2px)  rgba(184,244,224, calc(var(--glow, 0) * 0.9)),
+      0 0 calc(var(--glow, 0) * 10px) rgba(184,244,224, calc(var(--glow, 0) * 0.7)),
+      0 0 calc(var(--glow, 0) * 26px) rgba(184,244,224, calc(var(--glow, 0) * 0.5)),
+      0 0 calc(var(--glow, 0) * 60px) rgba(120,220,190, calc(var(--glow, 0) * 0.35));
+    animation: text-arrive 3s cubic-bezier(.2,.7,.3,1) forwards, glow-pulse 3s ease forwards;
+  }
+  .loader-text .layer{ display:none; }
+
+  @keyframes text-arrive{
+    0%{ opacity:0; filter: blur(2px); }
+    10%{ opacity:1; filter: blur(2px); }
+    100%{ opacity:1; filter: blur(0); }
+  }
+  /* animates the --glow custom property from 0 (dim) to 1 (full bloom) */
+  @keyframes glow-pulse{
+    0%{ --glow: 0; }
+    15%{ --glow: 0.3; }
+    45%{ --glow: 0.55; }
+    70%{ --glow: 1.3; }
+    100%{ --glow: 0.85; }
+  }
+
+  .loader-sub{
+    font-family: monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--phosphor-dim);
+    opacity:0;
+    animation: sub-in 0.5s ease forwards;
+    animation-delay: 1.6s;
+  }
+  @keyframes sub-in{
+    from{ opacity:0; }
+    to{ opacity:1; }
+  }
+
+  .loader-bar{
+    width: min(280px, 55vw);
+    height: 1px;
+    background: var(--line-dim);
+    position:relative;
+    overflow:hidden;
+    opacity:0;
+    animation: sub-in 0.5s ease forwards;
+    animation-delay: 1.7s;
+  }
+  .loader-bar-fill{
+    position:absolute; left:0; top:0; bottom:0;
+    width:0%;
+    background: var(--phosphor-dim);
+    animation: fill-bar 1.9s ease forwards;
+    animation-delay: 1.8s;
+  }
+  @keyframes fill-bar{
+    to{ width:100%; }
+  }
+
+  /* ===================== ARCHIVE MAIN SITE ===================== */
+  #archive-site{
+    display:none;
+    min-height:100vh;
+    background: var(--void);
+    color: var(--phosphor);
+    font-family: 'Courier New', monospace;
+  }
+  #archive-site.active{ display:block; }
+
+  .arc-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 22px 40px;
+    border-bottom: 1px solid var(--line-dim);
+    position:sticky; top:0;
+    background: rgba(5,7,10,0.85);
+    backdrop-filter: blur(6px);
+    z-index:10;
+  }
+  .arc-logo{
+    font-size: 20px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--phosphor);
+    text-shadow: 0 0 12px rgba(184,244,224,0.5);
+  }
+  .arc-logo span{ color: var(--ember); }
+
+  .arc-nav{ display:flex; gap:28px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;}
+  .arc-nav a{ color: var(--phosphor-dim); text-decoration:none; transition:color 0.2s; }
+  .arc-nav a:hover, .arc-nav a.active{ color: var(--phosphor); }
+
+  .arc-hero{
+    padding: 70px 40px 40px;
+    max-width: 1100px;
+    margin:0 auto;
+    text-align:center;
+  }
+  .arc-hero h1{
+    font-size: clamp(28px, 5vw, 46px);
+    letter-spacing:0.04em;
+    margin:0 0 14px;
+    text-shadow: 0 0 20px rgba(184,244,224,0.35);
+  }
+  .arc-hero p{
+    color: var(--phosphor-dim);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    max-width: 520px;
+    margin: 0 auto;
+    line-height:1.7;
+  }
+
+  .arc-search{
+    margin: 30px auto 0;
+    max-width: 480px;
+    display:flex;
+    border: 1px solid var(--line-dim);
+    background: var(--void-2);
+  }
+  .arc-search input{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color: var(--phosphor);
+    font-family: inherit;
+    padding: 12px 14px;
+    font-size:13px;
+  }
+  .arc-search button{
+    background: var(--phosphor-dim);
+    color: var(--void);
+    border:none;
+    padding: 0 20px;
+    font-family: inherit;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    font-size:11px;
+    cursor:pointer;
+  }
+  .arc-search button:hover{ background: var(--phosphor); }
+
+  .arc-grid{
+    max-width: 1100px;
+    margin: 40px auto 80px;
+    padding: 0 40px;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 18px;
+  }
+  .arc-tile{
+    background: var(--void-2);
+    border: 1px solid var(--line-dim);
+    padding: 20px 16px;
+    cursor:pointer;
+    transition: border-color 0.2s, transform 0.2s;
+    position:relative;
+  }
+  .arc-tile:hover{
+    border-color: var(--phosphor-dim);
+    transform: translateY(-2px);
+  }
+  .arc-tile .tag{
+    font-size:10px;
+    letter-spacing:0.1em;
+    color: var(--ember);
+    text-transform:uppercase;
+    margin-bottom:8px;
+    display:block;
+  }
+  .arc-tile h3{
+    font-size:15px;
+    margin:0 0 6px;
+    color: var(--phosphor);
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+  }
+  .arc-tile p{
+    font-size:11.5px;
+    color: var(--phosphor-dim);
+    margin:0;
+    line-height:1.5;
+  }
+
+  .arc-footer{
+    text-align:center;
+    padding: 30px;
+    font-size:10.5px;
+    color: var(--line-dim);
+    letter-spacing:0.08em;
+    border-top:1px solid var(--line-dim);
+  }
+
+  @media (max-width: 720px){
+    .edu-main{ grid-template-columns: 1fr; }
+    .edu-cards{ grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ EDUCATIONAL DISGUISE SITE ============ -->
+<div id="edu-site">
+  <div class="edu-topbar">
+    <span>Fairview Unified School District</span>
+    <span>Student &amp; Family Portal</span>
+  </div>
+  <header class="edu-header">
+    <div class="edu-crest"></div>
+    <div>
+      <h1>Digital Learning Portal</h1>
+      <p>Resources for students, staff, and families — Grades 6–12</p>
+    </div>
+  </header>
+  <nav class="edu-nav">
+    <a href="#">Home</a>
+    <a href="#">Announcements</a>
+    <a href="#">Assignments</a>
+    <a href="#">Library</a>
+    <a href="#">Resources</a>
+    <a href="#">Staff Directory</a>
+    <a href="#">Contact</a>
+  </nav>
+
+  <main class="edu-main">
+    <div>
+      <section class="edu-hero">
+        <h2>Welcome back, Students</h2>
+        <p>This portal provides access to approved learning materials, subject guides, and district-wide
+        announcements. Please review your assignment calendar and check the resource library for supplemental
+        readings assigned by your instructors this week.</p>
+        <p>Reminder: all devices are subject to the district's acceptable use policy while connected to the
+        school network.</p>
+      </section>
+
+      <section class="edu-cards">
+        <div class="edu-card">
+          <h3>Mathematics</h3>
+          <p>Unit 4 practice sets and review guides are now posted for all sections.</p>
+        </div>
+        <div class="edu-card">
+          <h3>Language Arts</h3>
+          <p>Independent reading logs due Friday. See your teacher's page for the current list.</p>
+        </div>
+        <div class="edu-card">
+          <h3>Science</h3>
+          <p>Lab safety quiz results have been posted to the gradebook.</p>
+        </div>
+        <div class="edu-card">
+          <h3>Social Studies</h3>
+          <p>Primary source packet for the unit project is available in the resource library.</p>
+        </div>
+        <div class="edu-card">
+          <h3>Study Hall</h3>
+          <p>Quiet workspace scheduling is open for the remainder of the term.</p>
+        </div>
+        <div class="edu-card">
+          <h3>Counseling</h3>
+          <p>Schedule changes may be requested through the front office until Thursday.</p>
+        </div>
+      </section>
+    </div>
+
+    <aside class="edu-sidebar">
+      <div class="edu-box">
+        <h4>Announcements</h4>
+        <ul>
+          <li>Early dismissal this Friday at 1:15pm.</li>
+          <li>Yearbook photos rescheduled to next week.</li>
+          <li>Parent-teacher conferences open for sign-up.</li>
+        </ul>
+      </div>
+      <div class="edu-box">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#">Assignment Calendar</a></li>
+          <li><a href="#">Gradebook Login</a></li>
+          <li><a href="#">Library Catalog</a></li>
+          <li><a href="#">Bus Route Finder</a></li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="edu-footer">
+    © Fairview Unified School District — Digital Learning Portal. For technical support, contact the IT help desk.
+  </footer>
+
+  <div class="edu-hint">press e</div>
+</div>
+
+<div id="flash"></div>
+
+<!-- ============ LOADER ============ -->
+<div id="archive-root" aria-hidden="true">
+  <div class="loader-wrap">
+    <div class="loader-noise"></div>
+    <div class="loader-text">The Archive</div>
+    <div class="loader-sub">one sec</div>
+    <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+  </div>
+</div>
+
+<!-- ============ REAL SITE ============ -->
+<div id="archive-site">
+  <header class="arc-header">
+    <div class="arc-logo">THE <span>ARCHIVE</span></div>
+    <nav class="arc-nav">
+      <a href="#" class="active">All</a>
+      <a href="#">Arcade</a>
+      <a href="#">Shooter</a>
+      <a href="#">Puzzle</a>
+      <a href="#">Sports</a>
+      <a href="#">Retro</a>
+    </nav>
+  </header>
+
+  <section class="arc-hero">
+    <h1>Every game they blocked. All in one place.</h1>
+    <p>No install. No account. No trace. Search the index or browse below.</p>
+    <div class="arc-search">
+      <input type="text" placeholder="search the archive..." />
+      <button>Find</button>
+    </div>
+  </section>
+
+  <section class="arc-grid" id="game-grid">
+    <!-- game tiles populate here -->
+  </section>
+
+  <footer class="arc-footer">THE ARCHIVE — this device leaves no logs</footer>
+</div>
+
+<script>
+(function(){
+  const eduSite = document.getElementById('edu-site');
+  const archiveRoot = document.getElementById('archive-root');
+  const archiveSite = document.getElementById('archive-site');
+  const flash = document.getElementById('flash');
+  const grid = document.getElementById('game-grid');
+
+  const TRIGGER_KEY = 'e';
+  let activated = false;
+
+  // Placeholder game tiles — replace hrefs with real embeds later
+  const games = [
+    { tag:'Arcade',   name:'Slope',        desc:'Endless downhill runner. One wrong move ends it.' },
+    { tag:'Shooter',  name:'1v1.LOL',      desc:'Build, fight, survive. Classic browser battler.' },
+    { tag:'Puzzle',   name:'2048',         desc:'Merge tiles to reach the number. Simple, brutal.' },
+    { tag:'Retro',    name:'Pac-Man',      desc:'The original maze chase, ghosts included.' },
+    { tag:'Sports',   name:'Basket Bros',  desc:'Fast 1v1 basketball with ragdoll physics.' },
+    { tag:'Arcade',   name:'Moto X3M',     desc:'Bike stunts across explosive obstacle courses.' },
+    { tag:'Shooter',  name:'Krunker',      desc:'Fast-paced voxel FPS, browser-based.' },
+    { tag:'Puzzle',   name:'Cookie Clicker', desc:'Click. Upgrade. Repeat until the universe ends.' },
+  ];
+
+  function renderGrid(){
+    grid.innerHTML = games.map(g => `
+      <div class="arc-tile" tabindex="0">
+        <span class="tag">${g.tag}</span>
+        <h3>${g.name}</h3>
+        <p>${g.desc}</p>
+      </div>
+    `).join('');
+  }
+  renderGrid();
+
+  function activateArchive(){
+    if (activated) return;
+    activated = true;
+
+    // quick flash transition
+    flash.style.transition = 'opacity 0.15s ease';
+    flash.style.opacity = '1';
+
+    setTimeout(() => {
+      eduSite.style.display = 'none';
+      flash.style.opacity = '0';
+      archiveRoot.classList.add('active');
+      archiveRoot.setAttribute('aria-hidden', 'false');
+
+      // after loader animation completes, reveal the real site
+      setTimeout(() => {
+        archiveRoot.classList.remove('active');
+        archiveSite.classList.add('active');
+      }, 2500);
+    }, 160);
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (activated) return;
+    if (e.key && e.key.toLowerCase() === TRIGGER_KEY) {
+      activateArchive();
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
