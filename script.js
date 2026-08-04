@@ -19,10 +19,24 @@
       return cs.getPropertyValue('--phosphor').trim() || '#b8f4e0';
     }
     function getMatrixColors(){
+      // Theme the characters to the currently selected theme
+      const cs = getComputedStyle(document.documentElement);
+      const base = hexToRgb(cs.getPropertyValue('--phosphor').trim() || '#b8f4e0');
+      const dim = hexToRgb(cs.getPropertyValue('--phosphor-dim').trim() || '#4a9c85');
+      const lum = 0.299 * base[0] + 0.587 * base[1] + 0.114 * base[2];
+      const headBlend = lum > 140 ? 0.25 : 0.8;
       return {
-        head: [255, 224, 102],
-        bright: [255, 176, 0],
-        dim: [128, 96, 0]
+        head: [
+          Math.round(base[0] + (255 - base[0]) * headBlend),
+          Math.round(base[1] + (255 - base[1]) * headBlend),
+          Math.round(base[2] + (255 - base[2]) * headBlend)
+        ],
+        bright: [
+          Math.min(255, Math.round(base[0] * 1.18)),
+          Math.min(255, Math.round(base[1] * 1.18)),
+          Math.min(255, Math.round(base[2] * 1.18))
+        ],
+        dim
       };
     }
     function lerpRgb(a, b, t){
@@ -55,18 +69,19 @@
       } else if (mode === 'matrix'){
         const size = 14;
         const totalCols = Math.floor(W / size);
-        const maxStreams = Math.min(totalCols, Math.max(16, Math.floor(totalCols * 0.5 * density)));
+        // Multiple streams across the whole screen; keep a mild cap on very large displays
+        const cap = W * H > 2200000 ? 0.6 : 0.9;
+        const streamCount = Math.min(totalCols, Math.max(12, Math.floor(totalCols * cap * density)));
         const usedCols = new Set();
-        for (let i = 0; i < maxStreams; i++){
+        for (let i = 0; i < streamCount; i++){
           let col;
           do { col = Math.floor(Math.random() * totalCols); } while (usedCols.has(col) && usedCols.size < totalCols);
           usedCols.add(col);
-          const tailLen = 10 + Math.floor(Math.random() * 18);
           cols.push({
             x: col * size,
             headRow: -Math.floor(Math.random() * (H / size)),
-            tailLen,
-            interval: 35 + Math.floor(Math.random() * 55),
+            tailLen: 18 + Math.floor(Math.random() * 20),
+            interval: 10 + Math.floor(Math.random() * 15),
             timer: 0
           });
         }
@@ -147,7 +162,10 @@
               }
 
               ctx.fillStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + alpha + ')';
-              ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], c.x, tailY);
+              // Use deterministic glyph selection to prevent shaking
+              // Hash the column position and row to get a consistent character
+              const glyphIndex = Math.floor(Math.abs(Math.sin(c.x * 0.123 + tailRow * 0.456) * 10000)) % GLYPHS.length;
+              ctx.fillText(GLYPHS[glyphIndex], c.x, tailY);
             }
           }
           ctx.shadowBlur = 0;
@@ -162,8 +180,8 @@
               : Math.floor(Math.random() * totalCols);
             c.x = newCol * size;
             c.headRow = -Math.floor(Math.random() * 4);
-            c.tailLen = 10 + Math.floor(Math.random() * 18);
-            c.interval = 35 + Math.floor(Math.random() * 55);
+            c.tailLen = 18 + Math.floor(Math.random() * 20);
+            c.interval = 10 + Math.floor(Math.random() * 15);
           }
         }
       } else if (mode === 'stars' || mode === 'constellations'){
