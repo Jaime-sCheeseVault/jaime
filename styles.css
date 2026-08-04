@@ -331,30 +331,37 @@
     to{ opacity:1; transform: translateY(0); }
   }
 
-  /* ===================== SETTINGS PAGE (settings.html) ===================== */
-  .settings-page{
-    min-height:100vh;
-    background-color: var(--void);
-    background-image:
-      radial-gradient(circle at 15% 20%, var(--arc-glow-ring), transparent 45%),
-      radial-gradient(circle at 85% 15%, var(--arc-glow-ring), transparent 40%);
-    color: var(--phosphor);
-    display:flex;
-    align-items:flex-start;
-    justify-content:center;
-    padding: 60px 20px;
+  /* ===================== SETTINGS VIEW (embedded, inside #archive-site) ===================== */
+  #browse-view{ display:block; }
+  #settings-view{
+    display:none;
+    padding: 50px 40px 80px;
+    max-width: 1100px;
+    margin: 0 auto;
   }
-  .settings-back{
-    position:fixed; top:24px; left:24px;
+  #archive-site.settings-open #browse-view{ display:none; }
+  #archive-site.settings-open #settings-view{ display:block; }
+
+  .settings-page-inner{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 22px;
+  }
+
+  .settings-back-btn{
+    align-self:flex-start;
+    background: transparent;
     font-family: 'Courier New', monospace;
     font-size:12px; letter-spacing:0.06em; text-transform:uppercase;
     color: var(--arc-fg-mid);
-    text-decoration:none;
     border:1px solid var(--line-dim);
     padding:8px 14px;
+    cursor:pointer;
     transition: border-color 0.15s ease, color 0.15s ease;
+    animation: rise-in 0.4s ease backwards;
   }
-  .settings-back:hover{ border-color: var(--phosphor-dim); color:#fff; }
+  .settings-back-btn:hover{ border-color: var(--phosphor-dim); color:#fff; }
 
   .settings-panel{
     background: var(--void-2);
@@ -363,7 +370,7 @@
     font-family: 'Courier New', monospace;
     color: var(--phosphor);
     box-shadow: 0 30px 80px -20px rgba(0,0,0,0.8), 0 0 0 1px var(--arc-ring);
-    animation: rise-in 0.4s ease backwards;
+    animation: rise-in 0.4s ease 0.05s backwards;
   }
   .settings-header{
     display:flex; justify-content:space-between; align-items:center;
@@ -373,6 +380,7 @@
   }
   .settings-body{ padding: 20px 22px; }
   .settings-group{ margin-bottom: 24px; }
+  .settings-group:last-child{ margin-bottom:0; }
   .settings-group h4{
     font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
     color: var(--phosphor-dim); margin:0 0 10px;
@@ -436,7 +444,9 @@
   .arc-header,
   .arc-hero,
   .arc-grid,
-  .arc-footer{
+  .arc-footer,
+  #browse-view,
+  #settings-view{
     position:relative;
     z-index:2;
   }
@@ -750,6 +760,9 @@
     .game-modal{ width: 100%; }
     .game-modal-bar{ font-size:11.5px; }
     .game-btn{ padding: 6px 9px; }
+
+    #settings-view{ padding: 30px 18px 60px; }
+    .settings-row{ flex-wrap:wrap; }
   }
 
   @media (max-width: 420px){

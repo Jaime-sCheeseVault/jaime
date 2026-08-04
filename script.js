@@ -340,18 +340,93 @@
     if (e.key && e.key.toLowerCase() === TRIGGER_KEY) activateArchive();
   });
 
-  // Apply whatever settings were saved from the settings page (theme, grid size,
-  // reduce-motion), purely visual/CSS — harmless to apply pre-activation.
+  // ---- Settings (embedded in-page view — no navigation, no overlay) ----
+  const settingsBtn = document.getElementById('settings-btn');
+  const settingsBack = document.getElementById('settings-back');
+  const themeRow = document.getElementById('theme-row');
+  const fxSelect = document.getElementById('fx-select');
+  const fxDensity = document.getElementById('fx-density');
+  const gridSizeSelect = document.getElementById('grid-size-select');
+  const toggleFullscreen = document.getElementById('toggle-fullscreen');
+  const toggleConfirmClose = document.getElementById('toggle-confirm-close');
+  const toggleReduceMotion = document.getElementById('toggle-reduce-motion');
+
+  if (settingsBtn){
+    settingsBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      archiveSite.classList.add('settings-open');
+    });
+  }
+  if (settingsBack){
+    settingsBack.addEventListener('click', () => {
+      archiveSite.classList.remove('settings-open');
+    });
+  }
+
   function applyTheme(){
     if (state.theme === 'default') document.documentElement.removeAttribute('data-theme');
     else document.documentElement.setAttribute('data-theme', state.theme);
+    if (themeRow){
+      themeRow.querySelectorAll('.theme-swatch').forEach(s =>
+        s.classList.toggle('selected', s.dataset.theme === state.theme));
+    }
   }
+  if (themeRow){
+    themeRow.querySelectorAll('.theme-swatch').forEach(swatch => {
+      swatch.addEventListener('click', () => {
+        state.theme = swatch.dataset.theme;
+        applyTheme();
+        save();
+      });
+    });
+  }
+
   function applyFx(){
     window.__fx.setDensity(state.fxDensity);
     if (state.reduceMotion) window.__fx.setMode('off');
     else window.__fx.setMode(state.fx);
   }
+  if (fxSelect){
+    fxSelect.value = state.fx;
+    fxSelect.addEventListener('change', () => { state.fx = fxSelect.value; save(); applyFx(); });
+  }
+  if (fxDensity){
+    fxDensity.value = String(state.fxDensity);
+    fxDensity.addEventListener('change', () => { state.fxDensity = parseFloat(fxDensity.value) || 1; save(); applyFx(); });
+  }
+
   grid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${state.gridSize}px, 1fr))`;
+  if (gridSizeSelect){
+    gridSizeSelect.value = String(state.gridSize);
+    gridSizeSelect.addEventListener('change', () => {
+      state.gridSize = parseInt(gridSizeSelect.value, 10);
+      grid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${state.gridSize}px, 1fr))`;
+      save();
+    });
+  }
+
+  function bindToggle(el, key){
+    if (!el) return;
+    el.classList.toggle('on', !!state[key]);
+    el.addEventListener('click', () => {
+      state[key] = !state[key];
+      el.classList.toggle('on', state[key]);
+      save();
+    });
+  }
+  bindToggle(toggleFullscreen, 'fullscreenOnPlay');
+  bindToggle(toggleConfirmClose, 'confirmBeforeClose');
+
+  if (toggleReduceMotion){
+    toggleReduceMotion.classList.toggle('on', !!state.reduceMotion);
+    toggleReduceMotion.addEventListener('click', () => {
+      state.reduceMotion = !state.reduceMotion;
+      toggleReduceMotion.classList.toggle('on', state.reduceMotion);
+      document.body.classList.toggle('reduce-motion', state.reduceMotion);
+      save();
+      applyFx();
+    });
+  }
 
   // Apply the saved theme immediately, but hold off starting the FX particle loop
   // until the archive is actually unlocked — otherwise a previously-saved fx choice
