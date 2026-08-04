@@ -3,6 +3,7 @@
   const DEFAULTS = {
     theme: 'default', fx: 'off', fxDensity: 1,
     gridSize: 180, fullscreenOnPlay: false, confirmBeforeClose: false, reduceMotion: false,
+    cloakEnabled: false, cloakTitle: 'Classes', cloakFavicon: 'https://www.gstatic.com/classroom/logo_square_rounded.svg',
   };
   let state;
   try { state = Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(SKEY) || '{}')); }
@@ -16,6 +17,9 @@
   const toggleFullscreen = document.getElementById('toggle-fullscreen');
   const toggleConfirmClose = document.getElementById('toggle-confirm-close');
   const toggleReduceMotion = document.getElementById('toggle-reduce-motion');
+  const toggleCloakEnabled = document.getElementById('toggle-cloak');
+  const cloakTitleInput = document.getElementById('cloak-title');
+  const cloakFaviconInput = document.getElementById('cloak-favicon');
 
   function applyTheme(){
     if (state.theme === 'default') document.documentElement.removeAttribute('data-theme');
@@ -54,6 +58,65 @@
   bindToggle(toggleFullscreen, 'fullscreenOnPlay');
   bindToggle(toggleConfirmClose, 'confirmBeforeClose');
   bindToggle(toggleReduceMotion, 'reduceMotion');
+
+  // Tab Cloaking
+  function applyCloak(){
+    if (state.cloakEnabled){
+      document.title = state.cloakTitle || 'Classes';
+      // Remove existing favicons
+      const existingIcons = document.querySelectorAll('link[rel*="icon"]');
+      existingIcons.forEach(icon => icon.remove());
+      // Add new favicon
+      const link = document.createElement('link');
+      link.rel = 'icon';
+      link.type = 'image/x-icon';
+      link.href = state.cloakFavicon || 'https://www.gstatic.com/classroom/logo_square_rounded.svg';
+      document.head.appendChild(link);
+    } else {
+      document.title = 'Settings — The Archive';
+      // Restore original favicons
+      const existingIcons = document.querySelectorAll('link[rel*="icon"]');
+      existingIcons.forEach(icon => icon.remove());
+      
+      const link = document.createElement('link');
+      link.rel = 'icon';
+      link.type = 'image/png';
+      link.href = './g/assets/favicon-96x96.png';
+      link.sizes = '96x96';
+      document.head.appendChild(link);
+    }
+  }
+
+  if (toggleCloakEnabled){
+    toggleCloakEnabled.classList.toggle('on', !!state.cloakEnabled);
+    toggleCloakEnabled.addEventListener('click', () => {
+      state.cloakEnabled = !state.cloakEnabled;
+      toggleCloakEnabled.classList.toggle('on', state.cloakEnabled);
+      save();
+      applyCloak();
+    });
+  }
+
+  if (cloakTitleInput){
+    cloakTitleInput.value = state.cloakTitle;
+    cloakTitleInput.addEventListener('input', () => {
+      state.cloakTitle = cloakTitleInput.value;
+      save();
+      if (state.cloakEnabled) applyCloak();
+    });
+  }
+
+  if (cloakFaviconInput){
+    cloakFaviconInput.value = state.cloakFavicon;
+    cloakFaviconInput.addEventListener('input', () => {
+      state.cloakFavicon = cloakFaviconInput.value;
+      save();
+      if (state.cloakEnabled) applyCloak();
+    });
+  }
+
+  // Apply cloak on page load if enabled
+  applyCloak();
 
   applyTheme();
 })();

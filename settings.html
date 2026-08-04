@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Settings — The Archive</title>
-<link rel="icon" type="image/png" href="./g/assets/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/x-icon" href="https://www.gstatic.com/classroom/logo_square_rounded.svg">
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -80,6 +80,22 @@
         <div class="settings-row">
           <span class="label">Reduce motion<small>Disable hover/transition animations</small></span>
           <div class="toggle" id="toggle-reduce-motion"></div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h4>Tab Cloaking</h4>
+        <div class="settings-row">
+          <span class="label">Enable tab cloaking<small>Disguise the tab title and icon</small></span>
+          <div class="toggle" id="toggle-cloak"></div>
+        </div>
+        <div class="settings-row">
+          <span class="label">Tab title<small>Custom title for the tab</small></span>
+          <input type="text" class="settings-input" id="cloak-title" placeholder="Classes">
+        </div>
+        <div class="settings-row">
+          <span class="label">Favicon URL<small>Custom favicon URL</small></span>
+          <input type="text" class="settings-input" id="cloak-favicon" placeholder="https://www.gstatic.com/classroom/logo_square_rounded.svg">
         </div>
       </div>
     </div>
