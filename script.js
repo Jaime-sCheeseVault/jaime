@@ -6,7 +6,6 @@
     let mode = 'off', density = 1;
     let parts = [], drops = [], flakes = [], cols = [], stars = [];
     let running = false, raf = 0, last = 0;
-    const mouse = { x: -9999, y: -9999, vx: 0, vy: 0, px: -9999, py: -9999, active: false };
     const GLYPHS = 'アィウェエオカキクケコサシスセソタチツテトナニヌネノ01ABCDEF'.split('');
 
     function hexToRgb(h){
@@ -70,7 +69,6 @@
       const dt = Math.min(50, now - last); last = now;
       const rgb = hexToRgb(getColor());
       const A = (o) => 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + o + ')';
-      const R = 130;
       if (mode !== 'matrix') ctx.clearRect(0, 0, W, H);
 
       if (mode === 'rain'){
@@ -134,12 +132,7 @@
         for (const s of stars){
           s.tw += s.sp * (dt / 16.7);
           const tw = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(s.tw));
-          let r = s.r;
-          if (mouse.active){
-            const d = Math.hypot(s.x - mouse.x, s.y - mouse.y);
-            if (d < R) r += (R - d) / R * 1.6;
-          }
-          ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, 6.2832); ctx.fillStyle = A(tw); ctx.fill();
+          ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.2832); ctx.fillStyle = A(tw); ctx.fill();
         }
         if (mode === 'constellations'){
           ctx.lineWidth = 0.6;
@@ -150,12 +143,7 @@
               const o = stars[j];
               const dx = s.x - o.x, dy = s.y - o.y;
               if (dx * dx + dy * dy < 70 * 70){
-                let alpha = 0.12;
-                if (mouse.active){
-                  const dm = Math.hypot((s.x + o.x) / 2 - mouse.x, (s.y + o.y) / 2 - mouse.y);
-                  if (dm < R) alpha += (R - dm) / R * 0.45;
-                }
-                ctx.strokeStyle = A(alpha);
+                ctx.strokeStyle = A(0.12);
                 ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(o.x, o.y); ctx.stroke();
                 links++;
               }
@@ -164,29 +152,14 @@
         }
       } else if (mode === 'particles'){
         for (const p of parts){
-          if (mouse.active){
-            const dx = p.x - mouse.x, dy = p.y - mouse.y, dist = Math.hypot(dx, dy);
-            if (dist < R && dist > 1){
-              const f = ((R - dist) / R) * 0.14;
-              p.vx += (dx / dist) * f;
-              p.vy += (dy / dist) * f;
-            }
-          }
           p.x += p.vx * (dt / 16.7);
           p.y += p.vy * (dt / 16.7);
-          p.vx *= 0.99; p.vy *= 0.99;
           if (p.x < -4) p.x = W + 4; if (p.x > W + 4) p.x = -4;
           if (p.y < -4) p.y = H + 4; if (p.y > H + 4) p.y = -4;
           ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fillStyle = A(0.7); ctx.fill();
         }
       }
 
-      if (mouse.active && mode !== 'off' && mode !== 'matrix'){
-        const g = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, R);
-        g.addColorStop(0, A(0.16)); g.addColorStop(1, A(0));
-        ctx.fillStyle = g;
-        ctx.fillRect(mouse.x - R, mouse.y - R, R * 2, R * 2);
-      }
       raf = requestAnimationFrame(tick);
     }
 
@@ -205,19 +178,13 @@
     }
 
     window.addEventListener('resize', resize);
-    window.addEventListener('mousemove', (e) => {
-      mouse.vx = e.clientX - mouse.px; mouse.vy = e.clientY - mouse.py;
-      mouse.px = e.clientX; mouse.py = e.clientY;
-      mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true;
-    }, { passive: true });
-    window.addEventListener('mouseout', () => { mouse.active = false; });
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) stop(); else if (mode !== 'off') start();
     });
 
     resize();
     window.__fx = { setMode, setDensity };
-  })();
+  })()
 
   const eduSite = document.getElementById('edu-site');
   const archiveRoot = document.getElementById('archive-root');
@@ -373,89 +340,22 @@
     if (e.key && e.key.toLowerCase() === TRIGGER_KEY) activateArchive();
   });
 
-  const settingsBtn = document.getElementById('settings-btn');
-  const settingsOverlay = document.getElementById('settings-overlay');
-  const settingsClose = document.getElementById('settings-close');
-  const themeRow = document.getElementById('theme-row');
-  const fxSelect = document.getElementById('fx-select');
-  const fxDensity = document.getElementById('fx-density');
-  const gridSizeSelect = document.getElementById('grid-size-select');
-  const toggleFullscreen = document.getElementById('toggle-fullscreen');
-  const toggleConfirmClose = document.getElementById('toggle-confirm-close');
-  const toggleReduceMotion = document.getElementById('toggle-reduce-motion');
-
-  if (settingsBtn){
-    settingsBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      settingsOverlay.classList.add('active');
-    });
-  }
-  if (settingsClose){
-    settingsClose.addEventListener('click', () => settingsOverlay.classList.remove('active'));
-  }
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') settingsOverlay.classList.remove('active');
-  });
-  settingsOverlay.addEventListener('click', (e) => {
-    if (e.target === settingsOverlay) settingsOverlay.classList.remove('active');
-  });
-
+  // Apply whatever settings were saved from the settings page (theme, grid size,
+  // reduce-motion), purely visual/CSS — harmless to apply pre-activation.
   function applyTheme(){
     if (state.theme === 'default') document.documentElement.removeAttribute('data-theme');
     else document.documentElement.setAttribute('data-theme', state.theme);
-    themeRow.querySelectorAll('.theme-swatch').forEach(s =>
-      s.classList.toggle('selected', s.dataset.theme === state.theme));
   }
-  themeRow.querySelectorAll('.theme-swatch').forEach(swatch => {
-    swatch.addEventListener('click', () => {
-      state.theme = swatch.dataset.theme;
-      applyTheme();
-      save();
-    });
-  });
-
   function applyFx(){
-    fxSelect.value = state.fx;
-    fxDensity.value = String(state.fxDensity);
     window.__fx.setDensity(state.fxDensity);
     if (state.reduceMotion) window.__fx.setMode('off');
     else window.__fx.setMode(state.fx);
   }
-  fxSelect.addEventListener('change', () => { state.fx = fxSelect.value; save(); applyFx(); });
-  fxDensity.addEventListener('change', () => { state.fxDensity = parseFloat(fxDensity.value) || 1; save(); applyFx(); });
-
-  gridSizeSelect.value = String(state.gridSize);
   grid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${state.gridSize}px, 1fr))`;
-  gridSizeSelect.addEventListener('change', () => {
-    state.gridSize = parseInt(gridSizeSelect.value, 10);
-    grid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${state.gridSize}px, 1fr))`;
-    save();
-  });
 
-  function bindToggle(el, key){
-    el.classList.toggle('on', !!state[key]);
-    el.addEventListener('click', () => {
-      state[key] = !state[key];
-      el.classList.toggle('on', state[key]);
-      save();
-    });
-  }
-  bindToggle(toggleFullscreen, 'fullscreenOnPlay');
-  bindToggle(toggleConfirmClose, 'confirmBeforeClose');
-
-  toggleReduceMotion.classList.toggle('on', !!state.reduceMotion);
-  toggleReduceMotion.addEventListener('click', () => {
-    state.reduceMotion = !state.reduceMotion;
-    toggleReduceMotion.classList.toggle('on', state.reduceMotion);
-    document.body.classList.toggle('reduce-motion', state.reduceMotion);
-    save();
-    applyFx();
-  });
-
-  // Apply the saved theme immediately (purely visual CSS vars, harmless pre-activation),
-  // but hold off starting the FX particle loop until the archive is actually unlocked —
-  // otherwise a previously-saved fx choice (rain/matrix/etc) would start animating
-  // behind the educational disguise on page load or reload.
+  // Apply the saved theme immediately, but hold off starting the FX particle loop
+  // until the archive is actually unlocked — otherwise a previously-saved fx choice
+  // (rain/matrix/etc) would start animating behind the educational disguise on load.
   applyTheme();
   document.body.classList.toggle('reduce-motion', state.reduceMotion);
 

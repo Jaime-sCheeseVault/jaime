@@ -331,44 +331,48 @@
     to{ opacity:1; transform: translateY(0); }
   }
 
-  #settings-overlay{
-    position:fixed; inset:0;
-    background: var(--void-header);
-    z-index:9996;
-    display:none;
-    align-items:center;
+  /* ===================== SETTINGS PAGE (settings.html) ===================== */
+  .settings-page{
+    min-height:100vh;
+    background-color: var(--void);
+    background-image:
+      radial-gradient(circle at 15% 20%, var(--arc-glow-ring), transparent 45%),
+      radial-gradient(circle at 85% 15%, var(--arc-glow-ring), transparent 40%);
+    color: var(--phosphor);
+    display:flex;
+    align-items:flex-start;
     justify-content:center;
-    padding: 20px;
+    padding: 60px 20px;
   }
-  #settings-overlay.active{ display:flex; animation: overlay-in 0.18s ease; }
-  #settings-overlay.active .settings-panel{ animation: scale-in 0.22s cubic-bezier(.2,.9,.3,1.2) both; }
-  @keyframes overlay-in{ from{ opacity:0; } to{ opacity:1; } }
-  @keyframes scale-in{ from{ opacity:0; transform: scale(0.95); } to{ opacity:1; transform: scale(1); } }
+  .settings-back{
+    position:fixed; top:24px; left:24px;
+    font-family: 'Courier New', monospace;
+    font-size:12px; letter-spacing:0.06em; text-transform:uppercase;
+    color: var(--arc-fg-mid);
+    text-decoration:none;
+    border:1px solid var(--line-dim);
+    padding:8px 14px;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .settings-back:hover{ border-color: var(--phosphor-dim); color:#fff; }
 
   .settings-panel{
     background: var(--void-2);
     border: 1px solid var(--line-dim);
-    width: min(420px, 100%);
-    max-height: 80vh;
-    overflow-y:auto;
+    width: min(460px, 100%);
     font-family: 'Courier New', monospace;
     color: var(--phosphor);
     box-shadow: 0 30px 80px -20px rgba(0,0,0,0.8), 0 0 0 1px var(--arc-ring);
+    animation: rise-in 0.4s ease backwards;
   }
   .settings-header{
     display:flex; justify-content:space-between; align-items:center;
-    padding: 16px 20px;
+    padding: 18px 22px;
     border-bottom: 1px solid var(--line-dim);
-    font-size:13px; letter-spacing:0.08em; text-transform:uppercase;
+    font-size:14px; letter-spacing:0.08em; text-transform:uppercase;
   }
-  .settings-header button{
-    background:transparent; border:1px solid var(--line-dim); color:var(--phosphor);
-    font-family:inherit; font-size:11px; padding:5px 10px; cursor:pointer;
-    transition: border-color 0.15s ease, color 0.15s ease;
-  }
-  .settings-header button:hover{ border-color: var(--phosphor-dim); color:#fff; }
-  .settings-body{ padding: 18px 20px; }
-  .settings-group{ margin-bottom: 22px; }
+  .settings-body{ padding: 20px 22px; }
+  .settings-group{ margin-bottom: 24px; }
   .settings-group h4{
     font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
     color: var(--phosphor-dim); margin:0 0 10px;
