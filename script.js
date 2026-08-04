@@ -1,3 +1,4 @@
+
 (function(){
   (function fx(){
     const cv = document.getElementById('fx');
@@ -59,7 +60,7 @@
       } else if (mode === 'particles'){
         const n = count(500);
         for (let i = 0; i < n; i++){
-          parts.push({ x: Math.random() * W, y: Math.random() * H, r: 1 + Math.random() * 2.2, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4 });
+          parts.push({ x: Math.random() * W, y: Math.random() * H, r: 1 + Math.random() * 2.2, vx: (Math.random() - 0.5) * 1.1, vy: (Math.random() - 0.5) * 1.1 });
         }
       }
     }
