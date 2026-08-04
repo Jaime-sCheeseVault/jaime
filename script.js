@@ -92,33 +92,53 @@
         const size = 14;
         const totalRows = Math.ceil(H / size);
         const bgRgb = hexToRgb(getComputedStyle(document.documentElement).getPropertyValue('--void').trim() || '#05070a');
-        ctx.fillStyle = 'rgba(' + bgRgb[0] + ',' + bgRgb[1] + ',' + bgRgb[2] + ',0.16)';
+        ctx.fillStyle = 'rgba(' + bgRgb[0] + ',' + bgRgb[1] + ',' + bgRgb[2] + ',0.05)';
         ctx.fillRect(0, 0, W, H);
         ctx.font = size + 'px monospace';
+        
         for (const c of cols){
           c.timer += dt;
           if (c.timer < c.interval) continue;
           c.timer -= c.interval;
           c.headRow++;
 
-          const headY = c.headRow * size;
-          if (headY >= 0 && headY <= H + size){
-            // Bright orange/yellow head
-            ctx.fillStyle = 'rgba(255, 200, 100, 1)';
-            ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], c.x, headY);
-          }
-          
-          // Draw fading tail
-          for (let i = 1; i <= c.tailLen; i++){
+          // Draw the entire column with proper gradient
+          for (let i = 0; i <= c.tailLen; i++){
             const tailRow = c.headRow - i;
             const tailY = tailRow * size;
             if (tailY >= 0 && tailY <= H + size){
-              const fadeRatio = 1 - (i / c.tailLen);
-              // Gradient from orange to darker orange/red
-              const r = Math.floor(255 * fadeRatio + 139 * (1 - fadeRatio));
-              const g = Math.floor(140 * fadeRatio + 69 * (1 - fadeRatio));
-              const b = Math.floor(0 * fadeRatio + 19 * (1 - fadeRatio));
-              const alpha = fadeRatio * 0.9;
+              const progress = 1 - (i / c.tailLen);
+              
+              let r, g, b, alpha;
+              if (i === 0) {
+                // Brightest head - yellow-white
+                r = 255;
+                g = 220;
+                b = 100;
+                alpha = 1.0;
+              } else if (progress > 0.7) {
+                // Near head - bright orange
+                const localProgress = (progress - 0.7) / 0.3;
+                r = 255;
+                g = Math.floor(140 + (80 * localProgress));
+                b = Math.floor(0 + (100 * localProgress));
+                alpha = 0.85 + (0.15 * localProgress);
+              } else if (progress > 0.3) {
+                // Mid tail - medium orange
+                const localProgress = (progress - 0.3) / 0.4;
+                r = Math.floor(220 + (35 * localProgress));
+                g = Math.floor(90 + (50 * localProgress));
+                b = 0;
+                alpha = 0.6 + (0.25 * localProgress);
+              } else {
+                // Far tail - dark red-orange
+                const localProgress = progress / 0.3;
+                r = Math.floor(139 + (81 * localProgress));
+                g = Math.floor(40 + (50 * localProgress));
+                b = Math.floor(19 - (19 * localProgress));
+                alpha = 0.2 + (0.4 * localProgress);
+              }
+              
               ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
               ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], c.x, tailY);
             }
