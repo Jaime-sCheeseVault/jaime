@@ -1200,16 +1200,6 @@
     }
 
     window.addEventListener('resize', resize);
-    window.addEventListener('mousemove', (e) => {
-      mouse.vx = e.clientX - mouse.px; mouse.vy = e.clientY - mouse.py;
-      mouse.px = e.clientX; mouse.py = e.clientY;
-      mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true;
-    }, { passive: true });
-    window.addEventListener('mouseout', () => { mouse.active = false; });
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) stop(); else if (mode !== 'off') start();
-    });
-
     resize();
     window.__fx = { setMode, setDensity };
   })();
