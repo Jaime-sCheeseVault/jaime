@@ -18,6 +18,20 @@
       const cs = getComputedStyle(document.documentElement);
       return cs.getPropertyValue('--phosphor').trim() || '#b8f4e0';
     }
+    function getMatrixColors(){
+      return {
+        head: [255, 224, 102],
+        bright: [255, 176, 0],
+        dim: [128, 96, 0]
+      };
+    }
+    function lerpRgb(a, b, t){
+      return [
+        Math.round(a[0] + (b[0] - a[0]) * t),
+        Math.round(a[1] + (b[1] - a[1]) * t),
+        Math.round(a[2] + (b[2] - a[2]) * t)
+      ];
+    }
     function count(base){
       return Math.max(8, Math.round(base * density * (W * H) / 1200000));
     }
@@ -41,18 +55,18 @@
       } else if (mode === 'matrix'){
         const size = 14;
         const totalCols = Math.floor(W / size);
-        const maxStreams = Math.min(18, Math.max(8, Math.floor(totalCols * 0.12)));
+        const maxStreams = Math.min(totalCols, Math.max(16, Math.floor(totalCols * 0.5 * density)));
         const usedCols = new Set();
         for (let i = 0; i < maxStreams; i++){
           let col;
           do { col = Math.floor(Math.random() * totalCols); } while (usedCols.has(col) && usedCols.size < totalCols);
           usedCols.add(col);
-          const tailLen = 8 + Math.floor(Math.random() * 14);
+          const tailLen = 10 + Math.floor(Math.random() * 18);
           cols.push({
             x: col * size,
             headRow: -Math.floor(Math.random() * (H / size)),
             tailLen,
-            interval: 60 + Math.floor(Math.random() * 80),
+            interval: 35 + Math.floor(Math.random() * 55),
             timer: 0
           });
         }
@@ -91,58 +105,52 @@
       } else if (mode === 'matrix'){
         const size = 14;
         const totalRows = Math.ceil(H / size);
-        const bgRgb = hexToRgb(getComputedStyle(document.documentElement).getPropertyValue('--void').trim() || '#05070a');
-        ctx.fillStyle = 'rgba(' + bgRgb[0] + ',' + bgRgb[1] + ',' + bgRgb[2] + ',0.05)';
+        const bgRgb = hexToRgb(getComputedStyle(document.documentElement).getPropertyValue('--void').trim() || '#000000');
+        const mc = getMatrixColors();
+        ctx.fillStyle = 'rgba(' + bgRgb[0] + ',' + bgRgb[1] + ',' + bgRgb[2] + ',0.08)';
         ctx.fillRect(0, 0, W, H);
-        ctx.font = size + 'px monospace';
-        
+        ctx.font = size + 'px "Courier New", Courier, monospace';
+
         for (const c of cols){
           c.timer += dt;
           if (c.timer < c.interval) continue;
           c.timer -= c.interval;
           c.headRow++;
 
-          // Draw the entire column with proper gradient
           for (let i = 0; i <= c.tailLen; i++){
             const tailRow = c.headRow - i;
             const tailY = tailRow * size;
             if (tailY >= 0 && tailY <= H + size){
               const progress = 1 - (i / c.tailLen);
-              
-              let r, g, b, alpha;
-              if (i === 0) {
-                // Brightest head - yellow-white
-                r = 255;
-                g = 220;
-                b = 100;
-                alpha = 1.0;
-              } else if (progress > 0.7) {
-                // Near head - bright orange
-                const localProgress = (progress - 0.7) / 0.3;
-                r = 255;
-                g = Math.floor(140 + (80 * localProgress));
-                b = Math.floor(0 + (100 * localProgress));
-                alpha = 0.85 + (0.15 * localProgress);
-              } else if (progress > 0.3) {
-                // Mid tail - medium orange
-                const localProgress = (progress - 0.3) / 0.4;
-                r = Math.floor(220 + (35 * localProgress));
-                g = Math.floor(90 + (50 * localProgress));
-                b = 0;
-                alpha = 0.6 + (0.25 * localProgress);
+              let rgb, alpha;
+
+              if (i === 0){
+                rgb = mc.head;
+                alpha = 1;
+                ctx.shadowColor = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',0.85)';
+                ctx.shadowBlur = 10;
+              } else if (progress > 0.55){
+                const t = (progress - 0.55) / 0.45;
+                rgb = lerpRgb(mc.bright, mc.head, t);
+                alpha = 0.75 + 0.25 * t;
+                ctx.shadowBlur = 0;
+              } else if (progress > 0.2){
+                const t = (progress - 0.2) / 0.35;
+                rgb = lerpRgb(mc.dim, mc.bright, t);
+                alpha = 0.35 + 0.4 * t;
+                ctx.shadowBlur = 0;
               } else {
-                // Far tail - dark red-orange
-                const localProgress = progress / 0.3;
-                r = Math.floor(139 + (81 * localProgress));
-                g = Math.floor(40 + (50 * localProgress));
-                b = Math.floor(19 - (19 * localProgress));
-                alpha = 0.2 + (0.4 * localProgress);
+                const t = progress / 0.2;
+                rgb = lerpRgb([0, 0, 0], mc.dim, t);
+                alpha = 0.08 + 0.27 * t;
+                ctx.shadowBlur = 0;
               }
-              
-              ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+
+              ctx.fillStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + alpha + ')';
               ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], c.x, tailY);
             }
           }
+          ctx.shadowBlur = 0;
 
           if (c.headRow - c.tailLen > totalRows){
             const usedCols = new Set(cols.map(s => Math.round(s.x / size)));
@@ -154,8 +162,8 @@
               : Math.floor(Math.random() * totalCols);
             c.x = newCol * size;
             c.headRow = -Math.floor(Math.random() * 4);
-            c.tailLen = 8 + Math.floor(Math.random() * 14);
-            c.interval = 60 + Math.floor(Math.random() * 80);
+            c.tailLen = 10 + Math.floor(Math.random() * 18);
+            c.interval = 35 + Math.floor(Math.random() * 55);
           }
         }
       } else if (mode === 'stars' || mode === 'constellations'){
