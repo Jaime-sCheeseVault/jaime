@@ -6,7 +6,7 @@
     let mode = 'off', density = 1;
     let parts = [], drops = [], flakes = [], cols = [], stars = [];
     let running = false, raf = 0, last = 0;
-    const GLYPHS = 'アィウェエオカキクケコサシスセソタチツテトナニヌネノ01ABCDEF'.split('');
+    const GLYPHS = '01'.split('');
 
     function hexToRgb(h){
       h = (h || '').replace('#', '');
@@ -17,34 +17,6 @@
     function getColor(){
       const cs = getComputedStyle(document.documentElement);
       return cs.getPropertyValue('--phosphor').trim() || '#b8f4e0';
-    }
-    function getMatrixColors(){
-      // Theme the characters to the currently selected theme
-      const cs = getComputedStyle(document.documentElement);
-      const base = hexToRgb(cs.getPropertyValue('--phosphor').trim() || '#b8f4e0');
-      const dim = hexToRgb(cs.getPropertyValue('--phosphor-dim').trim() || '#4a9c85');
-      const lum = 0.299 * base[0] + 0.587 * base[1] + 0.114 * base[2];
-      const headBlend = lum > 140 ? 0.25 : 0.8;
-      return {
-        head: [
-          Math.round(base[0] + (255 - base[0]) * headBlend),
-          Math.round(base[1] + (255 - base[1]) * headBlend),
-          Math.round(base[2] + (255 - base[2]) * headBlend)
-        ],
-        bright: [
-          Math.min(255, Math.round(base[0] * 1.18)),
-          Math.min(255, Math.round(base[1] * 1.18)),
-          Math.min(255, Math.round(base[2] * 1.18))
-        ],
-        dim
-      };
-    }
-    function lerpRgb(a, b, t){
-      return [
-        Math.round(a[0] + (b[0] - a[0]) * t),
-        Math.round(a[1] + (b[1] - a[1]) * t),
-        Math.round(a[2] + (b[2] - a[2]) * t)
-      ];
     }
     function count(base){
       return Math.max(8, Math.round(base * density * (W * H) / 1200000));
@@ -67,21 +39,20 @@
           flakes.push({ x: Math.random() * W, y: Math.random() * H, r: 1 + Math.random() * 2.5, vy: 0.4 + Math.random() * 0.9, sw: 0.01 + Math.random() * 0.02, ph: Math.random() * Math.PI * 2 });
         }
       } else if (mode === 'matrix'){
-        const size = 14;
+        const size = 20;
         const totalCols = Math.floor(W / size);
-        // Multiple streams across the whole screen; keep a mild cap on very large displays
-        const cap = W * H > 2200000 ? 0.6 : 0.9;
-        const streamCount = Math.min(totalCols, Math.max(12, Math.floor(totalCols * cap * density)));
+        const maxStreams = Math.min(14, Math.max(6, Math.floor(totalCols * 0.16)));
         const usedCols = new Set();
-        for (let i = 0; i < streamCount; i++){
+        for (let i = 0; i < maxStreams; i++){
           let col;
           do { col = Math.floor(Math.random() * totalCols); } while (usedCols.has(col) && usedCols.size < totalCols);
           usedCols.add(col);
+          const tailLen = 14 + Math.floor(Math.random() * 20);
           cols.push({
             x: col * size,
             headRow: -Math.floor(Math.random() * (H / size)),
-            tailLen: 18 + Math.floor(Math.random() * 20),
-            interval: 10 + Math.floor(Math.random() * 15),
+            tailLen,
+            interval: 220 + Math.floor(Math.random() * 260),
             timer: 0
           });
         }
@@ -118,57 +89,30 @@
           ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.2832); ctx.fillStyle = A(0.85); ctx.fill();
         }
       } else if (mode === 'matrix'){
-        const size = 14;
+        const size = 20;
         const totalRows = Math.ceil(H / size);
-        const bgRgb = hexToRgb(getComputedStyle(document.documentElement).getPropertyValue('--void').trim() || '#000000');
-        const mc = getMatrixColors();
-        ctx.fillStyle = 'rgba(' + bgRgb[0] + ',' + bgRgb[1] + ',' + bgRgb[2] + ',0.08)';
+        const bgRgb = hexToRgb(getComputedStyle(document.documentElement).getPropertyValue('--void').trim() || '#05070a');
+        ctx.fillStyle = 'rgba(' + bgRgb[0] + ',' + bgRgb[1] + ',' + bgRgb[2] + ',0.06)';
         ctx.fillRect(0, 0, W, H);
-        ctx.font = size + 'px "Courier New", Courier, monospace';
-
+        ctx.font = (size - 4) + 'px monospace';
         for (const c of cols){
           c.timer += dt;
           if (c.timer < c.interval) continue;
           c.timer -= c.interval;
           c.headRow++;
 
-          for (let i = 0; i <= c.tailLen; i++){
-            const tailRow = c.headRow - i;
-            const tailY = tailRow * size;
-            if (tailY >= 0 && tailY <= H + size){
-              const progress = 1 - (i / c.tailLen);
-              let rgb, alpha;
-
-              if (i === 0){
-                rgb = mc.head;
-                alpha = 1;
-                ctx.shadowColor = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',0.85)';
-                ctx.shadowBlur = 10;
-              } else if (progress > 0.55){
-                const t = (progress - 0.55) / 0.45;
-                rgb = lerpRgb(mc.bright, mc.head, t);
-                alpha = 0.75 + 0.25 * t;
-                ctx.shadowBlur = 0;
-              } else if (progress > 0.2){
-                const t = (progress - 0.2) / 0.35;
-                rgb = lerpRgb(mc.dim, mc.bright, t);
-                alpha = 0.35 + 0.4 * t;
-                ctx.shadowBlur = 0;
-              } else {
-                const t = progress / 0.2;
-                rgb = lerpRgb([0, 0, 0], mc.dim, t);
-                alpha = 0.08 + 0.27 * t;
-                ctx.shadowBlur = 0;
-              }
-
-              ctx.fillStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + alpha + ')';
-              // Use deterministic glyph selection to prevent shaking
-              // Hash the column position and row to get a consistent character
-              const glyphIndex = Math.floor(Math.abs(Math.sin(c.x * 0.123 + tailRow * 0.456) * 10000)) % GLYPHS.length;
-              ctx.fillText(GLYPHS[glyphIndex], c.x, tailY);
+          const headY = c.headRow * size;
+          if (headY >= 0 && headY <= H + size){
+            ctx.fillStyle = 'rgba(255,176,64,0.7)';
+            ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], c.x, headY);
+          }
+          if (c.headRow > 1){
+            const midY = (c.headRow - 1) * size;
+            if (midY >= 0){
+              ctx.fillStyle = 'rgba(140,80,20,0.22)';
+              ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], c.x, midY);
             }
           }
-          ctx.shadowBlur = 0;
 
           if (c.headRow - c.tailLen > totalRows){
             const usedCols = new Set(cols.map(s => Math.round(s.x / size)));
@@ -180,8 +124,8 @@
               : Math.floor(Math.random() * totalCols);
             c.x = newCol * size;
             c.headRow = -Math.floor(Math.random() * 4);
-            c.tailLen = 18 + Math.floor(Math.random() * 20);
-            c.interval = 10 + Math.floor(Math.random() * 15);
+            c.tailLen = 14 + Math.floor(Math.random() * 20);
+            c.interval = 220 + Math.floor(Math.random() * 260);
           }
         }
       } else if (mode === 'stars' || mode === 'constellations'){
@@ -255,7 +199,6 @@
   const DEFAULTS = {
     theme: 'default', fx: 'off', fxDensity: 1,
     gridSize: 180, fullscreenOnPlay: false, confirmBeforeClose: false, reduceMotion: false,
-    cloakEnabled: false, cloakTitle: 'Classes', cloakFavicon: 'https://www.gstatic.com/classroom/logo_square_rounded.svg',
   };
   let state;
   try { state = Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(SKEY) || '{}')); }
@@ -407,9 +350,6 @@
   const toggleFullscreen = document.getElementById('toggle-fullscreen');
   const toggleConfirmClose = document.getElementById('toggle-confirm-close');
   const toggleReduceMotion = document.getElementById('toggle-reduce-motion');
-  const toggleCloakEnabled = document.getElementById('toggle-cloak');
-  const cloakTitleInput = document.getElementById('cloak-title');
-  const cloakFaviconInput = document.getElementById('cloak-favicon');
 
   if (settingsBtn){
     settingsBtn.addEventListener('click', (e) => {
@@ -487,69 +427,6 @@
       applyFx();
     });
   }
-
-  // Tab Cloaking
-  function applyCloak(){
-    if (state.cloakEnabled){
-      document.title = state.cloakTitle || 'Classes';
-      // Remove existing favicons
-      const existingIcons = document.querySelectorAll('link[rel*="icon"]');
-      existingIcons.forEach(icon => icon.remove());
-      // Add new favicon
-      const link = document.createElement('link');
-      link.rel = 'icon';
-      link.type = 'image/x-icon';
-      link.href = state.cloakFavicon || 'https://www.gstatic.com/classroom/logo_square_rounded.svg';
-      document.head.appendChild(link);
-    } else {
-      // Check if archive is activated
-      if (activated){
-        document.title = 'The Archive';
-      } else {
-        document.title = 'Fairview Unified — Digital Learning Portal';
-      }
-      // Restore original favicon
-      const existingIcons = document.querySelectorAll('link[rel*="icon"]');
-      existingIcons.forEach(icon => icon.remove());
-      
-      const link = document.createElement('link');
-      link.rel = 'icon';
-      link.type = 'image/x-icon';
-      link.href = 'https://www.gstatic.com/classroom/logo_square_rounded.svg';
-      document.head.appendChild(link);
-    }
-  }
-
-  if (toggleCloakEnabled){
-    toggleCloakEnabled.classList.toggle('on', !!state.cloakEnabled);
-    toggleCloakEnabled.addEventListener('click', () => {
-      state.cloakEnabled = !state.cloakEnabled;
-      toggleCloakEnabled.classList.toggle('on', state.cloakEnabled);
-      save();
-      applyCloak();
-    });
-  }
-
-  if (cloakTitleInput){
-    cloakTitleInput.value = state.cloakTitle;
-    cloakTitleInput.addEventListener('input', () => {
-      state.cloakTitle = cloakTitleInput.value;
-      save();
-      if (state.cloakEnabled) applyCloak();
-    });
-  }
-
-  if (cloakFaviconInput){
-    cloakFaviconInput.value = state.cloakFavicon;
-    cloakFaviconInput.addEventListener('input', () => {
-      state.cloakFavicon = cloakFaviconInput.value;
-      save();
-      if (state.cloakEnabled) applyCloak();
-    });
-  }
-
-  // Apply cloak on page load if enabled
-  applyCloak();
 
   // Apply the saved theme immediately, but hold off starting the FX particle loop
   // until the archive is actually unlocked — otherwise a previously-saved fx choice
