@@ -1,3 +1,4 @@
+
 (function(){
   (function fx(){
     const cv = document.getElementById('fx');
@@ -215,45 +216,13 @@
     { tag:'Arcade',   name:'Tomb Of The Mask', file:'./g/tomb-of-the-mask.html', icon:'./g/assets/tomb-of-the-mask.png' },
   ];
 
-  const categoryNav = document.getElementById('category-nav');
-  const searchInput = document.getElementById('search-input');
-  const browseTitle = document.getElementById('browse-title');
-  const browseCount = document.getElementById('browse-count');
-
-  let activeCategory = 'all';
-  let searchTerm = '';
-
-  function getFilteredGames(){
-    return games.filter(g => {
-      const matchesCategory = activeCategory === 'all' || g.tag === activeCategory;
-      const matchesSearch = !searchTerm || g.name.toLowerCase().includes(searchTerm);
-      return matchesCategory && matchesSearch;
-    });
-  }
-
   function renderGrid(){
-    const list = getFilteredGames();
-
-    if (browseTitle){
-      browseTitle.textContent = searchTerm
-        ? `Results for "${searchTerm}"`
-        : (activeCategory === 'all' ? 'All Games' : activeCategory);
-    }
-    if (browseCount){
-      browseCount.textContent = list.length + (list.length === 1 ? ' game' : ' games');
-    }
-
-    if (!list.length){
-      grid.innerHTML = `<div class="arc-empty">No games found.</div>`;
-      return;
-    }
-
-    grid.innerHTML = list.map((g, i) => `
-      <div class="arc-tile" tabindex="0" data-file="${g.file}" style="animation-delay:${i * 45}ms">
+    grid.innerHTML = games.map((g, i) => `
+      <div class="arc-tile" tabindex="0" data-index="${i}" style="animation-delay:${i * 45}ms">
         <div class="tile-thumb">
           <img class="tile-icon" src="${g.icon}" alt="${g.name}" onerror="this.style.display='none'" />
           <div class="tile-play-overlay">
-            <button class="tile-play-btn" data-file="${g.file}" data-name="${g.name}" aria-label="Play ${g.name}">
+            <button class="tile-play-btn" data-index="${i}" aria-label="Play ${g.name}">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             </button>
           </div>
@@ -265,38 +234,15 @@
     `).join('');
 
     grid.querySelectorAll('.arc-tile').forEach(tile => {
-      const game = list.find(g => g.file === tile.dataset.file);
-      const open = () => openGame(game);
+      const open = () => openGame(games[tile.dataset.index]);
       tile.addEventListener('click', open);
       tile.addEventListener('keydown', (e) => { if (e.key === 'Enter') open(); });
     });
     grid.querySelectorAll('.tile-play-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const game = list.find(g => g.file === btn.dataset.file);
-        openGame(game);
-      });
+      btn.addEventListener('click', (e) => { e.stopPropagation(); openGame(games[btn.dataset.index]); });
     });
   }
   renderGrid();
-
-  if (categoryNav){
-    categoryNav.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        activeCategory = link.dataset.cat;
-        categoryNav.querySelectorAll('a').forEach(a => a.classList.toggle('active', a === link));
-        renderGrid();
-      });
-    });
-  }
-
-  if (searchInput){
-    searchInput.addEventListener('input', () => {
-      searchTerm = searchInput.value.trim().toLowerCase();
-      renderGrid();
-    });
-  }
 
   function openGame(game){
     const scrim = document.createElement('div');
