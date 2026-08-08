@@ -416,6 +416,21 @@
     background: var(--void); border:1px solid var(--line-dim); color:var(--phosphor);
     font-family:inherit; font-size:12px; padding:6px 8px; flex-shrink:0;
   }
+  input.settings-input{
+    background: var(--void); border:1px solid var(--line-dim); color:var(--phosphor);
+    font-family:inherit; font-size:12px; padding:6px 8px; flex-shrink:0;
+    width: 100%;
+    max-width: 280px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  input.settings-input:focus{
+    border-color: var(--phosphor-dim);
+  }
+  input.settings-input::placeholder{
+    color: var(--phosphor-dim);
+    opacity: 0.5;
+  }
 
   #archive-site{
     display:none;

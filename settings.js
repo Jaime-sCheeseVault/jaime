@@ -17,6 +17,29 @@
   const toggleFullscreen = document.getElementById('toggle-fullscreen');
   const toggleConfirmClose = document.getElementById('toggle-confirm-close');
   const toggleReduceMotion = document.getElementById('toggle-reduce-motion');
+  // Inject Tab Cloaking UI if missing
+  const settingsBody = document.querySelector('.settings-body');
+  if (settingsBody && !document.getElementById('toggle-cloak')) {
+    const group = document.createElement('div');
+    group.className = 'settings-group';
+    group.innerHTML = `
+      <h4>Tab Cloaking</h4>
+      <div class="settings-row">
+        <span class="label">Enable tab cloaking<small>Disguise the tab title and icon</small></span>
+        <div class="toggle" id="toggle-cloak"></div>
+      </div>
+      <div class="settings-row">
+        <span class="label">Tab title<small>Custom title for the tab</small></span>
+        <input type="text" class="settings-input" id="cloak-title" placeholder="Classes">
+      </div>
+      <div class="settings-row">
+        <span class="label">Favicon URL<small>Custom favicon URL</small></span>
+        <input type="text" class="settings-input" id="cloak-favicon" placeholder="https://www.gstatic.com/classroom/logo_square_rounded.svg">
+      </div>
+    `;
+    settingsBody.appendChild(group);
+  }
+
   const toggleCloakEnabled = document.getElementById('toggle-cloak');
   const cloakTitleInput = document.getElementById('cloak-title');
   const cloakFaviconInput = document.getElementById('cloak-favicon');
