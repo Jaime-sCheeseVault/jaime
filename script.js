@@ -1,3 +1,4 @@
+
 (function(){
   (function fx(){
     const cv = document.getElementById('fx');
@@ -6,7 +7,7 @@
     let mode = 'off', density = 1;
     let parts = [], drops = [], flakes = [], cols = [], stars = [];
     let running = false, raf = 0, last = 0;
-    const GLYPHS = '01'.split('');
+    const GLYPHS = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
     function hexToRgb(h){
       h = (h || '').replace('#', '');
@@ -39,21 +40,12 @@
           flakes.push({ x: Math.random() * W, y: Math.random() * H, r: 1 + Math.random() * 2.5, vy: 0.4 + Math.random() * 0.9, sw: 0.01 + Math.random() * 0.02, ph: Math.random() * Math.PI * 2 });
         }
       } else if (mode === 'matrix'){
-        const size = 20;
+        const size = 18;
         const totalCols = Math.floor(W / size);
-        const maxStreams = Math.min(14, Math.max(6, Math.floor(totalCols * 0.16)));
-        const usedCols = new Set();
-        for (let i = 0; i < maxStreams; i++){
-          let col;
-          do { col = Math.floor(Math.random() * totalCols); } while (usedCols.has(col) && usedCols.size < totalCols);
-          usedCols.add(col);
-          const tailLen = 14 + Math.floor(Math.random() * 20);
+        for (let i = 0; i < totalCols; i++){
           cols.push({
-            x: col * size,
-            headRow: -Math.floor(Math.random() * (H / size)),
-            tailLen,
-            interval: 220 + Math.floor(Math.random() * 260),
-            timer: 0
+            row: Math.random() * -(H / size) * 2,
+            speed: 0.2 + Math.random() * 0.6
           });
         }
       } else if (mode === 'particles'){
@@ -89,43 +81,41 @@
           ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.2832); ctx.fillStyle = A(0.85); ctx.fill();
         }
       } else if (mode === 'matrix'){
-        const size = 20;
-        const totalRows = Math.ceil(H / size);
+        const size = 18;
         const bgRgb = hexToRgb(getComputedStyle(document.documentElement).getPropertyValue('--void').trim() || '#05070a');
-        ctx.fillStyle = 'rgba(' + bgRgb[0] + ',' + bgRgb[1] + ',' + bgRgb[2] + ',0.06)';
+        ctx.fillStyle = 'rgba(' + bgRgb[0] + ',' + bgRgb[1] + ',' + bgRgb[2] + ',0.08)';
         ctx.fillRect(0, 0, W, H);
-        ctx.font = (size - 4) + 'px monospace';
-        for (const c of cols){
-          c.timer += dt;
-          if (c.timer < c.interval) continue;
-          c.timer -= c.interval;
-          c.headRow++;
-
-          const headY = c.headRow * size;
-          if (headY >= 0 && headY <= H + size){
-            ctx.fillStyle = 'rgba(255,176,64,0.7)';
-            ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], c.x, headY);
-          }
-          if (c.headRow > 1){
-            const midY = (c.headRow - 1) * size;
-            if (midY >= 0){
-              ctx.fillStyle = 'rgba(140,80,20,0.22)';
-              ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], c.x, midY);
+        ctx.font = (size - 2) + 'px monospace';
+        ctx.textAlign = 'center';
+        
+        for (let i = 0; i < cols.length; i++){
+          const c = cols[i];
+          const oldRow = Math.floor(c.row);
+          c.row += c.speed * (dt / 16.7);
+          const newRow = Math.floor(c.row);
+          
+          for (let r = oldRow + 1; r <= newRow; r++) {
+            const char = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+            const y = r * size;
+            const x = (i * size) + (size / 2);
+            if (y > 0) {
+              // Draw head brighter, let tail fade naturally
+              ctx.fillStyle = 'rgba(' + Math.min(255, rgb[0] + 60) + ',' + Math.min(255, rgb[1] + 60) + ',' + Math.min(255, rgb[2] + 60) + ',1)';
+              ctx.fillText(char, x, y);
+              
+              // Draw over immediate previous row to tint it to the normal theme color before it fades
+              if (r > 1) {
+                 ctx.fillStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',0.9)';
+                 const prevChar = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+                 // To prevent blurring we overwrite with a character. We could also just let it fade, 
+                 // but explicitly tinting the step behind ensures a bright head and colored tail.
+                 ctx.fillText(prevChar, x, (r - 1) * size);
+              }
             }
           }
-
-          if (c.headRow - c.tailLen > totalRows){
-            const usedCols = new Set(cols.map(s => Math.round(s.x / size)));
-            const totalCols = Math.floor(W / size);
-            const freeCols = [];
-            for (let i = 0; i < totalCols; i++) if (!usedCols.has(i)) freeCols.push(i);
-            const newCol = freeCols.length
-              ? freeCols[Math.floor(Math.random() * freeCols.length)]
-              : Math.floor(Math.random() * totalCols);
-            c.x = newCol * size;
-            c.headRow = -Math.floor(Math.random() * 4);
-            c.tailLen = 14 + Math.floor(Math.random() * 20);
-            c.interval = 220 + Math.floor(Math.random() * 260);
+          
+          if (newRow * size > H && Math.random() > 0.975) {
+            c.row = Math.random() * -5;
           }
         }
       } else if (mode === 'stars' || mode === 'constellations'){
@@ -184,7 +174,7 @@
 
     resize();
     window.__fx = { setMode, setDensity };
-  })();
+  })()
 
   const eduSite = document.getElementById('edu-site');
   const archiveRoot = document.getElementById('archive-root');
@@ -328,6 +318,8 @@
       setTimeout(() => {
         archiveRoot.classList.remove('active');
         archiveSite.classList.add('active');
+        // now that the archive is actually visible, it's safe to start
+        // the background fx loop (if a mode was previously selected)
         applyFx();
       }, 2450);
     }, 160);
@@ -338,6 +330,7 @@
     if (e.key && e.key.toLowerCase() === TRIGGER_KEY) activateArchive();
   });
 
+  // ---- Settings (embedded in-page view — no navigation, no overlay) ----
   const settingsBtn = document.getElementById('settings-btn');
   const settingsBack = document.getElementById('settings-back');
   const themeRow = document.getElementById('theme-row');
@@ -425,6 +418,9 @@
     });
   }
 
+  // Apply the saved theme immediately, but hold off starting the FX particle loop
+  // until the archive is actually unlocked — otherwise a previously-saved fx choice
+  // (rain/matrix/etc) would start animating behind the educational disguise on load.
   applyTheme();
   document.body.classList.toggle('reduce-motion', state.reduceMotion);
 
