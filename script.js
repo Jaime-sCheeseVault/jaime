@@ -189,6 +189,7 @@
   const DEFAULTS = {
     theme: 'default', fx: 'off', fxDensity: 1,
     gridSize: 180, fullscreenOnPlay: false, confirmBeforeClose: false, reduceMotion: false,
+    tabCloak: false, cloakTitle: '', cloakFavicon: '',
   };
   let state;
   try { state = Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(SKEY) || '{}')); }
@@ -417,6 +418,58 @@
       applyFx();
     });
   }
+
+  const toggleCloak = document.getElementById('toggle-cloak');
+  const cloakTitle = document.getElementById('cloak-title');
+  const cloakFavicon = document.getElementById('cloak-favicon');
+
+  const originalTitle = document.title;
+  const originalFavicon = document.querySelector('link[rel="icon"]')?.href || '';
+
+  function applyCloak() {
+    if (state.tabCloak) {
+      document.title = state.cloakTitle || 'Classes';
+      let link = document.querySelector('link[rel="icon"]');
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = state.cloakFavicon || 'https://www.gstatic.com/classroom/logo_square_rounded.svg';
+    } else {
+      document.title = originalTitle;
+      let link = document.querySelector('link[rel="icon"]');
+      if (link) link.href = originalFavicon;
+    }
+  }
+
+  if (toggleCloak) {
+    toggleCloak.classList.toggle('on', !!state.tabCloak);
+    toggleCloak.addEventListener('click', () => {
+      state.tabCloak = !state.tabCloak;
+      toggleCloak.classList.toggle('on', state.tabCloak);
+      save();
+      applyCloak();
+    });
+  }
+  if (cloakTitle) {
+    cloakTitle.value = state.cloakTitle || '';
+    cloakTitle.addEventListener('input', () => {
+      state.cloakTitle = cloakTitle.value;
+      save();
+      applyCloak();
+    });
+  }
+  if (cloakFavicon) {
+    cloakFavicon.value = state.cloakFavicon || '';
+    cloakFavicon.addEventListener('input', () => {
+      state.cloakFavicon = cloakFavicon.value;
+      save();
+      applyCloak();
+    });
+  }
+
+  applyCloak();
 
   // Apply the saved theme immediately, but hold off starting the FX particle loop
   // until the archive is actually unlocked — otherwise a previously-saved fx choice
