@@ -1,4 +1,3 @@
-
 (function(){
   (function fx(){
     const cv = document.getElementById('fx');
@@ -185,7 +184,7 @@
 
     resize();
     window.__fx = { setMode, setDensity };
-  })()
+  })();
 
   const eduSite = document.getElementById('edu-site');
   const archiveRoot = document.getElementById('archive-root');
@@ -329,8 +328,6 @@
       setTimeout(() => {
         archiveRoot.classList.remove('active');
         archiveSite.classList.add('active');
-        // now that the archive is actually visible, it's safe to start
-        // the background fx loop (if a mode was previously selected)
         applyFx();
       }, 2450);
     }, 160);
@@ -341,7 +338,6 @@
     if (e.key && e.key.toLowerCase() === TRIGGER_KEY) activateArchive();
   });
 
-  // ---- Settings (embedded in-page view — no navigation, no overlay) ----
   const settingsBtn = document.getElementById('settings-btn');
   const settingsBack = document.getElementById('settings-back');
   const themeRow = document.getElementById('theme-row');
@@ -429,9 +425,6 @@
     });
   }
 
-  // Apply the saved theme immediately, but hold off starting the FX particle loop
-  // until the archive is actually unlocked — otherwise a previously-saved fx choice
-  // (rain/matrix/etc) would start animating behind the educational disguise on load.
   applyTheme();
   document.body.classList.toggle('reduce-motion', state.reduceMotion);
 
