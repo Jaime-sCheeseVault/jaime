@@ -27,6 +27,7 @@
     <a href="#">Assignments</a>
     <a href="#">Library</a>
     <a href="#">Resources</a>
+    <a href="#" id="request-btn-disguise">Request a Game</a>
     <a href="#">Staff Directory</a>
     <a href="#">Contact</a>
   </nav>
@@ -112,6 +113,7 @@
   <header class="arc-header">
     <div class="arc-logo">THE <span>ARCHIVE</span></div>
     <nav class="arc-nav">
+      <a href="#" id="request-btn">Request a Game</a>
       <a href="#" id="settings-btn">Settings</a>
     </nav>
   </header>
@@ -126,6 +128,14 @@
     </section>
 
     <section class="arc-grid" id="game-grid"></section>
+
+    <section class="arc-request-cta">
+      <div class="arc-request-cta-inner">
+        <h2>Can't find what you're looking for?</h2>
+        <p>If a game's missing or blocked, request it and we'll try to add it to the archive.</p>
+        <button type="button" id="request-cta-btn" class="arc-request-btn">Request a Game</button>
+      </div>
+    </section>
   </div>
 
   <div id="settings-view">
@@ -224,6 +234,29 @@
   </div>
 
   <footer class="arc-footer">THE ARCHIVE — this device leaves no logs</footer>
+</div>
+
+<div class="request-scrim" id="request-scrim" aria-hidden="true">
+  <div class="request-modal" role="dialog" aria-modal="true" aria-label="Request a game">
+    <div class="request-modal-bar">
+      <span class="request-modal-title">Request a Game</span>
+      <button type="button" class="request-close" id="request-close" aria-label="Close">&times;</button>
+    </div>
+    <form class="request-form" id="request-form">
+      <label class="request-field">
+        <span class="request-label">Game title</span>
+        <input type="text" id="request-name" class="request-input" placeholder="e.g. Retro Bowl" required maxlength="80" />
+      </label>
+      <label class="request-field">
+        <span class="request-label">Anything else? <em>(optional)</em></span>
+        <textarea id="request-note" class="request-textarea" placeholder="link, category, why you want it..." maxlength="280" rows="3"></textarea>
+      </label>
+      <div class="request-actions">
+        <span class="request-hint" id="request-hint"></span>
+        <button type="submit" class="request-submit">Send request</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <canvas id="fx"></canvas>

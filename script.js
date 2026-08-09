@@ -1,4 +1,3 @@
-
 (function(){
   (function fx(){
     const cv = document.getElementById('fx');
@@ -7,7 +6,7 @@
     let mode = 'off', density = 1;
     let parts = [], drops = [], flakes = [], cols = [], stars = [];
     let running = false, raf = 0, last = 0;
-    const GLYPHS = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    const GLYPHS = 'アィウェエオカキクケコサシスセソタチツテトナニヌネノ01ABCDEF'.split('');
 
     function hexToRgb(h){
       h = (h || '').replace('#', '');
@@ -18,6 +17,34 @@
     function getColor(){
       const cs = getComputedStyle(document.documentElement);
       return cs.getPropertyValue('--phosphor').trim() || '#b8f4e0';
+    }
+    function getMatrixColors(){
+      // Theme the characters to the currently selected theme
+      const cs = getComputedStyle(document.documentElement);
+      const base = hexToRgb(cs.getPropertyValue('--phosphor').trim() || '#b8f4e0');
+      const dim = hexToRgb(cs.getPropertyValue('--phosphor-dim').trim() || '#4a9c85');
+      const lum = 0.299 * base[0] + 0.587 * base[1] + 0.114 * base[2];
+      const headBlend = lum > 140 ? 0.25 : 0.8;
+      return {
+        head: [
+          Math.round(base[0] + (255 - base[0]) * headBlend),
+          Math.round(base[1] + (255 - base[1]) * headBlend),
+          Math.round(base[2] + (255 - base[2]) * headBlend)
+        ],
+        bright: [
+          Math.min(255, Math.round(base[0] * 1.18)),
+          Math.min(255, Math.round(base[1] * 1.18)),
+          Math.min(255, Math.round(base[2] * 1.18))
+        ],
+        dim
+      };
+    }
+    function lerpRgb(a, b, t){
+      return [
+        Math.round(a[0] + (b[0] - a[0]) * t),
+        Math.round(a[1] + (b[1] - a[1]) * t),
+        Math.round(a[2] + (b[2] - a[2]) * t)
+      ];
     }
     function count(base){
       return Math.max(8, Math.round(base * density * (W * H) / 1200000));
@@ -40,18 +67,28 @@
           flakes.push({ x: Math.random() * W, y: Math.random() * H, r: 1 + Math.random() * 2.5, vy: 0.4 + Math.random() * 0.9, sw: 0.01 + Math.random() * 0.02, ph: Math.random() * Math.PI * 2 });
         }
       } else if (mode === 'matrix'){
-        const size = 18;
+        const size = 14;
         const totalCols = Math.floor(W / size);
-        for (let i = 0; i < totalCols; i++){
+        // Multiple streams across the whole screen; keep a mild cap on very large displays
+        const cap = W * H > 2200000 ? 0.6 : 0.9;
+        const streamCount = Math.min(totalCols, Math.max(12, Math.floor(totalCols * cap * density)));
+        const usedCols = new Set();
+        for (let i = 0; i < streamCount; i++){
+          let col;
+          do { col = Math.floor(Math.random() * totalCols); } while (usedCols.has(col) && usedCols.size < totalCols);
+          usedCols.add(col);
           cols.push({
-            row: Math.random() * -(H / size) * 2,
-            speed: 0.2 + Math.random() * 0.6
+            x: col * size,
+            headRow: -Math.floor(Math.random() * (H / size)),
+            tailLen: 18 + Math.floor(Math.random() * 20),
+            interval: 10 + Math.floor(Math.random() * 15),
+            timer: 0
           });
         }
       } else if (mode === 'particles'){
         const n = count(500);
         for (let i = 0; i < n; i++){
-          parts.push({ x: Math.random() * W, y: Math.random() * H, r: 1 + Math.random() * 2.2, vx: (Math.random() - 0.5) * 1.1, vy: (Math.random() - 0.5) * 1.1 });
+          parts.push({ x: Math.random() * W, y: Math.random() * H, r: 1 + Math.random() * 2.2, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4 });
         }
       }
     }
@@ -81,41 +118,70 @@
           ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.2832); ctx.fillStyle = A(0.85); ctx.fill();
         }
       } else if (mode === 'matrix'){
-        const size = 18;
-        const bgRgb = hexToRgb(getComputedStyle(document.documentElement).getPropertyValue('--void').trim() || '#05070a');
+        const size = 14;
+        const totalRows = Math.ceil(H / size);
+        const bgRgb = hexToRgb(getComputedStyle(document.documentElement).getPropertyValue('--void').trim() || '#000000');
+        const mc = getMatrixColors();
         ctx.fillStyle = 'rgba(' + bgRgb[0] + ',' + bgRgb[1] + ',' + bgRgb[2] + ',0.08)';
         ctx.fillRect(0, 0, W, H);
-        ctx.font = (size - 2) + 'px monospace';
-        ctx.textAlign = 'center';
-        
-        for (let i = 0; i < cols.length; i++){
-          const c = cols[i];
-          const oldRow = Math.floor(c.row);
-          c.row += c.speed * (dt / 16.7);
-          const newRow = Math.floor(c.row);
-          
-          for (let r = oldRow + 1; r <= newRow; r++) {
-            const char = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
-            const y = r * size;
-            const x = (i * size) + (size / 2);
-            if (y > 0) {
-              // Draw head brighter, let tail fade naturally
-              ctx.fillStyle = 'rgba(' + Math.min(255, rgb[0] + 60) + ',' + Math.min(255, rgb[1] + 60) + ',' + Math.min(255, rgb[2] + 60) + ',1)';
-              ctx.fillText(char, x, y);
-              
-              // Draw over immediate previous row to tint it to the normal theme color before it fades
-              if (r > 1) {
-                 ctx.fillStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',0.9)';
-                 const prevChar = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
-                 // To prevent blurring we overwrite with a character. We could also just let it fade, 
-                 // but explicitly tinting the step behind ensures a bright head and colored tail.
-                 ctx.fillText(prevChar, x, (r - 1) * size);
+        ctx.font = size + 'px "Courier New", Courier, monospace';
+
+        for (const c of cols){
+          c.timer += dt;
+          if (c.timer < c.interval) continue;
+          c.timer -= c.interval;
+          c.headRow++;
+
+          for (let i = 0; i <= c.tailLen; i++){
+            const tailRow = c.headRow - i;
+            const tailY = tailRow * size;
+            if (tailY >= 0 && tailY <= H + size){
+              const progress = 1 - (i / c.tailLen);
+              let rgb, alpha;
+
+              if (i === 0){
+                rgb = mc.head;
+                alpha = 1;
+                ctx.shadowColor = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',0.85)';
+                ctx.shadowBlur = 10;
+              } else if (progress > 0.55){
+                const t = (progress - 0.55) / 0.45;
+                rgb = lerpRgb(mc.bright, mc.head, t);
+                alpha = 0.75 + 0.25 * t;
+                ctx.shadowBlur = 0;
+              } else if (progress > 0.2){
+                const t = (progress - 0.2) / 0.35;
+                rgb = lerpRgb(mc.dim, mc.bright, t);
+                alpha = 0.35 + 0.4 * t;
+                ctx.shadowBlur = 0;
+              } else {
+                const t = progress / 0.2;
+                rgb = lerpRgb([0, 0, 0], mc.dim, t);
+                alpha = 0.08 + 0.27 * t;
+                ctx.shadowBlur = 0;
               }
+
+              ctx.fillStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + alpha + ')';
+              // Use deterministic glyph selection to prevent shaking
+              // Hash the column position and row to get a consistent character
+              const glyphIndex = Math.floor(Math.abs(Math.sin(c.x * 0.123 + tailRow * 0.456) * 10000)) % GLYPHS.length;
+              ctx.fillText(GLYPHS[glyphIndex], c.x, tailY);
             }
           }
-          
-          if (newRow * size > H && Math.random() > 0.975) {
-            c.row = Math.random() * -5;
+          ctx.shadowBlur = 0;
+
+          if (c.headRow - c.tailLen > totalRows){
+            const usedCols = new Set(cols.map(s => Math.round(s.x / size)));
+            const totalCols = Math.floor(W / size);
+            const freeCols = [];
+            for (let i = 0; i < totalCols; i++) if (!usedCols.has(i)) freeCols.push(i);
+            const newCol = freeCols.length
+              ? freeCols[Math.floor(Math.random() * freeCols.length)]
+              : Math.floor(Math.random() * totalCols);
+            c.x = newCol * size;
+            c.headRow = -Math.floor(Math.random() * 4);
+            c.tailLen = 18 + Math.floor(Math.random() * 20);
+            c.interval = 10 + Math.floor(Math.random() * 15);
           }
         }
       } else if (mode === 'stars' || mode === 'constellations'){
@@ -186,17 +252,20 @@
   let activated = false;
 
   const SKEY = 'thearchive.settings';
+  const RKEY = 'thearchive.requests';
+  const REQUEST_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwzRQYzsauP60uto83r5heFbxmJNffu_6LL7I0DEouDTYZJv-K5yX45kKaXMd89nl_kyA/exec';
   const DEFAULTS = {
     theme: 'default', fx: 'off', fxDensity: 1,
     gridSize: 180, fullscreenOnPlay: false, confirmBeforeClose: false, reduceMotion: false,
-    tabCloak: false, cloakTitle: '', cloakFavicon: '',
+    cloakEnabled: false, cloakTitle: 'Classes', cloakFavicon: 'https://www.gstatic.com/classroom/logo_square_rounded.svg',
+    sheetId: '', sheetTab: 'games', sheetMerge: false,
   };
   let state;
   try { state = Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(SKEY) || '{}')); }
   catch (e) { state = Object.assign({}, DEFAULTS); }
   function save(){ try { localStorage.setItem(SKEY, JSON.stringify(state)); } catch (e) {} }
 
-  const games = [
+  const BASE_GAMES = [
     { tag:'Arcade',   name:'Slope',             file:'./g/slope.html',             icon:'./g/assets/slope.png' },
     { tag:'Shooter',  name:'1v1.LOL',           file:'./g/1v1.lol.html',           icon:'./g/assets/1v1.lol.png' },
     { tag:'Sports',   name:'Basket Bros',       file:'./g/basket-bros.html',       icon:'./g/assets/basket-bros.png' },
@@ -205,6 +274,62 @@
     { tag:'Arcade',   name:'Escape Road City 2', file:'./g/escape-road-city-2.html', icon:'./g/assets/escape-road-city-2.png' },
     { tag:'Arcade',   name:'Tomb Of The Mask', file:'./g/tomb-of-the-mask.html', icon:'./g/assets/tomb-of-the-mask.png' },
   ];
+  let games = BASE_GAMES.slice();
+
+  // ---- Google Sheets game database ----
+  // Sheet must be shareable as "Anyone with the link" (Viewer) so the gviz
+  // endpoint serves it cross-origin without auth. Headers in row 1: name, tag, file, icon.
+  function sheetUrl(){
+    const id = (state.sheetId || '').trim();
+    const tab = encodeURIComponent((state.sheetTab || 'games').trim() || 'games');
+    if (!id) return '';
+    return `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json&sheet=${tab}`;
+  }
+  function parseGviz(text){
+    // gviz wraps the JSON in google.visualization.Query.setResponse({...});
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if (start === -1 || end === -1 || end < start) return null;
+    return JSON.parse(text.slice(start, end + 1));
+  }
+  function rowsFromGviz(data){
+    if (!data || !data.table) return [];
+    const cols = data.table.cols.map(c => (c.label || '').toLowerCase().trim());
+    const rows = data.table.rows || [];
+    const get = (r, key) => {
+      const idx = cols.indexOf(key);
+      if (idx === -1) return '';
+      const cell = r.c[idx];
+      return cell ? String(cell.v != null ? cell.v : '') : '';
+    };
+    return rows
+      .map(r => get(r, 'file') ? {
+        tag: get(r, 'tag') || 'Arcade',
+        name: get(r, 'name'),
+        file: get(r, 'file'),
+        icon: get(r, 'icon') || '',
+      } : null)
+      .filter(g => g && g.name && g.file);
+  }
+  function loadGamesFromSheet(){
+    const url = sheetUrl();
+    if (!url) return Promise.resolve(null);
+    return fetch(url, { cache: 'no-store' })
+      .then(r => r.text())
+      .then(text => {
+        const rows = rowsFromGviz(parseGviz(text));
+        if (!rows.length) return null;
+        if (state.sheetMerge){
+          games = BASE_GAMES.concat(rows);
+        } else {
+          games = rows;
+        }
+        renderGrid();
+        return rows.length;
+      })
+      .catch(() => null);
+  }
+
 
   function renderGrid(){
     grid.innerHTML = games.map((g, i) => `
@@ -322,6 +447,8 @@
         // now that the archive is actually visible, it's safe to start
         // the background fx loop (if a mode was previously selected)
         applyFx();
+        // pull the live game list from the Google Sheet database (if configured)
+        loadGamesFromSheet();
       }, 2450);
     }, 160);
   }
@@ -341,6 +468,14 @@
   const toggleFullscreen = document.getElementById('toggle-fullscreen');
   const toggleConfirmClose = document.getElementById('toggle-confirm-close');
   const toggleReduceMotion = document.getElementById('toggle-reduce-motion');
+  const toggleCloakEnabled = document.getElementById('toggle-cloak');
+  const cloakTitleInput = document.getElementById('cloak-title');
+  const cloakFaviconInput = document.getElementById('cloak-favicon');
+  const sheetIdInput = document.getElementById('sheet-id');
+  const sheetTabInput = document.getElementById('sheet-tab');
+  const sheetMergeToggle = document.getElementById('toggle-sheet-merge');
+  const sheetRefreshBtn = document.getElementById('sheet-refresh');
+  const sheetStatus = document.getElementById('sheet-status');
 
   if (settingsBtn){
     settingsBtn.addEventListener('click', (e) => {
@@ -396,6 +531,33 @@
     });
   }
 
+  // ---- Google Sheets game database ----
+  function setSheetStatus(msg, ok){
+    if (!sheetStatus) return;
+    sheetStatus.textContent = msg || '';
+    sheetStatus.classList.toggle('ok', !!ok);
+    sheetStatus.classList.toggle('err', ok === false);
+  }
+  function refreshSheet(){
+    if (!state.sheetId){ setSheetStatus('Enter a Sheet ID to pull games.', false); return; }
+    setSheetStatus('Fetching…', null);
+    loadGamesFromSheet().then(n => {
+      if (n === null) setSheetStatus('No rows found — check the tab and headers (name, tag, file, icon).', false);
+      else setSheetStatus('Loaded ' + n + ' game' + (n === 1 ? '' : 's') + ' from the sheet.', true);
+    });
+  }
+  if (sheetIdInput){
+    sheetIdInput.value = state.sheetId;
+    sheetIdInput.addEventListener('input', () => { state.sheetId = sheetIdInput.value.trim(); save(); });
+  }
+  if (sheetTabInput){
+    sheetTabInput.value = state.sheetTab;
+    sheetTabInput.addEventListener('input', () => { state.sheetTab = sheetTabInput.value.trim(); save(); });
+  }
+  if (sheetRefreshBtn){
+    sheetRefreshBtn.addEventListener('click', refreshSheet);
+  }
+
   function bindToggle(el, key){
     if (!el) return;
     el.classList.toggle('on', !!state[key]);
@@ -407,6 +569,7 @@
   }
   bindToggle(toggleFullscreen, 'fullscreenOnPlay');
   bindToggle(toggleConfirmClose, 'confirmBeforeClose');
+  bindToggle(sheetMergeToggle, 'sheetMerge');
 
   if (toggleReduceMotion){
     toggleReduceMotion.classList.toggle('on', !!state.reduceMotion);
@@ -419,79 +582,67 @@
     });
   }
 
-  // Inject Tab Cloaking UI if missing
-  const settingsBody = document.querySelector('.settings-body');
-  if (settingsBody && !document.getElementById('toggle-cloak')) {
-    const group = document.createElement('div');
-    group.className = 'settings-group';
-    group.innerHTML = `
-      <h4>Tab Cloaking</h4>
-      <div class="settings-row">
-        <span class="label">Enable tab cloaking<small>Disguise the tab title and icon</small></span>
-        <div class="toggle" id="toggle-cloak"></div>
-      </div>
-      <div class="settings-row">
-        <span class="label">Tab title<small>Custom title for the tab</small></span>
-        <input type="text" class="settings-input" id="cloak-title" placeholder="Classes">
-      </div>
-      <div class="settings-row">
-        <span class="label">Favicon URL<small>Custom favicon URL</small></span>
-        <input type="text" class="settings-input" id="cloak-favicon" placeholder="https://www.gstatic.com/classroom/logo_square_rounded.svg">
-      </div>
-    `;
-    settingsBody.appendChild(group);
-  }
-
-  const toggleCloak = document.getElementById('toggle-cloak');
-  const cloakTitle = document.getElementById('cloak-title');
-  const cloakFavicon = document.getElementById('cloak-favicon');
-
-  const originalTitle = document.title;
-  const originalFavicon = document.querySelector('link[rel="icon"]')?.href || '';
-
-  function applyCloak() {
-    if (state.tabCloak) {
+  // Tab Cloaking
+  function applyCloak(){
+    if (state.cloakEnabled){
       document.title = state.cloakTitle || 'Classes';
-      let link = document.querySelector('link[rel="icon"]');
-      if (!link) {
-        link = document.createElement('link');
-        link.rel = 'icon';
-        document.head.appendChild(link);
-      }
+      // Remove existing favicons
+      const existingIcons = document.querySelectorAll('link[rel*="icon"]');
+      existingIcons.forEach(icon => icon.remove());
+      // Add new favicon
+      const link = document.createElement('link');
+      link.rel = 'icon';
+      link.type = 'image/x-icon';
       link.href = state.cloakFavicon || 'https://www.gstatic.com/classroom/logo_square_rounded.svg';
+      document.head.appendChild(link);
     } else {
-      document.title = originalTitle;
-      let link = document.querySelector('link[rel="icon"]');
-      if (link) link.href = originalFavicon;
+      // Check if archive is activated
+      if (activated){
+        document.title = 'The Archive';
+      } else {
+        document.title = 'Fairview Unified — Digital Learning Portal';
+      }
+      // Restore original favicon
+      const existingIcons = document.querySelectorAll('link[rel*="icon"]');
+      existingIcons.forEach(icon => icon.remove());
+      
+      const link = document.createElement('link');
+      link.rel = 'icon';
+      link.type = 'image/x-icon';
+      link.href = 'https://www.gstatic.com/classroom/logo_square_rounded.svg';
+      document.head.appendChild(link);
     }
   }
 
-  if (toggleCloak) {
-    toggleCloak.classList.toggle('on', !!state.tabCloak);
-    toggleCloak.addEventListener('click', () => {
-      state.tabCloak = !state.tabCloak;
-      toggleCloak.classList.toggle('on', state.tabCloak);
-      save();
-      applyCloak();
-    });
-  }
-  if (cloakTitle) {
-    cloakTitle.value = state.cloakTitle || '';
-    cloakTitle.addEventListener('input', () => {
-      state.cloakTitle = cloakTitle.value;
-      save();
-      applyCloak();
-    });
-  }
-  if (cloakFavicon) {
-    cloakFavicon.value = state.cloakFavicon || '';
-    cloakFavicon.addEventListener('input', () => {
-      state.cloakFavicon = cloakFavicon.value;
+  if (toggleCloakEnabled){
+    toggleCloakEnabled.classList.toggle('on', !!state.cloakEnabled);
+    toggleCloakEnabled.addEventListener('click', () => {
+      state.cloakEnabled = !state.cloakEnabled;
+      toggleCloakEnabled.classList.toggle('on', state.cloakEnabled);
       save();
       applyCloak();
     });
   }
 
+  if (cloakTitleInput){
+    cloakTitleInput.value = state.cloakTitle;
+    cloakTitleInput.addEventListener('input', () => {
+      state.cloakTitle = cloakTitleInput.value;
+      save();
+      if (state.cloakEnabled) applyCloak();
+    });
+  }
+
+  if (cloakFaviconInput){
+    cloakFaviconInput.value = state.cloakFavicon;
+    cloakFaviconInput.addEventListener('input', () => {
+      state.cloakFavicon = cloakFaviconInput.value;
+      save();
+      if (state.cloakEnabled) applyCloak();
+    });
+  }
+
+  // Apply cloak on page load if enabled
   applyCloak();
 
   // Apply the saved theme immediately, but hold off starting the FX particle loop
@@ -509,6 +660,81 @@
       tapTimer = setTimeout(() => { tapCount = 0; }, 1200);
       if (tapCount >= 5) activateArchive();
     }, { passive: true });
+  }
+
+  // ---- Request a Game ----
+  const requestScrim = document.getElementById('request-scrim');
+  const requestBtn = document.getElementById('request-btn');
+  const requestCtaBtn = document.getElementById('request-cta-btn');
+  const requestDisguiseBtn = document.getElementById('request-btn-disguise');
+  const requestClose = document.getElementById('request-close');
+  const requestForm = document.getElementById('request-form');
+  const requestName = document.getElementById('request-name');
+  const requestNote = document.getElementById('request-note');
+  const requestHint = document.getElementById('request-hint');
+
+  function openRequest(){
+    if (!requestScrim) return;
+    requestScrim.classList.add('open');
+    requestScrim.setAttribute('aria-hidden', 'false');
+    setTimeout(() => { if (requestName) requestName.focus(); }, 60);
+  }
+  function closeRequest(){
+    if (!requestScrim) return;
+    requestScrim.classList.remove('open');
+    requestScrim.setAttribute('aria-hidden', 'true');
+  }
+  if (requestBtn) requestBtn.addEventListener('click', (e) => { e.preventDefault(); openRequest(); });
+  if (requestDisguiseBtn) requestDisguiseBtn.addEventListener('click', openRequest);
+  if (requestCtaBtn) requestCtaBtn.addEventListener('click', openRequest);
+  if (requestClose) requestClose.addEventListener('click', closeRequest);
+  if (requestScrim){
+    requestScrim.addEventListener('mousedown', (e) => { if (e.target === requestScrim) closeRequest(); });
+  }
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeRequest(); });
+  if (requestForm){
+    requestForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = (requestName ? requestName.value : '').trim();
+      const note = (requestNote ? requestNote.value : '').trim();
+      if (!title){
+        if (requestHint) requestHint.textContent = 'Please enter a game title.';
+        return;
+      }
+
+      // local backup (offline-first so a request is never lost)
+      const entry = { title, note, at: Date.now(), sent: false };
+      let requests = [];
+      try { requests = JSON.parse(localStorage.getItem(RKEY) || '[]'); } catch (_) {}
+      requests.push(entry);
+      try { localStorage.setItem(RKEY, JSON.stringify(requests)); } catch (_) {}
+
+      if (requestHint) requestHint.textContent = 'Sending…';
+      const payload = JSON.stringify({
+        title,
+        note,
+        browser: navigator.userAgent.slice(0, 300)
+      });
+      // Apps Script web app; redirect mode + text/plain body avoids a CORS preflight.
+      fetch(REQUEST_ENDPOINT, {
+        method: 'POST',
+        mode: 'cors',
+        redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: payload
+      }).then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        entry.sent = true;
+        try { localStorage.setItem(RKEY, JSON.stringify(requests)); } catch (_) {}
+        if (requestHint) requestHint.textContent = 'Request sent — thank you!';
+        requestForm.reset();
+        setTimeout(closeRequest, 900);
+      }).catch(() => {
+        if (requestHint) requestHint.textContent = 'Saved locally — could not reach the sheet. It will retry next time.';
+        requestForm.reset();
+        setTimeout(closeRequest, 1400);
+      });
+    });
   }
 
 })();

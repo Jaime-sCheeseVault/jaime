@@ -752,6 +752,168 @@
     border:none;
   }
 
+  /* ===================== REQUEST A GAME CTA + MODAL ===================== */
+  .arc-request-cta{
+    max-width: 1100px;
+    margin: 0 auto 80px;
+    padding: 0 40px;
+  }
+  .arc-request-cta-inner{
+    position:relative;
+    text-align:center;
+    padding: 44px 32px;
+    border: 1px solid var(--line-dim);
+    border-radius: 12px;
+    background:
+      radial-gradient(circle at 50% 0%, var(--arc-glow-ring), transparent 70%),
+      var(--void-2);
+    box-shadow: 0 0 0 1px var(--arc-ring), 0 30px 70px -30px rgba(0,0,0,0.8);
+    animation: rise-in 0.5s ease 0.2s backwards;
+  }
+  .arc-request-cta-inner h2{
+    margin:0 0 8px;
+    font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 22px;
+    letter-spacing:-0.01em;
+    color: var(--arc-fg-bright);
+  }
+  .arc-request-cta-inner p{
+    margin:0 0 22px;
+    font-family: 'Courier New', monospace;
+    font-size:12.5px;
+    color: var(--arc-fg-mid);
+  }
+  .arc-request-btn{
+    background: transparent;
+    border: 1px solid var(--phosphor-dim);
+    color: var(--phosphor);
+    font-family: 'Courier New', monospace;
+    font-size:12px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding: 12px 28px;
+    cursor:pointer;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .arc-request-btn:hover{
+    background: var(--phosphor-dim);
+    color: var(--void);
+    box-shadow: 0 0 24px -6px var(--phosphor-dim);
+  }
+
+  .request-scrim{
+    position:fixed; inset:0;
+    z-index:9998;
+    background: rgba(0,0,0,0.74);
+    backdrop-filter: blur(3px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+    opacity:0;
+    visibility:hidden;
+    transition: opacity 0.18s ease, visibility 0s linear 0.19s;
+  }
+  .request-scrim.open{
+    opacity:1;
+    visibility:visible;
+    transition: opacity 0.18s ease;
+  }
+  .request-modal{
+    width: min(460px, 94vw);
+    background: var(--void-2);
+    border: 1px solid var(--line-dim);
+    border-radius: 10px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    box-shadow:
+      0 30px 80px -20px rgba(0,0,0,0.85),
+      0 0 0 1px var(--arc-ring),
+      0 0 50px -12px var(--arc-glow-ring);
+    transform: translateY(14px) scale(0.96);
+    opacity:0;
+    transition: transform 0.22s cubic-bezier(.2,.85,.3,1.1), opacity 0.2s ease;
+  }
+  .request-scrim.open .request-modal{ transform:none; opacity:1; }
+  .request-modal-bar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 14px 18px;
+    background: var(--void);
+    border-bottom: 1px solid var(--line-dim);
+    font-family:'Courier New', monospace;
+    font-size:13px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color: var(--phosphor);
+  }
+  .request-close{
+    background:transparent;
+    border:none;
+    color: var(--phosphor-dim);
+    font-size:20px;
+    line-height:1;
+    cursor:pointer;
+    padding:0 4px;
+    transition: color 0.15s ease;
+  }
+  .request-close:hover{ color: #fff; }
+  .request-form{ padding: 20px 18px; display:flex; flex-direction:column; gap:16px; }
+  .request-field{ display:flex; flex-direction:column; gap:7px; }
+  .request-label{
+    font-family:'Courier New', monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color: var(--phosphor-dim);
+  }
+  .request-label em{ font-style:normal; opacity:0.6; }
+  .request-input,
+  .request-textarea{
+    background: var(--void);
+    border: 1px solid var(--line-dim);
+    color: var(--phosphor);
+    font-family:'Courier New', monospace;
+    font-size:13px;
+    padding: 10px 12px;
+    outline:none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .request-input:focus,
+  .request-textarea:focus{
+    border-color: var(--phosphor-dim);
+    box-shadow: 0 0 0 1px var(--arc-ring);
+  }
+  .request-input::placeholder,
+  .request-textarea::placeholder{ color: var(--phosphor-dim); opacity:0.5; }
+  .request-textarea{ resize:vertical; min-height:72px; }
+  .request-actions{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .request-hint{
+    font-family:'Courier New', monospace;
+    font-size:11px;
+    color: var(--phosphor-dim);
+  }
+  .request-submit{
+    background: var(--phosphor-dim);
+    color: var(--void);
+    border:none;
+    font-family:'Courier New', monospace;
+    font-size:11.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding: 11px 18px;
+    cursor:pointer;
+    flex-shrink:0;
+    transition: filter 0.15s ease, box-shadow 0.15s ease;
+  }
+  .request-submit:hover{
+    filter: brightness(0.9);
+    box-shadow: 0 0 20px -4px var(--phosphor-dim);
+  }
+  .request-submit:disabled{ opacity:0.5; cursor:default; }
+
   @media (max-width: 720px){
     .edu-main{ grid-template-columns: 1fr; padding: 24px 18px; }
     .edu-cards{ grid-template-columns: 1fr 1fr; }
@@ -767,6 +929,9 @@
     .arc-hero{ padding: 40px 18px 24px; }
     .arc-search{ margin-top:22px; }
     .arc-grid{ padding: 0 18px; margin: 28px auto 50px; gap:14px; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); }
+    .arc-request-cta{ padding: 0 18px; margin-bottom: 50px; }
+    .arc-request-cta-inner{ padding: 32px 20px; }
+    .request-scrim{ padding: 14px; }
 
     .loader-text{ font-size: clamp(30px, 11vw, 60px); letter-spacing: 0.03em; padding: 0 16px; text-align:center; }
     .loader-wrap{ padding: 0 16px; }
