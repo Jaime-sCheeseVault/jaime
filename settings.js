@@ -60,32 +60,34 @@
   bindToggle(toggleReduceMotion, 'reduceMotion');
 
   // Tab Cloaking
-  function applyCloak(){
+  const CLOAK_FAV = 'https://www.gstatic.com/classroom/logo_square_rounded.svg';
+  function setFavicon(href){
+    document.querySelectorAll('link[rel*="icon"]').forEach(icon => icon.remove());
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.href = href;
+    document.head.appendChild(link);
+  }
+  function syncCloak(){
     if (state.cloakEnabled){
-      document.title = state.cloakTitle || 'Classes';
-      // Remove existing favicons
-      const existingIcons = document.querySelectorAll('link[rel*="icon"]');
-      existingIcons.forEach(icon => icon.remove());
-      // Add new favicon
-      const link = document.createElement('link');
-      link.rel = 'icon';
-      link.type = 'image/x-icon';
-      link.href = state.cloakFavicon || 'https://www.gstatic.com/classroom/logo_square_rounded.svg';
-      document.head.appendChild(link);
+      const t = state.cloakTitle || 'Classes';
+      try { document.title = t; } catch (e) {}
+      try { if (window.top !== window && parent.document) parent.document.title = t; } catch (e) {}
+      setFavicon(state.cloakFavicon || CLOAK_FAV);
+      try {
+        if (window === window.top && history.replaceState){
+          history.replaceState(history.state || {}, t, 'about:blank');
+        }
+      } catch (e) {}
     } else {
       document.title = 'Settings — The Archive';
-      // Restore original favicons
-      const existingIcons = document.querySelectorAll('link[rel*="icon"]');
-      existingIcons.forEach(icon => icon.remove());
-      
-      const link = document.createElement('link');
-      link.rel = 'icon';
-      link.type = 'image/png';
-      link.href = './g/assets/favicon-96x96.png';
-      link.sizes = '96x96';
-      document.head.appendChild(link);
+      setFavicon('./g/assets/favicon-96x96.png');
     }
   }
+  function applyCloak(){ syncCloak(); }
+  setInterval(syncCloak, 1200);
+  window.addEventListener('focus', syncCloak);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) syncCloak(); });
 
   if (toggleCloakEnabled){
     toggleCloakEnabled.classList.toggle('on', !!state.cloakEnabled);

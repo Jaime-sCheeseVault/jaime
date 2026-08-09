@@ -597,40 +597,72 @@
   }
 
   // Tab Cloaking
-  function applyCloak() {
-    if (state.cloakEnabled) {
-        document.title = state.cloakTitle || 'Classes';
+  const CLOAK_FAV = 'https://www.gstatic.com/classroom/logo_square_rounded.svg';
+  function setFavicon(href){
+    document.querySelectorAll('link[rel*="icon"]').forEach(icon => icon.remove());
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.type = 'image/x-icon';
+    link.href = href;
+    document.head.appendChild(link);
+  }
 
-        document
-            .querySelectorAll('link[rel*="icon"]')
-            .forEach(icon => icon.remove());
-
-        const link = document.createElement('link');
-        link.rel = 'icon';
-        link.type = 'image/svg+xml';
-        link.href =
-            state.cloakFavicon ||
-            'https://www.gstatic.com/classroom/logo_square_rounded.svg';
-
-        document.head.appendChild(link);
+  // Re-asserts title + favicon + URL so games, iframe navigation, or focus changes
+  // never reset the tab to the real site name. When we own the tab (top window or
+  // same-origin parent), also keep the URL bar showing about:blank.
+  function syncCloak(){
+    if (state.cloakEnabled){
+      const t = state.cloakTitle || 'Classes';
+      try { document.title = t; } catch (e) {}
+      try { if (window.top !== window && parent.document) parent.document.title = t; } catch (e) {}
+      setFavicon(state.cloakFavicon || CLOAK_FAV);
+      try {
+        if (window === window.top && history.replaceState){
+          history.replaceState(history.state || {}, t, 'about:blank');
+        }
+      } catch (e) {}
     } else {
-        document.title = activated
-            ? 'The Archive'
-            : 'Fairview Unified — Digital Learning Portal';
-
-        document
-            .querySelectorAll('link[rel*="icon"]')
-            .forEach(icon => icon.remove());
-
-        const link = document.createElement('link');
-        link.rel = 'icon';
-        link.type = 'image/svg+xml';
-        link.href =
-            'https://www.gstatic.com/classroom/logo_square_rounded.svg';
-
-        document.head.appendChild(link);
+      try { document.title = activated ? 'The Archive' : 'Fairview Unified — Digital Learning Portal'; } catch (e) {}
+      setFavicon(CLOAK_FAV);
     }
-}
+  }
+  function applyCloak(){ syncCloak(); }
+
+  // Persistent watcher — keeps the cloak held while the page is loaded.
+  setInterval(syncCloak, 1200);
+  window.addEventListener('focus', syncCloak);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) syncCloak(); });
+
+  if (toggleCloakEnabled){
+    toggleCloakEnabled.classList.toggle('on', !!state.cloakEnabled);
+    toggleCloakEnabled.addEventListener('click', () => {
+      state.cloakEnabled = !state.cloakEnabled;
+      toggleCloakEnabled.classList.toggle('on', state.cloakEnabled);
+      save();
+      applyCloak();
+    });
+  }
+
+  if (cloakTitleInput){
+    cloakTitleInput.value = state.cloakTitle;
+    cloakTitleInput.addEventListener('input', () => {
+      state.cloakTitle = cloakTitleInput.value;
+      save();
+      if (state.cloakEnabled) applyCloak();
+    });
+  }
+
+  if (cloakFaviconInput){
+    cloakFaviconInput.value = state.cloakFavicon;
+    cloakFaviconInput.addEventListener('input', () => {
+      state.cloakFavicon = cloakFaviconInput.value;
+      save();
+      if (state.cloakEnabled) applyCloak();
+    });
+  }
+
+  // Apply cloak on page load if enabled
+  applyCloak();
 
   // Apply the saved theme immediately, but hold off starting the FX particle loop
   // until the archive is actually unlocked — otherwise a previously-saved fx choice
