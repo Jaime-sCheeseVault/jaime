@@ -276,6 +276,20 @@
   ];
   let games = BASE_GAMES.slice();
 
+  // ---- games.json catalog (fallback to the hardcoded list when fetch is blocked) ----
+  function loadGamesFromJson(){
+    return fetch('./games.json', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(rows => {
+        const list = (Array.isArray(rows) ? rows : []).filter(g => g && g.name && g.file);
+        if (!list.length) return null;
+        games = list;
+        renderGrid();
+        return list.length;
+      })
+      .catch(() => null);
+  }
+
   // ---- Google Sheets game database ----
   // Sheet must be shareable as "Anyone with the link" (Viewer) so the gviz
   // endpoint serves it cross-origin without auth. Headers in row 1: name, tag, file, icon.
@@ -320,7 +334,7 @@
         const rows = rowsFromGviz(parseGviz(text));
         if (!rows.length) return null;
         if (state.sheetMerge){
-          games = BASE_GAMES.concat(rows);
+          games = games.concat(rows);
         } else {
           games = rows;
         }
@@ -447,8 +461,8 @@
         // now that the archive is actually visible, it's safe to start
         // the background fx loop (if a mode was previously selected)
         applyFx();
-        // pull the live game list from the Google Sheet database (if configured)
-        loadGamesFromSheet();
+        // pull the live game list from the JSON catalog, then the sheet (if configured)
+        loadGamesFromJson().then(() => loadGamesFromSheet());
       }, 2450);
     }, 160);
   }
