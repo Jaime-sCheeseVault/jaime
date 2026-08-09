@@ -597,67 +597,40 @@
   }
 
   // Tab Cloaking
-  function applyCloak(){
-    if (state.cloakEnabled){
-      document.title = state.cloakTitle || 'Classes';
-      // Remove existing favicons
-      const existingIcons = document.querySelectorAll('link[rel*="icon"]');
-      existingIcons.forEach(icon => icon.remove());
-      // Add new favicon
-      const link = document.createElement('link');
-      link.rel = 'icon';
-      link.type = 'image/x-icon';
-      link.href = state.cloakFavicon || 'https://www.gstatic.com/classroom/logo_square_rounded.svg';
-      document.head.appendChild(link);
+  function applyCloak() {
+    if (state.cloakEnabled) {
+        document.title = state.cloakTitle || 'Classes';
+
+        document
+            .querySelectorAll('link[rel*="icon"]')
+            .forEach(icon => icon.remove());
+
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.type = 'image/svg+xml';
+        link.href =
+            state.cloakFavicon ||
+            'https://www.gstatic.com/classroom/logo_square_rounded.svg';
+
+        document.head.appendChild(link);
     } else {
-      // Check if archive is activated
-      if (activated){
-        document.title = 'The Archive';
-      } else {
-        document.title = 'Fairview Unified — Digital Learning Portal';
-      }
-      // Restore original favicon
-      const existingIcons = document.querySelectorAll('link[rel*="icon"]');
-      existingIcons.forEach(icon => icon.remove());
-      
-      const link = document.createElement('link');
-      link.rel = 'icon';
-      link.type = 'image/x-icon';
-      link.href = 'https://www.gstatic.com/classroom/logo_square_rounded.svg';
-      document.head.appendChild(link);
+        document.title = activated
+            ? 'The Archive'
+            : 'Fairview Unified — Digital Learning Portal';
+
+        document
+            .querySelectorAll('link[rel*="icon"]')
+            .forEach(icon => icon.remove());
+
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.type = 'image/svg+xml';
+        link.href =
+            'https://www.gstatic.com/classroom/logo_square_rounded.svg';
+
+        document.head.appendChild(link);
     }
-  }
-
-  if (toggleCloakEnabled){
-    toggleCloakEnabled.classList.toggle('on', !!state.cloakEnabled);
-    toggleCloakEnabled.addEventListener('click', () => {
-      state.cloakEnabled = !state.cloakEnabled;
-      toggleCloakEnabled.classList.toggle('on', state.cloakEnabled);
-      save();
-      applyCloak();
-    });
-  }
-
-  if (cloakTitleInput){
-    cloakTitleInput.value = state.cloakTitle;
-    cloakTitleInput.addEventListener('input', () => {
-      state.cloakTitle = cloakTitleInput.value;
-      save();
-      if (state.cloakEnabled) applyCloak();
-    });
-  }
-
-  if (cloakFaviconInput){
-    cloakFaviconInput.value = state.cloakFavicon;
-    cloakFaviconInput.addEventListener('input', () => {
-      state.cloakFavicon = cloakFaviconInput.value;
-      save();
-      if (state.cloakEnabled) applyCloak();
-    });
-  }
-
-  // Apply cloak on page load if enabled
-  applyCloak();
+}
 
   // Apply the saved theme immediately, but hold off starting the FX particle loop
   // until the archive is actually unlocked — otherwise a previously-saved fx choice
