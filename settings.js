@@ -70,6 +70,18 @@
       document.head.appendChild(link);
     } catch (e) {}
   }
+  function setParentFavicon(href){
+    try {
+      if (window.top === window) return;
+      const pd = parent.document;
+      pd.querySelectorAll('link[rel*="icon"]').forEach(i => i.remove());
+      const link = pd.createElement('link');
+      link.rel = 'icon';
+      link.type = 'image/x-icon';
+      link.href = href;
+      pd.head.appendChild(link);
+    } catch (e) {}
+  }
   function syncCloak(){
     try {
       if (state.cloakEnabled){
@@ -77,6 +89,7 @@
         try { document.title = t; } catch (e) {}
         try { if (window.top !== window && parent.document) parent.document.title = t; } catch (e) {}
         setFavicon(state.cloakFavicon || CLOAK_FAV);
+        setParentFavicon(state.cloakFavicon || CLOAK_FAV);
         try {
           if (window === window.top && /^https?:/.test(location.protocol) && history.replaceState){
             history.replaceState(history.state || {}, t, 'about:blank');
@@ -85,6 +98,7 @@
       } else {
         document.title = 'Settings — The Archive';
         setFavicon('./g/assets/favicon-96x96.png');
+        setParentFavicon('./g/assets/favicon-96x96.png');
       }
     } catch (e) {}
   }
