@@ -62,32 +62,36 @@
   // Tab Cloaking
   const CLOAK_FAV = 'https://www.gstatic.com/classroom/logo_square_rounded.svg';
   function setFavicon(href){
-    document.querySelectorAll('link[rel*="icon"]').forEach(icon => icon.remove());
-    const link = document.createElement('link');
-    link.rel = 'icon';
-    link.href = href;
-    document.head.appendChild(link);
+    try {
+      document.querySelectorAll('link[rel*="icon"]').forEach(icon => icon.remove());
+      const link = document.createElement('link');
+      link.rel = 'icon';
+      link.href = href;
+      document.head.appendChild(link);
+    } catch (e) {}
   }
   function syncCloak(){
-    if (state.cloakEnabled){
-      const t = state.cloakTitle || 'Classes';
-      try { document.title = t; } catch (e) {}
-      try { if (window.top !== window && parent.document) parent.document.title = t; } catch (e) {}
-      setFavicon(state.cloakFavicon || CLOAK_FAV);
-      try {
-        if (window === window.top && history.replaceState){
-          history.replaceState(history.state || {}, t, 'about:blank');
-        }
-      } catch (e) {}
-    } else {
-      document.title = 'Settings — The Archive';
-      setFavicon('./g/assets/favicon-96x96.png');
-    }
+    try {
+      if (state.cloakEnabled){
+        const t = state.cloakTitle || 'Classes';
+        try { document.title = t; } catch (e) {}
+        try { if (window.top !== window && parent.document) parent.document.title = t; } catch (e) {}
+        setFavicon(state.cloakFavicon || CLOAK_FAV);
+        try {
+          if (window === window.top && /^https?:/.test(location.protocol) && history.replaceState){
+            history.replaceState(history.state || {}, t, 'about:blank');
+          }
+        } catch (e) {}
+      } else {
+        document.title = 'Settings — The Archive';
+        setFavicon('./g/assets/favicon-96x96.png');
+      }
+    } catch (e) {}
   }
   function applyCloak(){ syncCloak(); }
-  setInterval(syncCloak, 1200);
-  window.addEventListener('focus', syncCloak);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) syncCloak(); });
+  setInterval(() => { try { syncCloak(); } catch (e) {} }, 1200);
+  window.addEventListener('focus', () => { try { syncCloak(); } catch (e) {} });
+  document.addEventListener('visibilitychange', () => { try { if (!document.hidden) syncCloak(); } catch (e) {} });
 
   if (toggleCloakEnabled){
     toggleCloakEnabled.classList.toggle('on', !!state.cloakEnabled);
