@@ -6,5 +6,5 @@
   { "tag": "Puzzle",  "name": "Cookie Clicker",    "file": "./g/cookie-clicker.html",    "icon": "./g/assets/cookie-clicker.png" },
   { "tag": "Arcade",  "name": "Escape Road City 2","file": "./g/escape-road-city-2.html","icon": "./g/assets/escape-road-city-2.png" },
   { "tag": "Arcade",  "name": "Tomb Of The Mask",  "file": "./g/tomb-of-the-mask.html",  "icon": "./g/assets/tomb-of-the-mask.png" },
-  { "tag": "Horror",  "name": "Granny Chapter 2",  "file": "./g/grany-2.html",  "icon": "./g/assets/granny-2.png" }
+  { "tag": "Horror",  "name": "Granny Chapter 2",  "file": "./g/grany-2.html",  "icon": "./g/assets/granny-2.jpg" }
 ]
