@@ -19,7 +19,6 @@
       return cs.getPropertyValue('--phosphor').trim() || '#b8f4e0';
     }
     function getMatrixColors(){
-      // Theme the characters to the currently selected theme
       const cs = getComputedStyle(document.documentElement);
       const base = hexToRgb(cs.getPropertyValue('--phosphor').trim() || '#b8f4e0');
       const dim = hexToRgb(cs.getPropertyValue('--phosphor-dim').trim() || '#4a9c85');
@@ -69,7 +68,6 @@
       } else if (mode === 'matrix'){
         const size = 14;
         const totalCols = Math.floor(W / size);
-        // Multiple streams across the whole screen; keep a mild cap on very large displays
         const cap = W * H > 2200000 ? 0.6 : 0.9;
         const streamCount = Math.min(totalCols, Math.max(12, Math.floor(totalCols * cap * density)));
         const usedCols = new Set();
@@ -162,8 +160,6 @@
               }
 
               ctx.fillStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + alpha + ')';
-              // Use deterministic glyph selection to prevent shaking
-              // Hash the column position and row to get a consistent character
               const glyphIndex = Math.floor(Math.abs(Math.sin(c.x * 0.123 + tailRow * 0.456) * 10000)) % GLYPHS.length;
               ctx.fillText(GLYPHS[glyphIndex], c.x, tailY);
             }
@@ -259,7 +255,7 @@
     gridSize: 180, fullscreenOnPlay: false, confirmBeforeClose: false, reduceMotion: false,
     cloakEnabled: false, cloakTitle: 'Classes', cloakFavicon: 'https://www.gstatic.com/classroom/logo_square_rounded.svg',
     sheetId: '', sheetTab: 'games', sheetMerge: false,
-    gameSource: 'all'
+    gameSource: 'local'
   };
   let state;
   try { state = Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(SKEY) || '{}')); }
@@ -300,8 +296,6 @@
   }
 
   // ---- Google Sheets game database ----
-  // Sheet must be shareable as "Anyone with the link" (Viewer) so the gviz
-  // endpoint serves it cross-origin without auth. Headers in row 1: name, tag, file, icon.
   function sheetUrl(){
     const id = (state.sheetId || '').trim();
     const tab = encodeURIComponent((state.sheetTab || 'games').trim() || 'games');
@@ -309,7 +303,6 @@
     return `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json&sheet=${tab}`;
   }
   function parseGviz(text){
-    // gviz wraps the JSON in google.visualization.Query.setResponse({...});
     const start = text.indexOf('{');
     const end = text.lastIndexOf('}');
     if (start === -1 || end === -1 || end < start) return null;
@@ -392,7 +385,6 @@
     const url = game.file;
     if (!isRawGithubHtml(url)){
       iframe.src = url;
-      // Ensure iframe has proper attributes for external embeds (Gamepix, etc.)
       iframe.setAttribute('frameborder', '0');
       iframe.setAttribute('scrolling', 'no');
       iframe.setAttribute('width', '100%');
@@ -505,10 +497,7 @@
       setTimeout(() => {
         archiveRoot.classList.remove('active');
         archiveSite.classList.add('active');
-        // now that the archive is actually visible, it's safe to start
-        // the background fx loop (if a mode was previously selected)
         applyFx();
-        // pull the live game list from the JSON catalog, then the sheet (if configured)
         loadGamesFromJson().then(() => loadGamesFromSheet());
       }, 2450);
     }, 160);
@@ -519,7 +508,7 @@
     if (e.key && e.key.toLowerCase() === TRIGGER_KEY) activateArchive();
   });
 
-  // ---- Settings (embedded in-page view — no navigation, no overlay) ----
+  // ---- Settings ----
   const settingsBtn = document.getElementById('settings-btn');
   const settingsBack = document.getElementById('settings-back');
   const themeRow = document.getElementById('theme-row');
@@ -593,7 +582,6 @@
     });
   }
 
-  // ---- Google Sheets game database ----
   function setSheetStatus(msg, ok){
     if (!sheetStatus) return;
     sheetStatus.textContent = msg || '';
@@ -657,9 +645,6 @@
     } catch (e) {}
   }
 
-  // Re-asserts title + favicon + URL so games, iframe navigation, or focus changes
-  // never reset the tab to the real site name. When we own the tab (top window or
-  // same-origin parent), also keep the URL bar showing about:blank.
   function setParentFavicon(href){
     try {
       if (window.top === window) return;
@@ -677,13 +662,9 @@
       if (state.cloakEnabled){
         const t = state.cloakTitle || 'Classes';
         try { document.title = t; } catch (e) {}
-        // Same-origin parent (about:blank opened from this site) gets cloaked too.
         try { if (window.top !== window && parent.document) parent.document.title = t; } catch (e) {}
         setFavicon(state.cloakFavicon || CLOAK_FAV);
         setParentFavicon(state.cloakFavicon || CLOAK_FAV);
-        // Only rewrite the URL to about:blank when served over http(s) as the top
-        // window. On file:// or sandboxed/iframe pages this throws a SecurityError,
-        // so we skip it and keep title + favicon cloaking only.
         try {
           if (window === window.top && /^https?:/.test(location.protocol) && history.replaceState){
             history.replaceState(history.state || {}, t, 'about:blank');
@@ -698,10 +679,6 @@
   }
   function applyCloak(){ syncCloak(); }
 
-  // Open a fresh about:blank tab FROM THIS SITE so the new document inherits our
-  // origin. The archive loads inside a same-origin iframe there, which lets the
-  // child re-assert the parent tab's title + favicon (cross-origin parents can't
-  // be touched from inside, which is why a manually-injected about:blank didn't cloak).
   function openCloakedTab(){
     try {
       const win = window.open('about:blank', '_blank');
@@ -721,7 +698,6 @@
       frame.allowFullscreen = true;
       frame.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:none;background:#05070a;';
       doc.body.appendChild(frame);
-      // keep the parent re-cloaking in case something resets it
       win.setInterval(() => {
         try {
           if (state.cloakEnabled){
@@ -734,7 +710,6 @@
     } catch (e) { alert('Could not open cloaked tab.'); }
   }
 
-  // Persistent watcher — keeps the cloak held while the page is loaded.
   setInterval(() => { try { syncCloak(); } catch (e) {} }, 1200);
   window.addEventListener('focus', () => { try { syncCloak(); } catch (e) {} });
   document.addEventListener('visibilitychange', () => { try { if (!document.hidden) syncCloak(); } catch (e) {} });
@@ -770,12 +745,8 @@
     });
   }
 
-  // Apply cloak on page load if enabled
   applyCloak();
 
-  // Apply the saved theme immediately, but hold off starting the FX particle loop
-  // until the archive is actually unlocked — otherwise a previously-saved fx choice
-  // (rain/matrix/etc) would start animating behind the educational disguise on load.
   applyTheme();
   document.body.classList.toggle('reduce-motion', state.reduceMotion);
 
@@ -820,48 +791,6 @@
     requestScrim.addEventListener('mousedown', (e) => { if (e.target === requestScrim) closeRequest(); });
   }
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeRequest(); });
-
-  // ---- Source Selector ----
-  const sourceScrim = document.getElementById('source-scrim');
-  const sourceBtn = document.getElementById('source-btn');
-  const sourceClose = document.getElementById('source-close');
-
-  function openSource(){
-    if (!sourceScrim) return;
-    sourceScrim.classList.add('open');
-    sourceScrim.setAttribute('aria-hidden', 'false');
-  }
-  function closeSource(){
-    if (!sourceScrim) return;
-    sourceScrim.classList.remove('open');
-    sourceScrim.setAttribute('aria-hidden', 'true');
-  }
-  function applySourceFilter(src){
-    state.gameSource = src;
-    save();
-    games = filterGamesBySource(allGames, src);
-    renderGrid();
-    updateSourceBtn();
-    closeSource();
-  }
-  function updateSourceBtn(){
-    if (!sourceBtn) return;
-    const icons = { all: '🎮', local: '💾', gamepix: '☁️' };
-    sourceBtn.textContent = icons[state.gameSource] || '🎮';
-  }
-
-  if (sourceBtn) sourceBtn.addEventListener('click', (e) => { e.preventDefault(); openSource(); });
-  if (sourceClose) sourceClose.addEventListener('click', closeSource);
-  if (sourceScrim){
-    sourceScrim.addEventListener('mousedown', (e) => { if (e.target === sourceScrim) closeSource(); });
-  }
-  document.querySelectorAll('.source-option').forEach(btn => {
-    btn.addEventListener('click', () => applySourceFilter(btn.dataset.source));
-  });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSource(); });
-
-  // Initialize source button
-  updateSourceBtn();
   if (requestForm){
     requestForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -872,7 +801,6 @@
         return;
       }
 
-      // local backup (offline-first so a request is never lost)
       const entry = { title, note, at: Date.now(), sent: false };
       let requests = [];
       try { requests = JSON.parse(localStorage.getItem(RKEY) || '[]'); } catch (_) {}
@@ -885,7 +813,6 @@
         note,
         browser: navigator.userAgent.slice(0, 300)
       });
-      // Apps Script web app; redirect mode + text/plain body avoids a CORS preflight.
       fetch(REQUEST_ENDPOINT, {
         method: 'POST',
         mode: 'cors',
@@ -897,21 +824,19 @@
         entry.sent = true;
         try { localStorage.setItem(RKEY, JSON.stringify(requests)); } catch (_) {}
         if (requestHint) requestHint.textContent = 'Request sent — thank you!';
-requestForm.reset();
-         setTimeout(closeRequest, 900);
-       }).catch(() => {
-         if (requestHint) requestHint.textContent = 'Saved locally — could not reach the sheet. It will retry next time.';
-         requestForm.reset();
-         setTimeout(closeRequest, 1400);
-       });
-     });
-   }
+        requestForm.reset();
+        setTimeout(closeRequest, 900);
+      }).catch(() => {
+        if (requestHint) requestHint.textContent = 'Saved locally — could not reach the sheet. It will retry next time.';
+        requestForm.reset();
+        setTimeout(closeRequest, 1400);
+      });
+    });
+  }
 
   // ---- Gamepix Integration ----
-  // Expose openGame globally so gamepix.js can use it
   window.openGame = openGame;
 
-  // Handle Gamepix postMessage events for score/level tracking
   window.addEventListener('message', (e) => {
     if (!e.data || typeof e.data !== 'object') return;
     if (e.data.type === 'update_score') {
@@ -924,11 +849,9 @@ requestForm.reset();
     }
   });
 
-  // Initialize Gamepix when archive is activated (lazy load)
   const originalActivateArchive = activateArchive;
   activateArchive = function() {
     originalActivateArchive();
-    // Initialize Gamepix module after archive is active
     if (window.Gamepix && window.Gamepix.init) {
       window.Gamepix.init();
     }

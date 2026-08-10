@@ -116,7 +116,6 @@
     <nav class="arc-nav">
       <a href="#" id="request-btn">Request a Game</a>
       <a href="#" id="settings-btn">Settings</a>
-      <button type="button" id="source-btn" class="source-btn" aria-label="Switch game source">🎮</button>
     </nav>
   </header>
 
@@ -265,36 +264,10 @@
   </div>
 </div>
 
-<div class="source-scrim" id="source-scrim" aria-hidden="true">
-  <div class="source-modal" role="dialog" aria-modal="true" aria-label="Choose game source">
-    <div class="source-modal-bar">
-      <span class="source-modal-title">Game Source</span>
-      <button type="button" class="source-close" id="source-close" aria-label="Close">&times;</button>
-    </div>
-    <div class="source-options">
-      <button type="button" class="source-option" data-source="all">
-        <span class="source-icon">🎮</span>
-        <span class="source-label">All Games</span>
-        <span class="source-desc">Built-in + Gamepix</span>
-      </button>
-      <button type="button" class="source-option" data-source="local">
-        <span class="source-icon">💾</span>
-        <span class="source-label">Built-in Games</span>
-        <span class="source-desc">Local HTML5 games</span>
-      </button>
-      <button type="button" class="source-option" data-source="gamepix">
-        <span class="source-icon">☁️</span>
-        <span class="source-label">Gamepix Games</span>
-        <span class="source-desc">Cloud arcade (iframe)</span>
-      </button>
-    </div>
-  </div>
-</div>
-
 <canvas id="fx"></canvas>
 
 <script src="./script.js" defer></script>
-  <script src="./gamepix.js" defer></script>
+<script src="./gamepix.js" defer></script>
 
 </body>
 </html>
