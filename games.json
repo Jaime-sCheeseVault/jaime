@@ -14,7 +14,6 @@
   { "tag": "Horror",  "name": "Granny 2",          "file": "./g/granny-2.html",          "icon": "./g/assets/granny-2.png" },
   { "tag": "Horror",  "name": "Granny 3",          "file": "./g/granny-3.html",          "icon": "./g/assets/granny-3.png" },
   { "tag": "Horror",  "name": "FNAF",              "file": "./g/fnaf.html",              "icon": "./g/assets/fnaf.png" },
-  { "tag": "Horror",  "name": "FNAF: Pizza Sim",   "file": "./g/fnaf-pizza-sim.html",    "icon": "./g/assets/fnaf-pizza-sim.png" },
   { "tag": "Horror",  "name": "FNAF 2",            "file": "./g/fnaf-2.html",            "icon": "./g/assets/fnaf-2.png" },
   { "tag": "Horror",  "name": "FNAF 3",            "file": "./g/fnaf-3.html",            "icon": "./g/assets/fnaf-3.png" },
   { "tag": "Horror",  "name": "FNAF 4",            "file": "./g/fnaf-4.html",            "icon": "./g/assets/fnaf-4.png" }
