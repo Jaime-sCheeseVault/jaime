@@ -265,16 +265,8 @@
   catch (e) { state = Object.assign({}, DEFAULTS); }
   function save(){ try { localStorage.setItem(SKEY, JSON.stringify(state)); } catch (e) {} }
 
-  const BASE_GAMES = [
-    { tag:'Arcade',   name:'Slope',             file:'./g/slope.html',             icon:'./g/assets/slope.png' },
-    { tag:'Shooter',  name:'1v1.LOL',           file:'./g/1v1.lol.html',           icon:'./g/assets/1v1.lol.png' },
-    { tag:'Sports',   name:'Basket Bros',       file:'./g/basket-bros.html',       icon:'./g/assets/basket-bros.png' },
-    { tag:'Arcade',   name:'Moto X3M',          file:'./g/moto-x3m.html',          icon:'./g/assets/moto-x3m.png' },
-    { tag:'Puzzle',   name:'Cookie Clicker',    file:'./g/cookie-clicker.html',    icon:'./g/assets/cookie-clicker.png' },
-    { tag:'Arcade',   name:'Escape Road City 2', file:'./g/escape-road-city-2.html', icon:'./g/assets/escape-road-city-2.png' },
-    { tag:'Arcade',   name:'Tomb Of The Mask', file:'./g/tomb-of-the-mask.html', icon:'./g/assets/tomb-of-the-mask.png' },
-  ];
-  let games = BASE_GAMES.slice();
+  const BASE_GAMES = [];
+  let games = [];
 
   // ---- games.json catalog (fallback to the hardcoded list when fetch is blocked) ----
   function loadGamesFromJson(){
@@ -373,6 +365,31 @@
   }
   renderGrid();
 
+  const RAW_GH_HOST_RE = /^https:\/\/raw\.githubusercontent\.com\//i;
+  function isRawGithubHtml(url){
+    return RAW_GH_HOST_RE.test(url) && /\.html?($|\?)/i.test(url);
+  }
+  function loadGameFrame(game, iframe){
+    const url = game.file;
+    if (!isRawGithubHtml(url)){
+      iframe.src = url;
+      return;
+    }
+    fetch(url, { cache: 'no-store' })
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+      .then(html => {
+        if (!/<base\s+href/i.test(html)){
+          const baseTag = '<base href="' + url.replace(/[^/]*$/, '') + '">';
+          html = html.replace(/<head([^>]*)>/i, '<head$1>' + baseTag);
+        }
+        const blob = new Blob([html], { type: 'text/html' });
+        const blobUrl = URL.createObjectURL(blob);
+        iframe.dataset.blobUrl = blobUrl;
+        iframe.src = blobUrl;
+      })
+      .catch(() => { iframe.src = url; });
+  }
+
   function openGame(game){
     const scrim = document.createElement('div');
     scrim.className = 'game-scrim';
@@ -386,7 +403,7 @@
           </div>
         </div>
         <div class="game-modal-frame">
-          <iframe src="${game.file}" title="${game.name}"
+          <iframe title="${game.name}"
             allow="fullscreen; gamepad; autoplay" allowfullscreen></iframe>
         </div>
       </div>`;
@@ -394,8 +411,11 @@
     requestAnimationFrame(() => scrim.classList.add('open'));
 
     const modal = scrim.querySelector('.game-modal');
+    const iframe = scrim.querySelector('iframe');
     const fsBtn = scrim.querySelector('#gm-fullscreen');
     const closeBtn = scrim.querySelector('#gm-close');
+
+    loadGameFrame(game, iframe);
 
     const exitFullscreen = () => {
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
@@ -403,6 +423,7 @@
     const close = () => {
       if (state.confirmBeforeClose && !window.confirm('Exit this game?')) return;
       exitFullscreen();
+      if (iframe.dataset.blobUrl){ try { URL.revokeObjectURL(iframe.dataset.blobUrl); } catch (e) {} delete iframe.dataset.blobUrl; }
       scrim.classList.remove('open');
       setTimeout(() => scrim.remove(), 200);
     };

@@ -20,6 +20,7 @@
   const toggleCloakEnabled = document.getElementById('toggle-cloak');
   const cloakTitleInput = document.getElementById('cloak-title');
   const cloakFaviconInput = document.getElementById('cloak-favicon');
+  const cloakOpenBtn = document.getElementById('cloak-open-btn');
 
   function applyTheme(){
     if (state.theme === 'default') document.documentElement.removeAttribute('data-theme');
@@ -103,6 +104,40 @@
     } catch (e) {}
   }
   function applyCloak(){ syncCloak(); }
+
+  // Open an about:blank tab FROM THIS SITE so it inherits our origin and the child
+  // iframe can re-cloak the parent tab (cross-origin parents can't be touched).
+  function openCloakedTab(){
+    try {
+      const win = window.open('about:blank', '_blank');
+      if (!win){ alert('Popup blocked — allow pop-ups for this site and try again.'); return; }
+      const doc = win.document;
+      const t = state.cloakTitle || 'Classes';
+      const fav = state.cloakFavicon || CLOAK_FAV;
+      doc.title = t;
+      const icon = doc.createElement('link');
+      icon.rel = 'icon';
+      icon.type = 'image/x-icon';
+      icon.href = fav;
+      doc.head.appendChild(icon);
+      const frame = doc.createElement('iframe');
+      frame.src = './index.html';
+      frame.setAttribute('allow', 'fullscreen; gamepad; autoplay');
+      frame.allowFullscreen = true;
+      frame.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:none;background:#05070a;';
+      doc.body.appendChild(frame);
+      win.setInterval(() => {
+        try {
+          if (state.cloakEnabled){
+            win.document.title = state.cloakTitle || 'Classes';
+            const pi = win.document.querySelector('link[rel*="icon"]');
+            if (pi) pi.href = state.cloakFavicon || CLOAK_FAV;
+          }
+        } catch (e) {}
+      }, 1000);
+    } catch (e) { alert('Could not open cloaked tab.'); }
+  }
+
   setInterval(() => { try { syncCloak(); } catch (e) {} }, 1200);
   window.addEventListener('focus', () => { try { syncCloak(); } catch (e) {} });
   document.addEventListener('visibilitychange', () => { try { if (!document.hidden) syncCloak(); } catch (e) {} });
@@ -115,6 +150,9 @@
       save();
       applyCloak();
     });
+  }
+  if (cloakOpenBtn){
+    cloakOpenBtn.addEventListener('click', openCloakedTab);
   }
 
   if (cloakTitleInput){
