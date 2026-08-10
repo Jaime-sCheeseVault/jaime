@@ -13,7 +13,7 @@
   { "tag": "Horror",  "name": "Granny",            "file": "./g/granny.html",            "icon": "./g/assets/granny.jpg" },
   { "tag": "Horror",  "name": "Granny 2",          "file": "./g/granny-2.html",          "icon": "./g/assets/granny-2.jpg" },
   { "tag": "Horror",  "name": "FNAF",              "file": "./g/fnaf.html",              "icon": "./g/assets/fnaf.jpg" },
-  { "tag": "Horror",  "name": "FNAF 2",            "file": "./g/fnaf2.html",            "icon": "./g/assets/fnaf2.jpg" },
+  { "tag": "Horror",  "name": "FNAF 2",            "file": "https://jasongamesdev.github.io/fnaf-2/", "icon": "./g/assets/fnaf2.jpg" },
   { "tag": "Horror",  "name": "FNAF 3",            "file": "./g/fnaf3.html",            "icon": "./g/assets/fnaf3.jpg" },
   { "tag": "Horror",  "name": "FNAF 4",            "file": "./g/fnaf4.html",            "icon": "./g/assets/fnaf4.jpg" }
 ]
