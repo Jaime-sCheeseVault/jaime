@@ -93,7 +93,14 @@
         <p>No games found. Try adjusting your search or filter.</p>
       </div>
     `;
-    browseView.appendChild(gamepixSection);
+
+    // Insert BEFORE the request CTA section
+    const requestCta = browseView.querySelector('.arc-request-cta');
+    if (requestCta) {
+      browseView.insertBefore(gamepixSection, requestCta);
+    } else {
+      browseView.appendChild(gamepixSection);
+    }
 
     // Store references
     gamepixElements.section = document.getElementById('gamepix-section');
