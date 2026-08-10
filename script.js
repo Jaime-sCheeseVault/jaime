@@ -265,8 +265,16 @@
   catch (e) { state = Object.assign({}, DEFAULTS); }
   function save(){ try { localStorage.setItem(SKEY, JSON.stringify(state)); } catch (e) {} }
 
-  const BASE_GAMES = [];
-  let games = [];
+  const BASE_GAMES = [
+    { tag:'Arcade',   name:'Slope',             file:'./g/slope.html',             icon:'./g/assets/slope.png' },
+    { tag:'Shooter',  name:'1v1.LOL',           file:'./g/1v1.lol.html',           icon:'./g/assets/1v1.lol.png' },
+    { tag:'Sports',   name:'Basket Bros',       file:'./g/basket-bros.html',       icon:'./g/assets/basket-bros.png' },
+    { tag:'Arcade',   name:'Moto X3M',          file:'./g/moto-x3m.html',          icon:'./g/assets/moto-x3m.png' },
+    { tag:'Puzzle',   name:'Cookie Clicker',    file:'./g/cookie-clicker.html',    icon:'./g/assets/cookie-clicker.png' },
+    { tag:'Arcade',   name:'Escape Road City 2', file:'./g/escape-road-city-2.html', icon:'./g/assets/escape-road-city-2.png' },
+    { tag:'Arcade',   name:'Tomb Of The Mask', file:'./g/tomb-of-the-mask.html', icon:'./g/assets/tomb-of-the-mask.png' },
+  ];
+  let games = BASE_GAMES.slice();
 
   // ---- games.json catalog (fallback to the hardcoded list when fetch is blocked) ----
   function loadGamesFromJson(){
