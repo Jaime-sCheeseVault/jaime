@@ -373,6 +373,28 @@
   }
   renderGrid();
 
+  const RAW_GH_HOST_RE = /^https:\/\/raw\.githubusercontent\.com\//i;
+  function isRawGithubHtml(url){
+    return RAW_GH_HOST_RE.test(url) && /\.html?($|\?)/i.test(url);
+  }
+  function loadGameFrame(game, iframe){
+    const url = game.file;
+    if (!isRawGithubHtml(url)){
+      iframe.src = url;
+      return;
+    }
+    fetch(url, { cache: 'no-store' })
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+      .then(html => {
+        if (!/<base\s+href/i.test(html)){
+          const baseTag = '<base href="' + url.replace(/[^/]*$/, '') + '">';
+          html = html.replace(/<head([^>]*)>/i, '<head$1>' + baseTag);
+        }
+        iframe.srcdoc = html;
+      })
+      .catch(() => { iframe.src = url; });
+  }
+
   function openGame(game){
     const scrim = document.createElement('div');
     scrim.className = 'game-scrim';
@@ -386,7 +408,7 @@
           </div>
         </div>
         <div class="game-modal-frame">
-          <iframe src="${game.file}" title="${game.name}"
+          <iframe title="${game.name}"
             allow="fullscreen; gamepad; autoplay" allowfullscreen></iframe>
         </div>
       </div>`;
@@ -394,8 +416,11 @@
     requestAnimationFrame(() => scrim.classList.add('open'));
 
     const modal = scrim.querySelector('.game-modal');
+    const iframe = scrim.querySelector('iframe');
     const fsBtn = scrim.querySelector('#gm-fullscreen');
     const closeBtn = scrim.querySelector('#gm-close');
+
+    loadGameFrame(game, iframe);
 
     const exitFullscreen = () => {
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
