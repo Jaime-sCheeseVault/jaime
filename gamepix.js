@@ -17,61 +17,22 @@
     }
   };
 
-  // Category mapping from Gamepix to our tags
   const CATEGORY_MAP = {
-    'arcade': 'Arcade',
-    'action': 'Action',
-    'adventure': 'Adventure',
-    'puzzle': 'Puzzle',
-    'racing': 'Racing',
-    'sports': 'Sports',
-    'shooter': 'Shooter',
-    'fighting': 'Fighting',
-    'strategy': 'Strategy',
-    'simulation': 'Simulation',
-    'casual': 'Casual',
-    'hyper-casual': 'Casual',
-    'idle': 'Idle',
-    'clicker': 'Idle',
-    'card': 'Card',
-    'board': 'Board',
-    'trivia': 'Trivia',
-    'educational': 'Educational',
-    'kids': 'Kids',
-    'memory': 'Puzzle',
-    'math': 'Educational',
-    'drawing': 'Casual',
-    'music': 'Casual',
-    'rhythm': 'Casual',
-    'ball': 'Arcade',
-    'match-3': 'Puzzle',
-    '2048': 'Puzzle',
-    'farming': 'Simulation',
-    'battle': 'Action',
-    'hidden-object': 'Puzzle',
-    'io': 'Multiplayer',
-    'stickman': 'Action',
-    'zombie': 'Action',
-    'building': 'Simulation',
-    'block': 'Puzzle',
-    'retro': 'Arcade',
-    'cats': 'Casual',
-    'animal': 'Casual',
-    'fun': 'Casual',
-    'first-person-shooter': 'Shooter',
-    'car': 'Racing',
-    'basketball': 'Sports',
-    'golf': 'Sports',
-    'runner': 'Arcade',
-    'monster': 'Adventure',
-    'platformer': 'Arcade',
-    'snake': 'Arcade',
-    'games-for-girls': 'Casual',
-    'christmas': 'Seasonal',
-    'brain': 'Puzzle'
+    'arcade': 'Arcade', 'action': 'Action', 'adventure': 'Adventure', 'puzzle': 'Puzzle',
+    'racing': 'Racing', 'sports': 'Sports', 'shooter': 'Shooter', 'fighting': 'Fighting',
+    'strategy': 'Strategy', 'simulation': 'Simulation', 'casual': 'Casual',
+    'hyper-casual': 'Casual', 'idle': 'Idle', 'clicker': 'Idle', 'card': 'Card',
+    'board': 'Board', 'trivia': 'Trivia', 'educational': 'Educational', 'kids': 'Kids',
+    'memory': 'Puzzle', 'math': 'Educational', 'drawing': 'Casual', 'music': 'Casual',
+    'rhythm': 'Casual', 'ball': 'Arcade', 'match-3': 'Puzzle', '2048': 'Puzzle',
+    'farming': 'Simulation', 'battle': 'Action', 'hidden-object': 'Puzzle', 'io': 'Multiplayer',
+    'stickman': 'Action', 'zombie': 'Action', 'building': 'Simulation', 'block': 'Puzzle',
+    'retro': 'Arcade', 'cats': 'Casual', 'animal': 'Casual', 'fun': 'Casual',
+    'first-person-shooter': 'Shooter', 'car': 'Racing', 'basketball': 'Sports',
+    'golf': 'Sports', 'runner': 'Arcade', 'monster': 'Adventure', 'platformer': 'Arcade',
+    'snake': 'Arcade', 'games-for-girls': 'Casual', 'christmas': 'Seasonal', 'brain': 'Puzzle'
   };
 
-  // State
   let gamepixState = {
     cache: new Map(),
     currentPage: 1,
@@ -79,10 +40,10 @@
     currentSearch: '',
     isLoading: false,
     hasMore: true,
-    totalLoaded: 0
+    totalLoaded: 0,
+    mode: 'local' // 'local' or 'gamepix'
   };
 
-  // DOM Elements (will be initialized later)
   let gamepixElements = {
     section: null,
     grid: null,
@@ -90,52 +51,25 @@
     categorySelect: null,
     loadMoreBtn: null,
     loadingIndicator: null,
-    toggleSwitch: null
+    emptyState: null,
+    countEl: null,
+    toggleSwitch: null,
+    controls: null,
+    localGrid: null
   };
 
-  // Initialize Gamepix system
   function initGamepix() {
-    createGamepixUI();
+    createGamepixSection();
+    createToggleUI();
     bindEvents();
     loadSavedPreferences();
   }
 
-  // Create Gamepix UI elements
-  function createGamepixUI() {
-    // Create the Gamepix section that will be shown/hidden
+  function createGamepixSection() {
     const browseView = document.getElementById('browse-view');
     if (!browseView) return;
 
-    // Insert Gamepix controls after the search bar
-    const arcHero = browseView.querySelector('.arc-hero');
-    if (!arcHero) return;
-
-    // Create the toggle switch container
-    const toggleContainer = document.createElement('div');
-    toggleContainer.className = 'gamepix-toggle-container';
-    toggleContainer.innerHTML = `
-      <div class="gamepix-toggle-wrapper">
-        <span class="gamepix-toggle-label" data-mode="local">Local Games</span>
-        <label class="gamepix-toggle">
-          <input type="checkbox" id="gamepix-mode-toggle" ${gamepixState.mode === 'gamepix' ? 'checked' : ''}>
-          <span class="gamepix-toggle-slider"></span>
-        </label>
-        <span class="gamepix-toggle-label" data-mode="gamepix">Gamepix</span>
-      </div>
-      <div class="gamepix-controls" id="gamepix-controls" style="display: none;">
-        <div class="gamepix-search">
-          <input type="text" id="gamepix-search" placeholder="Search Gamepix games..." autocomplete="off">
-        </div>
-        <div class="gamepix-filter">
-          <select id="gamepix-category" class="gamepix-category-select">
-            <option value="">All Categories</option>
-          </select>
-        </div>
-      </div>
-    `;
-    arcHero.appendChild(toggleContainer);
-
-    // Create Gamepix grid section
+    // Create Gamepix section (initially hidden)
     const gamepixSection = document.createElement('section');
     gamepixSection.className = 'gamepix-section';
     gamepixSection.id = 'gamepix-section';
@@ -159,25 +93,62 @@
         <p>No games found. Try adjusting your search or filter.</p>
       </div>
     `;
-    browseView.appendChild(gamepixSection);
+
+    // Insert BEFORE the request CTA section
+    const requestCta = browseView.querySelector('.arc-request-cta');
+    if (requestCta) {
+      browseView.insertBefore(gamepixSection, requestCta);
+    } else {
+      browseView.appendChild(gamepixSection);
+    }
 
     // Store references
     gamepixElements.section = document.getElementById('gamepix-section');
     gamepixElements.grid = document.getElementById('gamepix-grid');
-    gamepixElements.searchInput = document.getElementById('gamepix-search');
-    gamepixElements.categorySelect = document.getElementById('gamepix-category');
     gamepixElements.loadMoreBtn = document.getElementById('gamepix-load-more');
     gamepixElements.loadingIndicator = document.getElementById('gamepix-loading');
-    gamepixElements.toggleSwitch = document.getElementById('gamepix-mode-toggle');
-
-    // Populate category dropdown
-    populateCategories();
+    gamepixElements.emptyState = document.getElementById('gamepix-empty');
+    gamepixElements.countEl = document.getElementById('gamepix-count');
+    gamepixElements.localGrid = document.getElementById('game-grid');
   }
 
-  // Populate category dropdown with unique categories from Gamepix
-  async function populateCategories() {
-    try {
-      const data = await fetchGamepixPage(1, 12);
+  function createToggleUI() {
+    const arcHero = document.querySelector('.arc-hero');
+    if (!arcHero) return;
+
+    // Add toggle after search bar
+    const toggleContainer = document.createElement('div');
+    toggleContainer.className = 'gamepix-toggle-container';
+    toggleContainer.innerHTML = `
+      <div class="gamepix-toggle-wrapper">
+        <span class="gamepix-toggle-label" data-mode="local">Local Games</span>
+        <label class="gamepix-toggle">
+          <input type="checkbox" id="gamepix-mode-toggle">
+          <span class="gamepix-toggle-slider"></span>
+        </label>
+        <span class="gamepix-toggle-label" data-mode="gamepix">Gamepix</span>
+      </div>
+      <div class="gamepix-controls" id="gamepix-controls" style="display: none;">
+        <div class="gamepix-search">
+          <input type="text" id="gamepix-search" placeholder="Search Gamepix games..." autocomplete="off">
+        </div>
+        <div class="gamepix-filter">
+          <select id="gamepix-category" class="gamepix-category-select">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+      </div>
+    `;
+    arcHero.appendChild(toggleContainer);
+
+    gamepixElements.toggleSwitch = document.getElementById('gamepix-mode-toggle');
+    gamepixElements.searchInput = document.getElementById('gamepix-search');
+    gamepixElements.categorySelect = document.getElementById('gamepix-category');
+    gamepixElements.controls = document.getElementById('gamepix-controls');
+  }
+
+  function populateCategories() {
+    fetchGamepixPage(1, 12).then(data => {
       const categories = new Set();
       data.items?.forEach(item => {
         if (item.category) categories.add(item.category);
@@ -187,51 +158,40 @@
         const option = document.createElement('option');
         option.value = cat;
         option.textContent = cat.charAt(0).toUpperCase() + cat.slice(1).replace(/-/g, ' ');
-        gamepixElements.categorySelect.appendChild(option);
+        if (gamepixElements.categorySelect) {
+          gamepixElements.categorySelect.appendChild(option);
+        }
       });
-    } catch (e) {
-      console.warn('Gamepix: Could not load categories', e);
-    }
+    }).catch(e => console.warn('Gamepix: Could not load categories', e));
   }
 
-  // Bind events
   function bindEvents() {
-    // Toggle switch
     if (gamepixElements.toggleSwitch) {
       gamepixElements.toggleSwitch.addEventListener('change', handleToggleChange);
     }
 
-    // Search input with debounce
     if (gamepixElements.searchInput) {
       let searchDebounce;
       gamepixElements.searchInput.addEventListener('input', (e) => {
         clearTimeout(searchDebounce);
-        searchDebounce = setTimeout(() => {
-          handleSearch(e.target.value);
-        }, 300);
+        searchDebounce = setTimeout(() => handleSearch(e.target.value), 300);
       });
     }
 
-    // Category filter
     if (gamepixElements.categorySelect) {
-      gamepixElements.categorySelect.addEventListener('change', (e) => {
-        handleCategoryChange(e.target.value);
-      });
+      gamepixElements.categorySelect.addEventListener('change', (e) => handleCategoryChange(e.target.value));
     }
 
-    // Load more button
     if (gamepixElements.loadMoreBtn) {
       gamepixElements.loadMoreBtn.addEventListener('click', loadMoreGames);
     }
   }
 
-  // Load saved preferences from localStorage
   function loadSavedPreferences() {
     try {
       const saved = localStorage.getItem('gamepix-prefs');
       if (saved) {
         const prefs = JSON.parse(saved);
-        if (prefs.mode) gamepixState.mode = prefs.mode;
         if (prefs.mode === 'gamepix' && gamepixElements.toggleSwitch) {
           gamepixElements.toggleSwitch.checked = true;
           handleToggleChange({ target: gamepixElements.toggleSwitch }, true);
@@ -242,7 +202,6 @@
     }
   }
 
-  // Save preferences to localStorage
   function savePreferences() {
     try {
       localStorage.setItem('gamepix-prefs', JSON.stringify({
@@ -254,28 +213,24 @@
     }
   }
 
-  // Handle toggle change
   function handleToggleChange(e, isInitial = false) {
     const isGamepix = e.target.checked;
     gamepixState.mode = isGamepix ? 'gamepix' : 'local';
 
-    const localGamesSection = document.getElementById('browse-view');
-    const gamepixControls = document.getElementById('gamepix-controls');
-    const localGrid = document.getElementById('game-grid');
-
     if (isGamepix) {
       // Show Gamepix, hide local
-      gamepixElements.section.style.display = 'block';
-      localGrid.style.display = 'none';
-      if (gamepixControls) gamepixControls.style.display = 'flex';
+      if (gamepixElements.section) gamepixElements.section.style.display = 'block';
+      if (gamepixElements.localGrid) gamepixElements.localGrid.style.display = 'none';
+      if (gamepixElements.controls) gamepixElements.controls.style.display = 'flex';
       if (!isInitial && gamepixState.totalLoaded === 0) {
         loadGamepixGames(true);
       }
+      populateCategories();
     } else {
       // Show local, hide Gamepix
-      gamepixElements.section.style.display = 'none';
-      localGrid.style.display = 'grid';
-      if (gamepixControls) gamepixControls.style.display = 'none';
+      if (gamepixElements.section) gamepixElements.section.style.display = 'none';
+      if (gamepixElements.localGrid) gamepixElements.localGrid.style.display = 'grid';
+      if (gamepixElements.controls) gamepixElements.controls.style.display = 'none';
     }
 
     savePreferences();
@@ -296,7 +251,6 @@
     });
   }
 
-  // Handle search
   function handleSearch(query) {
     gamepixState.currentSearch = query.toLowerCase().trim();
     gamepixState.currentPage = 1;
@@ -304,7 +258,6 @@
     loadGamepixGames(true);
   }
 
-  // Handle category change
   function handleCategoryChange(category) {
     gamepixState.currentCategory = category;
     gamepixState.currentPage = 1;
@@ -312,11 +265,10 @@
     loadGamepixGames(true);
   }
 
-  // Load Gamepix games
   async function loadGamepixGames(reset = false) {
     if (gamepixState.isLoading) return;
     if (reset) {
-      gamepixElements.grid.innerHTML = '';
+      if (gamepixElements.grid) gamepixElements.grid.innerHTML = '';
       gamepixState.currentPage = 1;
       gamepixState.totalLoaded = 0;
       gamepixState.hasMore = true;
@@ -337,7 +289,6 @@
 
       let games = data.items.map(convertGamepixItem);
 
-      // Apply search filter locally (since API doesn't support search)
       if (gamepixState.currentSearch) {
         games = games.filter(g =>
           g.name.toLowerCase().includes(gamepixState.currentSearch) ||
@@ -346,7 +297,6 @@
         );
       }
 
-      // Apply category filter locally
       if (gamepixState.currentCategory) {
         games = games.filter(g => g.rawCategory === gamepixState.currentCategory);
       }
@@ -362,9 +312,7 @@
       }
     } catch (error) {
       console.error('Gamepix: Error loading games', error);
-      if (gamepixState.currentPage === 1) {
-        showEmpty();
-      }
+      if (gamepixState.currentPage === 1) showEmpty();
     } finally {
       gamepixState.isLoading = false;
       showLoading(false);
@@ -372,9 +320,8 @@
     }
   }
 
-  // Fetch a page from Gamepix API
   async function fetchGamepixPage(page, pagination) {
-    const cacheKey = `page-${page}-${pagination}`;
+    const cacheKey = `page-${page}-${pagination}-${gamepixState.currentCategory || 'all'}`;
     if (gamepixState.cache.has(cacheKey)) {
       return gamepixState.cache.get(cacheKey);
     }
@@ -402,7 +349,6 @@
     return data;
   }
 
-  // Convert Gamepix item to our game format
   function convertGamepixItem(item) {
     return {
       id: item.id,
@@ -418,8 +364,9 @@
     };
   }
 
-  // Render games to grid
   function renderGamepixGames(games) {
+    if (!gamepixElements.grid) return;
+
     const html = games.map((game, index) => `
       <div class="arc-tile gamepix-tile" tabindex="0" data-namespace="${game.namespace}" data-index="${gamepixState.totalLoaded + index}" style="animation-delay:${(gamepixState.totalLoaded + index) * 30}ms">
         <div class="tile-thumb">
@@ -440,7 +387,6 @@
 
     gamepixElements.grid.insertAdjacentHTML('beforeend', html);
 
-    // Bind click events for new tiles
     const newTiles = gamepixElements.grid.querySelectorAll('.gamepix-tile:not([data-bound])');
     newTiles.forEach(tile => {
       tile.dataset.bound = 'true';
@@ -449,7 +395,6 @@
     });
   }
 
-  // Open Gamepix game in existing modal
   function openGamepixGame(namespace, name) {
     const game = {
       name: name,
@@ -457,16 +402,13 @@
       source: 'gamepix'
     };
 
-    // Use the existing openGame function from script.js
     if (window.openGame) {
       window.openGame(game);
     } else {
-      // Fallback if not available
       openGamepixModal(game);
     }
   }
 
-  // Fallback modal for Gamepix games
   function openGamepixModal(game) {
     const scrim = document.createElement('div');
     scrim.className = 'game-scrim';
@@ -499,7 +441,6 @@
     const fsBtn = scrim.querySelector('#gm-fullscreen');
     const closeBtn = scrim.querySelector('#gm-close');
 
-    // Handle Gamepix events
     window.addEventListener('message', handleGamepixMessage);
 
     const exitFullscreen = () => {
@@ -534,12 +475,10 @@
     closeBtn.focus();
   }
 
-  // Handle Gamepix postMessage events
   function handleGamepixMessage(e) {
     if (!e.data || typeof e.data !== 'object') return;
     if (e.data.type === 'update_score') {
       console.log('Gamepix Score:', e.data.score);
-      // Dispatch custom event for any score tracking system
       window.dispatchEvent(new CustomEvent('gamepix-score', { detail: { score: e.data.score } }));
     }
     if (e.data.type === 'update_level') {
@@ -548,21 +487,18 @@
     }
   }
 
-  // Load more games
   function loadMoreGames() {
     if (!gamepixState.isLoading && gamepixState.hasMore) {
       loadGamepixGames(false);
     }
   }
 
-  // Update load more button visibility
   function updateLoadMoreButton() {
     if (gamepixElements.loadMoreBtn) {
       gamepixElements.loadMoreBtn.style.display = gamepixState.hasMore && !gamepixState.isLoading ? 'block' : 'none';
     }
   }
 
-  // Show/hide loading indicator
   function showLoading(show) {
     if (gamepixElements.loadingIndicator) {
       gamepixElements.loadingIndicator.style.display = show ? 'flex' : 'none';
@@ -572,17 +508,27 @@
     }
   }
 
-  // Show/hide empty state
   function showEmpty() {
-    const empty = document.getElementById('gamepix-empty');
-    if (empty) empty.style.display = 'block';
+    if (gamepixElements.emptyState) gamepixElements.emptyState.style.display = 'block';
   }
   function hideEmpty() {
-    const empty = document.getElementById('gamepix-empty');
-    if (empty) empty.style.display = 'none';
+    if (gamepixElements.emptyState) gamepixElements.emptyState.style.display = 'none';
   }
 
-  // Expose to window for integration
+  // Update game count display
+  function updateGameCount() {
+    if (gamepixElements.countEl) {
+      gamepixElements.countEl.textContent = `${gamepixState.totalLoaded} game${gamepixState.totalLoaded !== 1 ? 's' : ''}`;
+    }
+  }
+
+  // Override renderGamepixGames to update count
+  const originalRender = renderGamepixGames;
+  renderGamepixGames = function(games) {
+    originalRender(games);
+    updateGameCount();
+  };
+
   window.Gamepix = {
     init: initGamepix,
     loadMore: loadMoreGames,
@@ -591,7 +537,6 @@
     openGame: openGamepixGame
   };
 
-  // Auto-init when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initGamepix);
   } else {
