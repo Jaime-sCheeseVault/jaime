@@ -58,7 +58,24 @@
     localGrid: null
   };
 
+  // Generate high-quality Gamepix image URLs
+  function getGamepixImageUrls(namespace) {
+    return {
+      // High quality cover for game cards
+      cover: `https://img.gamepix.com/games/${namespace}/cover/large.png`,
+      // High quality icon as fallback
+      icon: `https://img.gamepix.com/games/${namespace}/icon/large.png`,
+      // Original API images as last resort fallbacks
+      fallbackCover: `https://img.gamepix.com/games/${namespace}/cover/small.png?w=320`,
+      fallbackIcon: `https://img.gamepix.com/games/${namespace}/icon/small.png?w=105`
+    };
+  }
+
   function initGamepix() {
+    // Prevent double initialization
+    if (window.__gamepixInitialized) return;
+    window.__gamepixInitialized = true;
+
     createGamepixSection();
     createToggleUI();
     bindEvents();
@@ -115,6 +132,9 @@
   function createToggleUI() {
     const arcHero = document.querySelector('.arc-hero');
     if (!arcHero) return;
+
+    // Check if toggle already exists (prevent duplicates)
+    if (document.getElementById('gamepix-mode-toggle')) return;
 
     // Add toggle after search bar
     const toggleContainer = document.createElement('div');
@@ -350,6 +370,7 @@
   }
 
   function convertGamepixItem(item) {
+    const urls = getGamepixImageUrls(item.namespace);
     return {
       id: item.id,
       name: item.title,
@@ -357,7 +378,11 @@
       description: item.description || '',
       category: CATEGORY_MAP[item.category?.toLowerCase()] || 'Arcade',
       rawCategory: item.category,
-      icon: item.image || item.banner_image,
+      // Use high-quality cover for game cards
+      icon: urls.cover,
+      // Store all image URLs for fallback handling
+      imageUrls: urls,
+      // Keep original API images as last resort
       bannerImage: item.banner_image,
       url: item.url,
       source: 'gamepix'
@@ -367,23 +392,28 @@
   function renderGamepixGames(games) {
     if (!gamepixElements.grid) return;
 
-    const html = games.map((game, index) => `
-      <div class="arc-tile gamepix-tile" tabindex="0" data-namespace="${game.namespace}" data-index="${gamepixState.totalLoaded + index}" style="animation-delay:${(gamepixState.totalLoaded + index) * 30}ms">
-        <div class="tile-thumb">
-          <img class="tile-icon" src="${game.icon}" alt="${game.name}" loading="lazy" onerror="this.style.display='none'" />
-          <span class="tile-source">☁️ Gamepix</span>
-          <div class="tile-play-overlay">
-            <button class="tile-play-btn" data-namespace="${game.namespace}" aria-label="Play ${game.name}">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-            </button>
+    const html = games.map((game, index) => {
+      const urls = game.imageUrls;
+      // Build onerror chain: try cover -> fallback cover -> icon -> fallback icon -> hide
+      const onerrorChain = `this.onerror=null; this.src='${urls.fallbackCover}'; this.onerror=function(){this.onerror=null; this.src='${urls.icon}'; this.onerror=function(){this.onerror=null; this.src='${urls.fallbackIcon}'; this.onerror=function(){this.style.display=\'none\';};};};`;
+      return `
+        <div class="arc-tile gamepix-tile" tabindex="0" data-namespace="${game.namespace}" data-index="${gamepixState.totalLoaded + index}" style="animation-delay:${(gamepixState.totalLoaded + index) * 30}ms">
+          <div class="tile-thumb">
+            <img class="tile-icon" src="${urls.cover}" alt="${game.name}" loading="lazy" onerror="${onerrorChain}" />
+            <span class="tile-source">☁️ Gamepix</span>
+            <div class="tile-play-overlay">
+              <button class="tile-play-btn" data-namespace="${game.namespace}" aria-label="Play ${game.name}">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="tile-caption">
+            <span class="tile-name">${game.name}</span>
+            <span class="tile-category">${game.category}</span>
           </div>
         </div>
-        <div class="tile-caption">
-          <span class="tile-name">${game.name}</span>
-          <span class="tile-category">${game.category}</span>
-        </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
     gamepixElements.grid.insertAdjacentHTML('beforeend', html);
 

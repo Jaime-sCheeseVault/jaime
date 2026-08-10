@@ -211,6 +211,34 @@
   opacity: 0.8;
 }
 
+/* Gamepix Image Quality Fixes */
+.gamepix-tile .tile-thumb {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+}
+
+.gamepix-tile .tile-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+  image-rendering: auto; /* Override pixelated for high-res Gamepix images */
+  transition: transform 0.3s ease;
+}
+
+.gamepix-tile:hover .tile-icon { 
+  transform: scale(1.06); 
+}
+
+/* Fallback image styling */
+.gamepix-tile .tile-icon[src*="fallback"],
+.gamepix-tile .tile-icon[src*="small.png"] {
+  image-rendering: crisp-edges;
+}
+
 /* Gamepix Pagination */
 .gamepix-pagination {
   display: flex;
