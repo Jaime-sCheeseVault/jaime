@@ -382,10 +382,7 @@
           const baseTag = '<base href="' + url.replace(/[^/]*$/, '') + '">';
           html = html.replace(/<head([^>]*)>/i, '<head$1>' + baseTag);
         }
-        const blob = new Blob([html], { type: 'text/html' });
-        const blobUrl = URL.createObjectURL(blob);
-        iframe.dataset.blobUrl = blobUrl;
-        iframe.src = blobUrl;
+        iframe.srcdoc = html;
       })
       .catch(() => { iframe.src = url; });
   }
@@ -423,7 +420,6 @@
     const close = () => {
       if (state.confirmBeforeClose && !window.confirm('Exit this game?')) return;
       exitFullscreen();
-      if (iframe.dataset.blobUrl){ try { URL.revokeObjectURL(iframe.dataset.blobUrl); } catch (e) {} delete iframe.dataset.blobUrl; }
       scrim.classList.remove('open');
       setTimeout(() => scrim.remove(), 200);
     };
