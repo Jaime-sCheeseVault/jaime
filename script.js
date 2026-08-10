@@ -392,6 +392,12 @@
     const url = game.file;
     if (!isRawGithubHtml(url)){
       iframe.src = url;
+      // Ensure iframe has proper attributes for external embeds (Gamepix, etc.)
+      iframe.setAttribute('frameborder', '0');
+      iframe.setAttribute('scrolling', 'no');
+      iframe.setAttribute('width', '100%');
+      iframe.setAttribute('height', '100%');
+      iframe.setAttribute('referrerpolicy', 'no-referrer');
       return;
     }
     fetch(url, { cache: 'no-store' })
@@ -420,7 +426,12 @@
         </div>
         <div class="game-modal-frame">
           <iframe title="${game.name}"
-            allow="fullscreen; gamepad; autoplay" allowfullscreen></iframe>
+            allow="fullscreen; gamepad; autoplay"
+            allowfullscreen
+            frameborder="0"
+            scrolling="no"
+            width="100%"
+            height="100%"></iframe>
         </div>
       </div>`;
     document.body.appendChild(scrim);
@@ -886,14 +897,41 @@
         entry.sent = true;
         try { localStorage.setItem(RKEY, JSON.stringify(requests)); } catch (_) {}
         if (requestHint) requestHint.textContent = 'Request sent — thank you!';
-        requestForm.reset();
-        setTimeout(closeRequest, 900);
-      }).catch(() => {
-        if (requestHint) requestHint.textContent = 'Saved locally — could not reach the sheet. It will retry next time.';
-        requestForm.reset();
-        setTimeout(closeRequest, 1400);
-      });
-    });
-  }
+requestForm.reset();
+         setTimeout(closeRequest, 900);
+       }).catch(() => {
+         if (requestHint) requestHint.textContent = 'Saved locally — could not reach the sheet. It will retry next time.';
+         requestForm.reset();
+         setTimeout(closeRequest, 1400);
+       });
+     });
+   }
+
+  // ---- Gamepix Integration ----
+  // Expose openGame globally so gamepix.js can use it
+  window.openGame = openGame;
+
+  // Handle Gamepix postMessage events for score/level tracking
+  window.addEventListener('message', (e) => {
+    if (!e.data || typeof e.data !== 'object') return;
+    if (e.data.type === 'update_score') {
+      console.log('Gamepix Score:', e.data.score);
+      window.dispatchEvent(new CustomEvent('gamepix-score', { detail: { score: e.data.score } }));
+    }
+    if (e.data.type === 'update_level') {
+      console.log('Gamepix Level:', e.data.level);
+      window.dispatchEvent(new CustomEvent('gamepix-level', { detail: { level: e.data.level } }));
+    }
+  });
+
+  // Initialize Gamepix when archive is activated (lazy load)
+  const originalActivateArchive = activateArchive;
+  activateArchive = function() {
+    originalActivateArchive();
+    // Initialize Gamepix module after archive is active
+    if (window.Gamepix && window.Gamepix.init) {
+      window.Gamepix.init();
+    }
+  };
 
 })();
