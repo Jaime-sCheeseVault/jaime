@@ -7,7 +7,7 @@
   { "tag": "Arcade",  "name": "Escape Road City 2", "file": "./g/escape-road-city-2.html", "icon": "./g/assets/escape-road-city-2.png" },
   { "tag": "Arcade",  "name": "Tomb Of The Mask",  "file": "./g/tomb-of-the-mask.html",  "icon": "./g/assets/tomb-of-the-mask.png" },
   { "tag": "Sports",  "name": "Retro Bowl",        "file": "./g/retro-bowl.html",        "icon": "./g/assets/retro-bowl.jpg" },
-  { "tag": "Sports",  "name": "Football Bros",     "file": "./g/football-bros.html",     "icon": "./g/assets/football-bros.jpg" },
+  { "tag": "Sports",  "name": "Football Bros",     "file": "./g/football-bros.html",     "icon": "./g/assets/football-bros.png" },
   { "tag": "Sports",  "name": "Baseball Bros",     "file": "./g/baseball-bros.html",     "icon": "./g/assets/baseball-bros.jpg" },
   { "tag": "Sports",  "name": "Basketball Stars",  "file": "./g/basketball-stars.html",  "icon": "./g/assets/basketball-stars.jpg" },
   { "tag": "Horror",  "name": "Granny",            "file": "./g/granny.html",            "icon": "./g/assets/granny.jpg" },
