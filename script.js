@@ -259,6 +259,7 @@
     gridSize: 180, fullscreenOnPlay: false, confirmBeforeClose: false, reduceMotion: false,
     cloakEnabled: false, cloakTitle: 'Classes', cloakFavicon: 'https://www.gstatic.com/classroom/logo_square_rounded.svg',
     sheetId: '', sheetTab: 'games', sheetMerge: false,
+    gameSource: 'all'
   };
   let state;
   try { state = Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(SKEY) || '{}')); }
@@ -266,24 +267,32 @@
   function save(){ try { localStorage.setItem(SKEY, JSON.stringify(state)); } catch (e) {} }
 
   const BASE_GAMES = [
-    { tag:'Arcade',   name:'Slope',             file:'./g/slope.html',             icon:'./g/assets/slope.png' },
-    { tag:'Shooter',  name:'1v1.LOL',           file:'./g/1v1.lol.html',           icon:'./g/assets/1v1.lol.png' },
-    { tag:'Sports',   name:'Basket Bros',       file:'./g/basket-bros.html',       icon:'./g/assets/basket-bros.png' },
-    { tag:'Arcade',   name:'Moto X3M',          file:'./g/moto-x3m.html',          icon:'./g/assets/moto-x3m.png' },
-    { tag:'Puzzle',   name:'Cookie Clicker',    file:'./g/cookie-clicker.html',    icon:'./g/assets/cookie-clicker.png' },
-    { tag:'Arcade',   name:'Escape Road City 2', file:'./g/escape-road-city-2.html', icon:'./g/assets/escape-road-city-2.png' },
-    { tag:'Arcade',   name:'Tomb Of The Mask', file:'./g/tomb-of-the-mask.html', icon:'./g/assets/tomb-of-the-mask.png' },
+    { tag:'Arcade',   name:'Slope',             file:'./g/Slope.html',             icon:'./g/assets/Slope.png' },
+    { tag:'Shooter',  name:'1v1.LOL',           file:'./g/1v1.LOL.html',           icon:'./g/assets/1v1.LOL.png' },
+    { tag:'Sports',   name:'Basket Bros',       file:'./g/Basket Bros.html',       icon:'./g/assets/Basket Bros.png' },
+    { tag:'Arcade',   name:'Moto X3M',          file:'./g/Moto X3M.html',          icon:'./g/assets/Moto X3M.png' },
+    { tag:'Puzzle',   name:'Cookie Clicker',    file:'./g/Cookie Clicker.html',    icon:'./g/assets/Cookie Clicker.png' },
+    { tag:'Arcade',   name:'Escape Road City 2', file:'./g/Escape Road City 2.html', icon:'./g/assets/Escape Road City 2.png' },
+    { tag:'Arcade',   name:'Tomb Of The Mask', file:'./g/Tomb Of The Mask.html', icon:'./g/assets/Tomb Of The Mask.png' },
   ];
-  let games = BASE_GAMES.slice();
+  let allGames = BASE_GAMES.slice();
+  let games = allGames.slice();
 
   // ---- games.json catalog (fallback to the hardcoded list when fetch is blocked) ----
+  function filterGamesBySource(list, source){
+    if (source === 'local') return list.filter(g => !g.source || g.source === 'local');
+    if (source === 'gamepix') return list.filter(g => g.source === 'gamepix');
+    return list;
+  }
+
   function loadGamesFromJson(){
     return fetch('./games.json', { cache: 'no-store' })
       .then(r => r.json())
       .then(rows => {
         const list = (Array.isArray(rows) ? rows : []).filter(g => g && g.name && g.file);
         if (!list.length) return null;
-        games = list;
+        allGames = list;
+        games = filterGamesBySource(allGames, state.gameSource);
         renderGrid();
         return list.length;
       })
@@ -334,10 +343,11 @@
         const rows = rowsFromGviz(parseGviz(text));
         if (!rows.length) return null;
         if (state.sheetMerge){
-          games = games.concat(rows);
+          allGames = allGames.concat(rows);
         } else {
-          games = rows;
+          allGames = rows;
         }
+        games = filterGamesBySource(allGames, state.gameSource);
         renderGrid();
         return rows.length;
       })
@@ -350,6 +360,7 @@
       <div class="arc-tile" tabindex="0" data-index="${i}" style="animation-delay:${i * 45}ms">
         <div class="tile-thumb">
           <img class="tile-icon" src="${g.icon}" alt="${g.name}" onerror="this.style.display='none'" />
+          ${g.source === 'gamepix' ? '<span class="tile-source">☁️ Gamepix</span>' : ''}
           <div class="tile-play-overlay">
             <button class="tile-play-btn" data-index="${i}" aria-label="Play ${g.name}">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
@@ -798,6 +809,48 @@
     requestScrim.addEventListener('mousedown', (e) => { if (e.target === requestScrim) closeRequest(); });
   }
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeRequest(); });
+
+  // ---- Source Selector ----
+  const sourceScrim = document.getElementById('source-scrim');
+  const sourceBtn = document.getElementById('source-btn');
+  const sourceClose = document.getElementById('source-close');
+
+  function openSource(){
+    if (!sourceScrim) return;
+    sourceScrim.classList.add('open');
+    sourceScrim.setAttribute('aria-hidden', 'false');
+  }
+  function closeSource(){
+    if (!sourceScrim) return;
+    sourceScrim.classList.remove('open');
+    sourceScrim.setAttribute('aria-hidden', 'true');
+  }
+  function applySourceFilter(src){
+    state.gameSource = src;
+    save();
+    games = filterGamesBySource(allGames, src);
+    renderGrid();
+    updateSourceBtn();
+    closeSource();
+  }
+  function updateSourceBtn(){
+    if (!sourceBtn) return;
+    const icons = { all: '🎮', local: '💾', gamepix: '☁️' };
+    sourceBtn.textContent = icons[state.gameSource] || '🎮';
+  }
+
+  if (sourceBtn) sourceBtn.addEventListener('click', (e) => { e.preventDefault(); openSource(); });
+  if (sourceClose) sourceClose.addEventListener('click', closeSource);
+  if (sourceScrim){
+    sourceScrim.addEventListener('mousedown', (e) => { if (e.target === sourceScrim) closeSource(); });
+  }
+  document.querySelectorAll('.source-option').forEach(btn => {
+    btn.addEventListener('click', () => applySourceFilter(btn.dataset.source));
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSource(); });
+
+  // Initialize source button
+  updateSourceBtn();
   if (requestForm){
     requestForm.addEventListener('submit', (e) => {
       e.preventDefault();
