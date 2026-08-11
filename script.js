@@ -895,39 +895,3 @@
   };
 
 })();
-
-const proxyInput = document.getElementById("proxy-address");
-const proxyButton = document.getElementById("proxy-go");
-
-
-async function registerProxySW() {
-
-    await navigator.serviceWorker.register("/sw.js");
-
-}
-
-
-proxyButton.addEventListener("click", async () => {
-
-    let url = proxyInput.value.trim();
-
-
-    if (!url) return;
-
-
-    if (!url.startsWith("http://") &&
-        !url.startsWith("https://")) {
-
-        url = "https://" + url;
-
-    }
-
-
-    await registerProxySW();
-
-
-    window.location.href =
-        __uv$config.prefix +
-        __uv$config.encodeUrl(url);
-
-});
