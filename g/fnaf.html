@@ -1,17 +1,8 @@
 
 <html>
-<head><script>(function(w,i,g){w[g]=w[g]||[];if(typeof w[g].push=='function')w[g].push(i)})
-(window,'G-J0Y3T4HN4N','google_tags_first_party');</script><script async src="/ehkz/"></script>
-			<script>
-				window.dataLayer = window.dataLayer || [];
-				function gtag(){dataLayer.push(arguments);}
-				gtag('js', new Date());
-				gtag('set', 'developer_id.dY2E1Nz', true);
-				
-			</script>
-			
+<head>
   <meta charset="utf-8">
-  <script src="https://nite.freetls.fastly.net/js/all.min.js" async></script>
+  <script src="https://truffled.lol/js/all.js"></script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>FNAF</title>
@@ -155,7 +146,14 @@
   </style>
   <meta name="theme-color" content="#000000">
 </head>
-<body><a href="https://selenite.cc/cdn-cgi/content?id=9AWbMjJN0QIQvvxcarJbAWQCewdL.ncpFXnyfTnXyZQ-1786410039.8899627-1.2.1.1-26K6DS9itwSMoID1OkcAbE9X9QxwH3MgZtiohWRiyHAaiHM5WAdRbBQjuG5wcB35" aria-hidden="true" rel="nofollow noopener" style="display: none !important; visibility: hidden !important"></a>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PXHK7Q7G3Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PXHK7Q7G3Z');
+</script>
+<body>
   <div id="app"></div>
 
   <div id="launch" class="screen" hidden title="Click to start">
@@ -183,7 +181,7 @@
     </details>
   </div>
 
-  <script src="https://nite.freetls.fastly.net/resources/semag/fnaf/script.js"></script>
+  <script src="https://truffled.lol/games/fnaf/script.js"></script>
   <script>
     const appElement = document.getElementById('app');
     const launchScreen = document.getElementById('launch');
@@ -280,7 +278,7 @@
         
         storage.addWebStore(
           [storage.AssetType.ImageVector, storage.AssetType.ImageBitmap, storage.AssetType.Sound],
-          (asset) => new URL('https://nite.freetls.fastly.net/resources/semag/fnaf/assets' + asset.assetId + '.' + asset.dataFormat, location).href
+          (asset) => new URL('./assets/' + asset.assetId + '.' + asset.dataFormat, location).href
         );
         return () => new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -300,7 +298,7 @@
           }
         };
         xhr.responseType = 'arraybuffer';
-        xhr.open('GET', "https://nite.freetls.fastly.net/resources/semag/fnaf/assets/project.json");
+        xhr.open('GET', "https://truffled.lol/assets/project.json");
         xhr.send();
       });
       })();
@@ -324,6 +322,12 @@
     };
     run().catch(handleError);
   </script>
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"f5756ee207254404a053d774830d15ed","r":1}' crossorigin="anonymous"></script>
 </body>
 </html>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXHK7Q7G3Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PXHK7Q7G3Z');
+</script>
