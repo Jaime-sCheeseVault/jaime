@@ -896,98 +896,38 @@
 
 })();
 
-// ===============================
-// Ultraviolet Proxy Integration
-// ===============================
+const proxyInput = document.getElementById("proxy-address");
+const proxyButton = document.getElementById("proxy-go");
 
 
-if ("serviceWorker" in navigator) {
+async function registerProxySW() {
 
-    navigator.serviceWorker.register("/sw.js", {
-        scope: "/"
-    })
-    .then(() => {
-        console.log("Ultraviolet ready");
-    })
-    .catch(err => {
-        console.error(err);
-    });
+    await navigator.serviceWorker.register("/sw.js");
 
 }
 
 
+proxyButton.addEventListener("click", async () => {
 
-const proxyButton =
-    document.getElementById("proxy-btn");
-
-
-const proxyView =
-    document.getElementById("proxy-view");
+    let url = proxyInput.value.trim();
 
 
-const browseView =
-    document.getElementById("browse-view");
+    if (!url) return;
 
 
-const proxyInput =
-    document.getElementById("proxy-input");
+    if (!url.startsWith("http://") &&
+        !url.startsWith("https://")) {
 
-
-const proxyGo =
-    document.getElementById("proxy-go");
-
-
-
-proxyButton.addEventListener(
-    "click",
-    (e)=>{
-
-        e.preventDefault();
-
-
-        browseView.style.display =
-            "none";
-
-
-        proxyView.style.display =
-            "block";
-
+        url = "https://" + url;
 
     }
-);
 
 
-
-proxyGo.addEventListener(
-    "click",
-    ()=>{
+    await registerProxySW();
 
 
-        let url =
-            proxyInput.value.trim();
+    window.location.href =
+        __uv$config.prefix +
+        __uv$config.encodeUrl(url);
 
-
-        if(!url)
-            return;
-
-
-
-        if(
-            !url.startsWith("http://") &&
-            !url.startsWith("https://")
-        ){
-
-            url =
-            "https://" + url;
-
-        }
-
-
-
-        window.location.href =
-            "/uv/service/" +
-            Ultraviolet.codec.xor.encode(url);
-
-
-    }
-);
+});
