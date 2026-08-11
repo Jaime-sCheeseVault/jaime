@@ -895,3 +895,99 @@
   };
 
 })();
+
+// ===============================
+// Ultraviolet Proxy Integration
+// ===============================
+
+
+if ("serviceWorker" in navigator) {
+
+    navigator.serviceWorker.register("/sw.js", {
+        scope: "/"
+    })
+    .then(() => {
+        console.log("Ultraviolet ready");
+    })
+    .catch(err => {
+        console.error(err);
+    });
+
+}
+
+
+
+const proxyButton =
+    document.getElementById("proxy-btn");
+
+
+const proxyView =
+    document.getElementById("proxy-view");
+
+
+const browseView =
+    document.getElementById("browse-view");
+
+
+const proxyInput =
+    document.getElementById("proxy-input");
+
+
+const proxyGo =
+    document.getElementById("proxy-go");
+
+
+
+proxyButton.addEventListener(
+    "click",
+    (e)=>{
+
+        e.preventDefault();
+
+
+        browseView.style.display =
+            "none";
+
+
+        proxyView.style.display =
+            "block";
+
+
+    }
+);
+
+
+
+proxyGo.addEventListener(
+    "click",
+    ()=>{
+
+
+        let url =
+            proxyInput.value.trim();
+
+
+        if(!url)
+            return;
+
+
+
+        if(
+            !url.startsWith("http://") &&
+            !url.startsWith("https://")
+        ){
+
+            url =
+            "https://" + url;
+
+        }
+
+
+
+        window.location.href =
+            "/uv/service/" +
+            Ultraviolet.codec.xor.encode(url);
+
+
+    }
+);
