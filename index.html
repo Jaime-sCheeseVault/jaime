@@ -121,38 +121,32 @@
   </header>
 
   <div id="browse-view">
-    <section id="proxy-view" style="display:none">
-
     <section class="arc-hero">
 
-        <h1>
-            Web Proxy
-        </h1>
+    <section class="proxy-box">
+    <h2>Web Proxy</h2>
+    <p>Enter a URL to browse through the archive.</p>
 
-        <div class="arc-search">
+    <div class="proxy-input">
+        <input 
+            id="proxy-address" 
+            type="text" 
+            placeholder="https://example.com"
+        >
 
-            <input
-                id="proxy-input"
-                type="text"
-                placeholder="Search or enter URL..."
-            >
-
-            <button id="proxy-go">
-                Go
-            </button>
-
-        </div>
-
-    </section>
-
+        <button id="proxy-go">
+            Go
+        </button>
+    </div>
 </section>
-    <section class="arc-hero">
+
       <h1>Every game they blocked. All in one place.</h1>
       <div class="arc-search">
         <input type="text" placeholder="search the archive..." />
         <button>Find</button>
       </div>
     </section>
+
 
     <section class="arc-grid" id="game-grid"></section>
 
