@@ -389,17 +389,22 @@
     };
   }
 
-  function renderGamepixGames(games) {
+function renderGamepixGames(games) {
     if (!gamepixElements.grid) return;
 
     const html = games.map((game, index) => {
       const urls = game.imageUrls;
-      // Build onerror chain: try cover -> fallback cover -> icon -> fallback icon -> hide
-      const onerrorChain = `this.onerror=null; this.src='${urls.fallbackCover}'; this.onerror=function(){this.onerror=null; this.src='${urls.icon}'; this.onerror=function(){this.onerror=null; this.src='${urls.fallbackIcon}'; this.onerror=function(){this.style.display=\'none\';};};};`;
+      // Simple fallback: cover -> fallbackCover -> icon -> hide
+      const primarySrc = urls.cover;
+      const fallbackSrc = urls.fallbackCover;
+      const iconSrc = urls.icon;
+      const fallbackIconSrc = urls.fallbackIcon;
+      
+      // Use a data attribute approach for clean fallback handling
       return `
         <div class="arc-tile gamepix-tile" tabindex="0" data-namespace="${game.namespace}" data-index="${gamepixState.totalLoaded + index}" style="animation-delay:${(gamepixState.totalLoaded + index) * 30}ms">
           <div class="tile-thumb">
-            <img class="tile-icon" src="${urls.cover}" alt="${game.name}" loading="lazy" onerror="${onerrorChain}" />
+            <img class="tile-icon" src="${primarySrc}" data-fallback="${fallbackSrc}" data-icon="${iconSrc}" data-icon-fallback="${fallbackIconSrc}" alt="${game.name}" loading="lazy" onerror="handleGamepixImageError(this)" />
             <span class="tile-source">☁️ Gamepix</span>
             <div class="tile-play-overlay">
               <button class="tile-play-btn" data-namespace="${game.namespace}" aria-label="Play ${game.name}">
@@ -424,6 +429,28 @@
       tile.addEventListener('keydown', (e) => { if (e.key === 'Enter') openGamepixGame(tile.dataset.namespace, tile.querySelector('.tile-name').textContent); });
     });
   }
+
+  // Separate error handler function for cleaner fallback logic
+  window.handleGamepixImageError = function(img) {
+    if (img.dataset.fallbackAttempted === 'true') {
+      // Already tried fallback, try icon
+      if (img.dataset.iconAttempted === 'true') {
+        // Already tried icon fallback, try icon fallback
+        if (img.dataset.iconFallbackAttempted === 'true') {
+          img.style.display = 'none';
+          return;
+        }
+        img.dataset.iconFallbackAttempted = 'true';
+        img.src = img.dataset.iconFallback;
+        return;
+      }
+      img.dataset.iconAttempted = 'true';
+      img.src = img.dataset.icon;
+      return;
+    }
+    img.dataset.fallbackAttempted = 'true';
+    img.src = img.dataset.fallback;
+  };
 
   function openGamepixGame(namespace, name) {
     const game = {
