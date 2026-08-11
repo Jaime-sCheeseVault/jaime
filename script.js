@@ -483,15 +483,15 @@
     };
     const toggleFullscreen = () => {
       if (document.fullscreenElement) exitFullscreen();
-      else if (modal.requestFullscreen) modal.requestFullscreen().catch(() => {});
+      else if (iframe.requestFullscreen) iframe.requestFullscreen().catch(() => {});
     };
     const syncFsLabel = () => {
       fsBtn.textContent = document.fullscreenElement ? '⤢ exit full' : '⛶ full';
     };
     document.addEventListener('fullscreenchange', syncFsLabel);
 
-    if (state.fullscreenOnPlay && modal.requestFullscreen){
-      setTimeout(() => modal.requestFullscreen().catch(() => {}), 350);
+    if (state.fullscreenOnPlay && iframe.requestFullscreen){
+      setTimeout(() => iframe.requestFullscreen().catch(() => {}), 350);
     }
 
     closeBtn.addEventListener('click', close);
