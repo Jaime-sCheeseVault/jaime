@@ -262,6 +262,40 @@
   catch (e) { state = Object.assign({}, DEFAULTS); }
   function save(){ try { localStorage.setItem(SKEY, JSON.stringify(state)); } catch (e) {} }
 
+  // ---- Background Music (Doomsday) ----
+  const bgMusic = new Audio('./g/assets/bg-music/MF Doom-Doomsday.mp3');
+  bgMusic.loop = true;
+  bgMusic.volume = 0.2; // 20% volume for background
+  let musicStarted = false;
+
+  function startBackgroundMusic() {
+    if (musicStarted) return;
+    musicStarted = true;
+    bgMusic.play().catch(() => {
+      // Autoplay blocked - wait for user interaction
+      const startMusic = () => {
+        bgMusic.play().catch(() => {});
+        document.removeEventListener('click', startMusic);
+        document.removeEventListener('keydown', startMusic);
+      };
+      document.addEventListener('click', startMusic, { once: true });
+      document.addEventListener('keydown', startMusic, { once: true });
+    });
+  }
+
+  function pauseBackgroundMusic() {
+    if (!bgMusic.paused) {
+      bgMusic.pause();
+    }
+  }
+
+  function resumeBackgroundMusic() {
+    if (bgMusic.paused && musicStarted) {
+      bgMusic.play().catch(() => {});
+    }
+  }
+
+  // ---- games ----
   const BASE_GAMES = [
     { tag:'Arcade',   name:'Slope',             file:'./g/Slope.html',             icon:'./g/assets/Slope.png' },
     { tag:'Shooter',  name:'1v1.LOL',           file:'./g/1v1.LOL.html',           icon:'./g/assets/1v1.LOL.png' },
@@ -435,6 +469,7 @@
     const closeBtn = scrim.querySelector('#gm-close');
 
     loadGameFrame(game, iframe);
+    pauseBackgroundMusic();
 
     const exitFullscreen = () => {
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
@@ -444,6 +479,7 @@
       exitFullscreen();
       scrim.classList.remove('open');
       setTimeout(() => scrim.remove(), 200);
+      resumeBackgroundMusic();
     };
     const toggleFullscreen = () => {
       if (document.fullscreenElement) exitFullscreen();
@@ -498,6 +534,7 @@
         archiveRoot.classList.remove('active');
         archiveSite.classList.add('active');
         applyFx();
+        startBackgroundMusic();
         loadGamesFromJson().then(() => loadGamesFromSheet());
       }, 2450);
     }, 160);
