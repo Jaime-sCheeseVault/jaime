@@ -105,7 +105,7 @@
 <div id="archive-root" aria-hidden="true">
   <div class="loader-wrap">
     <div class="loader-noise"></div>
-    <div class="loader-text">DOOMSDAY</div>
+    <div class="loader-text">The Archive</div>
     <div class="loader-sub">one sec</div>
   </div>
 </div>
@@ -114,16 +114,42 @@
   <header class="arc-header">
     <div class="arc-logo">DOOMSDAY</div>
     <nav class="arc-nav">
-      <a href="#" id="request-btn">Request a Game</a>
-      <a href="#" id="settings-btn">Settings</a>
+    <a href="#" id="proxy-btn">Proxy</a>
+    <a href="#" id="request-btn">Request a Game</a>
+    <a href="#" id="settings-btn">Settings</a>
     </nav>
   </header>
 
   <div id="browse-view">
+    <section id="proxy-view" style="display:none">
+
     <section class="arc-hero">
-      <h1>Every game they blocked. I added, You're Welcome.</h1>
+
+        <h1>
+            Web Proxy
+        </h1>
+
+        <div class="arc-search">
+
+            <input
+                id="proxy-input"
+                type="text"
+                placeholder="Search or enter URL..."
+            >
+
+            <button id="proxy-go">
+                Go
+            </button>
+
+        </div>
+
+    </section>
+
+</section>
+    <section class="arc-hero">
+      <h1>Every game they blocked. All in one place.</h1>
       <div class="arc-search">
-        <input type="text" placeholder="search Doomsday..." />
+        <input type="text" placeholder="search the archive..." />
         <button>Find</button>
       </div>
     </section>
@@ -133,7 +159,7 @@
     <section class="arc-request-cta">
       <div class="arc-request-cta-inner">
         <h2>Can't find what you're looking for?</h2>
-        <p>If a game's missing or blocked, request it and we'll try to add it to Doomsday.</p>
+        <p>If a game's missing or blocked, request it and we'll try to add it to the archive.</p>
         <button type="button" id="request-cta-btn" class="arc-request-btn">Request a Game</button>
       </div>
     </section>

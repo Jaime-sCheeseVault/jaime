@@ -14,6 +14,5 @@
   { "tag": "Horror",  "name": "Granny 2",          "file": "./g/granny-2.html",          "icon": "./g/assets/granny-2.jpg" },
   { "tag": "Horror",  "name": "FNAF",              "file": "https://script.google.com/macros/s/AKfycbxJNtrKTWPCSIo9tOqq53G2xqoQCIPDTYUsVOT79Eqk8I7C5cQkGdDnj0jzlNHa7bvs3g/exec",              "icon": "./g/assets/fnaf.jpg" },
   { "tag": "Horror",  "name": "FNAF 2",            "file": "https://jasongamesdev.github.io/fnaf-2/", "icon": "./g/assets/fnaf2.jpg" },
-  { "tag": "Horror",  "name": "FNAF 3",            "file": "https://script.google.com/macros/s/AKfycbyVdPAG4aRGh5tmBwKEZthKmaqO12GTD-h-C1Do6ICbR3ZEj5ic1aJQ2e4Im2pxcWLf/exec",            "icon": "./g/assets/fnaf3.jpg" },
-  { "tag": "Horror",  "name": "FNAF 4",            "file": "./g/fnaf4.html",            "icon": "./g/assets/fnaf4.jpg" }
+  { "tag": "Horror",  "name": "FNAF 3",            "file": "https://script.google.com/macros/s/AKfycbyVdPAG4aRGh5tmBwKEZthKmaqO12GTD-h-C1Do6ICbR3ZEj5ic1aJQ2e4Im2pxcWLf/exec",            "icon": "./g/assets/fnaf3.jpg" }
 ]
