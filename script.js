@@ -316,7 +316,7 @@
   }
 
   function loadGamesFromJson(){
-    return fetch('./games.json', { cache: 'no-store' })
+    return fetch('https://cdn.jsdelivr.net/gh/vaultgamesdevelopment/thevault.github.io@latest/games.json', { cache: 'no-store' })
       .then(r => r.json())
       .then(rows => {
         const list = (Array.isArray(rows) ? rows : []).filter(g => g && g.name && g.file);
