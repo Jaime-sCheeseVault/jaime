@@ -415,7 +415,7 @@
   function isRawGithubHtml(url){
     return RAW_GH_HOST_RE.test(url) && /\.html?($|\?)/i.test(url);
   }
-  function loadGameFrame(game, iframe){
+  function loadGameFrame(game, iframe) {
     const url = new URL(game.file, document.baseURI).href;
 
     iframe.setAttribute('frameborder', '0');
@@ -424,25 +424,33 @@
     iframe.setAttribute('height', '100%');
     iframe.setAttribute('referrerpolicy', 'no-referrer');
 
-    const gameBase = new URL('./', url).href;
-
     fetch(url, { cache: 'no-store' })
         .then(response => {
             if (!response.ok) {
-                throw new Error(
-                    'HTTP ' + response.status
-                );
+                throw new Error(`HTTP ${response.status}`);
             }
 
             return response.text();
         })
         .then(html => {
+            /*
+             * The game must resolve assets relative to
+             * the directory containing its HTML file.
+             */
+            const gameBase = new URL('./', url).href;
+
+            /*
+             * Parse the game's HTML.
+             */
             const parser = new DOMParser();
             const doc = parser.parseFromString(
                 html,
                 'text/html'
             );
 
+            /*
+             * Force the game's base URL.
+             */
             let base = doc.querySelector('base');
 
             if (!base) {
@@ -452,87 +460,55 @@
 
             base.href = gameBase;
 
-            const urlAttributes = [
-                'src',
-                'href',
-                'poster',
-                'data',
-                'action',
-                'formaction'
-            ];
-
-            doc.querySelectorAll('*').forEach(el => {
-                for (const attr of urlAttributes) {
-                    if (!el.hasAttribute(attr)) continue;
-
-                    const value = el.getAttribute(attr);
-
-                    if (!value) continue;
-
-                    if (
-                        value.startsWith('#') ||
-                        value.startsWith('data:') ||
-                        value.startsWith('blob:') ||
-                        value.startsWith('javascript:') ||
-                        value.startsWith('mailto:') ||
-                        value.startsWith('tel:')
-                    ) {
-                        continue;
-                    }
-
-                    try {
-                        el.setAttribute(
-                            attr,
-                            new URL(value, gameBase).href
-                        );
-                    } catch (_) {}
-                }
-
-                if (el.hasAttribute('srcset')) {
-                    const srcset =
-                        el.getAttribute('srcset');
-
-                    const rewritten = srcset
-                        .split(',')
-                        .map(part => {
-                            const pieces =
-                                part.trim().split(/\s+/);
-
-                            if (!pieces[0]) {
-                                return part;
-                            }
-
-                            try {
-                                pieces[0] =
-                                    new URL(
-                                        pieces[0],
-                                        gameBase
-                                    ).href;
-                            } catch (_) {}
-
-                            return pieces.join(' ');
-                        })
-                        .join(', ');
-
-                    el.setAttribute(
-                        'srcset',
-                        rewritten
-                    );
-                }
-            });
-
-            const output =
+            /*
+             * Convert the document back into HTML.
+             */
+            const finalHtml =
                 '<!DOCTYPE html>\n' +
                 doc.documentElement.outerHTML;
 
-            iframe.srcdoc = output;
+            /*
+             * Create a real HTML Blob.
+             *
+             * Unlike simply displaying the fetched text,
+             * this gives the browser a real HTML document.
+             */
+            const blob = new Blob(
+                [finalHtml],
+                { type: 'text/html' }
+            );
+
+            const blobUrl =
+                URL.createObjectURL(blob);
+
+            /*
+             * Load the Blob as the iframe's document.
+             */
+            iframe.src = blobUrl;
+
+            /*
+             * Clean up the Blob URL after the iframe
+             * has loaded.
+             */
+            iframe.addEventListener(
+                'load',
+                () => {
+                    setTimeout(() => {
+                        URL.revokeObjectURL(blobUrl);
+                    }, 1000);
+                },
+                { once: true }
+            );
         })
         .catch(error => {
             console.error(
-                'Failed to load game:',
+                'Game loading failed:',
                 error
             );
 
+            /*
+             * Last-resort fallback.
+             */
             iframe.src = url;
         });
 }
