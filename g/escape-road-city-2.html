@@ -1,11 +1,14 @@
 <!DOCTYPE html>
+
 <!-- Ultimate Game Stash file -->
 <!-- For the regularly updating doc go to https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/ -->
 
 <html lang="en-us">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Escape Road</title>
 
   <style>
@@ -21,22 +24,33 @@
 
     #gameContainer {
       position: absolute;
+      width: 100%;
+      height: 100%;
     }
 
     #gameContainer canvas {
       position: absolute;
+      display: block;
     }
   </style>
 </head>
 
 <body>
 
-  <script id="gmsoft-jssdk" src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/escaperoad2city/gmsoftsdk_v5.js"></script>
+  <!-- GMSoft SDK -->
+  <script
+    id="gmsoft-jssdk"
+    src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/escaperoad2city/gmsoftsdk_v5.js">
+  </script>
 
-  <div id="gameContainer" style="display: none;">
+
+  <!-- Unity container -->
+  <div id="gameContainer" style="display:none;">
     <canvas id="unity-canvas"></canvas>
   </div>
 
+
+  <!-- Loading screen -->
   <div
     id="loadingBar"
     style="
@@ -45,15 +59,22 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-family: Arial;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      z-index: 9999;
     "
   >
     loading... <span id="pct">0%</span>
   </div>
 
+
+  <!-- Firebase stubs -->
   <script>
     function firebaseLogEvent(event_name) {
-      console.log("firebaseLogEvent (stubbed):", event_name);
+      console.log(
+        "firebaseLogEvent (stubbed):",
+        event_name
+      );
     }
 
     function firebaseLogEventParameter(event_name, event_param) {
@@ -65,48 +86,42 @@
     }
 
     function firebaseSetUserProperties(props) {
-      console.log("firebaseSetUserProperties (stubbed):", props);
+      console.log(
+        "firebaseSetUserProperties (stubbed):",
+        props
+      );
     }
   </script>
 
-  <!-- File merger configuration -->
-  <script>
-    window.fileMergerConfig = {
-      files: [
-        {
-          name: "escape-road-city-2-v25022604.data.unityweb",
-          parts: 2
-        }
-      ],
 
-      basePath:
-        "https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/escaperoad2city/Build/",
-
-      debug: true
-    };
-  </script>
-
-  <!-- File merger -->
-  <script src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/merge.js"></script>
-
+  <!-- Unity -->
   <script>
     var canvas = document.getElementById("unity-canvas");
     var container = document.getElementById("gameContainer");
     var loadingBar = document.getElementById("loadingBar");
     var pct = document.getElementById("pct");
 
+
     /*
-     * Use absolute URLs instead of <base href>.
-     * This prevents GitHub Pages/custom-domain URL resolution
-     * from interfering with Unity.
+     * All Unity files are loaded directly from jsDelivr.
+     *
+     * No <base> tag is used because it can interfere with
+     * Unity's internal URL resolution on GitHub Pages/custom domains.
      */
 
     var assetBase =
       "https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/escaperoad2city/";
 
-    var buildUrl = assetBase + "Build";
+    var buildUrl =
+      assetBase + "Build";
+
+
+    /*
+     * Unity configuration
+     */
 
     var config = {
+
       dataUrl:
         buildUrl +
         "/escape-road-city-2-v25022604.data.unityweb",
@@ -122,19 +137,38 @@
       streamingAssetsUrl:
         assetBase + "StreamingAssets",
 
-      companyName: "azgames.io",
-      productName: "Tung Sahur Horror",
-      productVersion: "25051505",
+      companyName:
+        "azgames.io",
 
-      pubId: "",
-      gameId: "tung-sahur-horror",
+      productName:
+        "Tung Sahur Horror",
 
-      enableMoreGame: "yes",
-      enablePromotion: true,
-      eventLog: false
+      productVersion:
+        "25051505",
+
+      pubId:
+        "",
+
+      gameId:
+        "tung-sahur-horror",
+
+      enableMoreGame:
+        "yes",
+
+      enablePromotion:
+        true,
+
+      eventLog:
+        false
     };
 
+
+    /*
+     * Resize Unity canvas
+     */
+
     function onResize() {
+
       var w = window.innerWidth;
       var h = window.innerHeight;
 
@@ -146,88 +180,164 @@
 
       h = Math.floor(w * r);
 
-      container.style.width = canvas.style.width = w + "px";
-      container.style.height = canvas.style.height = h + "px";
+      container.style.width =
+        canvas.style.width =
+        w + "px";
+
+      container.style.height =
+        canvas.style.height =
+        h + "px";
 
       container.style.top =
-        Math.floor((window.innerHeight - h) / 2) + "px";
+        Math.floor(
+          (window.innerHeight - h) / 2
+        ) + "px";
 
       container.style.left =
-        Math.floor((window.innerWidth - w) / 2) + "px";
+        Math.floor(
+          (window.innerWidth - w) / 2
+        ) + "px";
     }
 
+
     onResize();
-    window.addEventListener("resize", onResize);
+
+    window.addEventListener(
+      "resize",
+      onResize
+    );
+
 
     /*
-     * Load the Unity loader from the CDN explicitly.
+     * Load Unity loader
      */
 
-    var script = document.createElement("script");
+    var script =
+      document.createElement("script");
+
 
     script.src =
       buildUrl +
       "/escape-road-city-2-v25022604.loader.js";
 
+
+    /*
+     * Unity loader successfully loaded
+     */
+
     script.onload = function () {
-      console.log("Unity loader loaded:", script.src);
-      console.log("Unity config:", config);
+
+      console.log(
+        "[Unity] Loader loaded:",
+        script.src
+      );
+
 
       try {
+
         createUnityInstance(
           canvas,
           config,
-          function (progress) {
-            var percent = Math.round(progress * 100);
 
-            pct.innerText = percent + "%";
+          function(progress) {
+
+            var percent =
+              Math.round(
+                progress * 100
+              );
+
+            pct.innerText =
+              percent + "%";
+
           }
+
         )
-          .then(function (instance) {
-            console.log("Unity instance created successfully.");
+        .then(function(instance) {
 
-            window.unityInstance = instance;
+          console.log(
+            "[Unity] Instance initialized successfully."
+          );
 
-            setTimeout(function () {
-              loadingBar.style.display = "none";
-              container.style.display = "block";
 
-              window.focus();
-            }, 2000);
-          })
-          .catch(function (msg) {
-            console.error("Unity failed to initialize:", msg);
+          window.unityInstance =
+            instance;
 
-            loadingBar.innerText =
-              "Failed to load game. Check the browser console.";
 
-            alert(msg);
-          });
-      } catch (error) {
+          /*
+           * Hide loading screen after
+           * Unity has initialized.
+           */
+
+          setTimeout(function() {
+
+            loadingBar.style.display =
+              "none";
+
+            container.style.display =
+              "block";
+
+            window.focus();
+
+          }, 2000);
+
+        })
+
+        .catch(function(error) {
+
+          console.error(
+            "[Unity] Initialization failed:",
+            error
+          );
+
+          loadingBar.innerText =
+            "Failed to load game.";
+
+        });
+
+      }
+
+      catch (error) {
+
         console.error(
-          "createUnityInstance threw an error:",
+          "[Unity] createUnityInstance error:",
           error
         );
 
         loadingBar.innerText =
           "Failed to initialize Unity.";
 
-        alert(error);
       }
+
     };
 
+
+    /*
+     * Unity loader failed to load
+     */
+
     script.onerror = function () {
+
       console.error(
-        "Failed to load Unity loader:",
+        "[Unity] Failed to load loader:",
         script.src
       );
 
       loadingBar.innerText =
-        "Failed to load Unity loader.";
+        "Failed to load Unity.";
+
     };
 
-    document.body.appendChild(script);
+
+    /*
+     * Add loader to page
+     */
+
+    document.body.appendChild(
+      script
+    );
+
   </script>
 
 </body>
+
 </html>
