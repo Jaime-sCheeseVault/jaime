@@ -423,102 +423,19 @@
   function isRawGithubHtml(url){
     return RAW_GH_HOST_RE.test(url) && /\.html?($|\?)/i.test(url);
   }
-  function loadGameFrame(game, iframe) {
-    const url = new URL(game.file, document.baseURI).href;
+function loadGameFrame(game, iframe) {
+  const url = new URL(game.file, document.baseURI).href;
 
-    iframe.setAttribute('frameborder', '0');
-    iframe.setAttribute('scrolling', 'no');
-    iframe.setAttribute('width', '100%');
-    iframe.setAttribute('height', '100%');
-    iframe.setAttribute('referrerpolicy', 'no-referrer');
+  iframe.setAttribute('frameborder', '0');
+  iframe.setAttribute('scrolling', 'no');
+  iframe.setAttribute('width', '100%');
+  iframe.setAttribute('height', '100%');
+  iframe.setAttribute('referrerpolicy', 'no-referrer');
 
-    fetch(url, { cache: 'no-store' })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            return response.text();
-        })
-        .then(html => {
-            /*
-             * The game must resolve assets relative to
-             * the directory containing its HTML file.
-             */
-            const gameBase = new URL('./', url).href;
-
-            /*
-             * Parse the game's HTML.
-             */
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(
-                html,
-                'text/html'
-            );
-
-            /*
-             * Force the game's base URL.
-             */
-            let base = doc.querySelector('base');
-
-            if (!base) {
-                base = doc.createElement('base');
-                doc.head.prepend(base);
-            }
-
-            base.href = gameBase;
-
-            /*
-             * Convert the document back into HTML.
-             */
-            const finalHtml =
-                '<!DOCTYPE html>\n' +
-                doc.documentElement.outerHTML;
-
-            /*
-             * Create a real HTML Blob.
-             *
-             * Unlike simply displaying the fetched text,
-             * this gives the browser a real HTML document.
-             */
-            const blob = new Blob(
-                [finalHtml],
-                { type: 'text/html' }
-            );
-
-            const blobUrl =
-                URL.createObjectURL(blob);
-
-            /*
-             * Load the Blob as the iframe's document.
-             */
-            iframe.src = blobUrl;
-
-            /*
-             * Clean up the Blob URL after the iframe
-             * has loaded.
-             */
-            iframe.addEventListener(
-                'load',
-                () => {
-                    setTimeout(() => {
-                        URL.revokeObjectURL(blobUrl);
-                    }, 1000);
-                },
-                { once: true }
-            );
-        })
-        .catch(error => {
-            console.error(
-                'Game loading failed:',
-                error
-            );
-
-            /*
-             * Last-resort fallback.
-             */
-            iframe.src = url;
-        });
+  // Load the game URL directly.
+  // This is important for Google Apps Script deployments,
+  // which may redirect to their actual web-app URL.
+  iframe.src = url;
 }
 
   function openGame(game){
