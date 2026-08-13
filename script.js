@@ -295,38 +295,46 @@
     }
   }
 
-  // ---- games ----
-  const BASE_GAMES = [
-    { tag:'Arcade',   name:'Slope',             file:'./g/Slope.html',             icon:'./g/assets/Slope.png' },
-    { tag:'Shooter',  name:'1v1.LOL',           file:'./g/1v1.LOL.html',           icon:'./g/assets/1v1.LOL.png' },
-    { tag:'Sports',   name:'Basket Bros',       file:'./g/Basket Bros.html',       icon:'./g/assets/Basket Bros.png' },
-    { tag:'Arcade',   name:'Moto X3M',          file:'./g/Moto X3M.html',          icon:'./g/assets/Moto X3M.png' },
-    { tag:'Puzzle',   name:'Cookie Clicker',    file:'./g/Cookie Clicker.html',    icon:'./g/assets/Cookie Clicker.png' },
-    { tag:'Arcade',   name:'Escape Road City 2', file:'./g/Escape Road City 2.html', icon:'./g/assets/Escape Road City 2.png' },
-    { tag:'Arcade',   name:'Tomb Of The Mask', file:'./g/Tomb Of The Mask.html', icon:'./g/assets/Tomb Of The Mask.png' },
-  ];
-  let allGames = BASE_GAMES.slice();
-  let games = allGames.slice();
+    // ---- games ----
+  let allGames = [];
+  let games = [];
 
-  // ---- games.json catalog (fallback to the hardcoded list when fetch is blocked) ----
   function filterGamesBySource(list, source){
     if (source === 'local') return list.filter(g => !g.source || g.source === 'local');
     if (source === 'gamepix') return list.filter(g => g.source === 'gamepix');
     return list;
   }
 
+  // ---- games.json catalog ----
   function loadGamesFromJson(){
-    return fetch('https://cdn.jsdelivr.net/gh/vaultgamesdevelopment/thevault.github.io@latest/games.json', { cache: 'no-store' })
-      .then(r => r.json())
+    return fetch('https://cdn.jsdelivr.net/gh/vaultgamesdevelopment/thevault.github.io@latest/games.json', {
+      cache: 'no-store'
+    })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then(rows => {
-        const list = (Array.isArray(rows) ? rows : []).filter(g => g && g.name && g.file);
-        if (!list.length) return null;
+        const list = (Array.isArray(rows) ? rows : [])
+          .filter(g => g && g.name && g.file);
+
+        // No hardcoded fallback games.
         allGames = list;
         games = filterGamesBySource(allGames, state.gameSource);
         renderGrid();
+
         return list.length;
       })
-      .catch(() => null);
+      .catch(error => {
+        console.error('Failed to load games.json:', error);
+
+        // Keep the game grid empty if the catalog cannot be loaded.
+        allGames = [];
+        games = [];
+        renderGrid();
+
+        return null;
+      });
   }
 
   // ---- Google Sheets game database ----
