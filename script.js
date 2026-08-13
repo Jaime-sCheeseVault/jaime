@@ -295,46 +295,54 @@
     }
   }
 
-    // ---- games ----
-  let allGames = [];
-  let games = [];
+  // ---- games ----
+  // Only include local HTML files, exclude external links
+  const BASE_GAMES = [
+    { tag:'Arcade',   name:'Slope',             file:'./g/slope.html',             icon:'./g/assets/slope.png' },
+    { tag:'Shooter',  name:'1v1.LOL',           file:'./g/1v1.lol.html',           icon:'./g/assets/1v1.lol.png' },
+    { tag:'Sports',   name:'Basket Bros',       file:'./g/basket-bros.html',       icon:'./g/assets/basket-bros.png' },
+    { tag:'Arcade',   name:'Moto X3M',          file:'./g/moto-x3m.html',          icon:'./g/assets/moto-x3m.png' },
+    { tag:'Puzzle',   name:'Cookie Clicker',    file:'./g/cookie-clicker.html',    icon:'./g/assets/cookie-clicker.png' },
+    { tag:'Arcade',   name:'Escape Road City 2', file:'./g/escape-road-city-2.html', icon:'./g/assets/escape-road-city-2.png' },
+    { tag:'Arcade',   name:'Tomb Of The Mask', file:'./g/tomb-of-the-mask.html', icon:'./g/assets/tomb-of-the-mask.png' },
+    { tag:'Sports',   name:'Baseball Bros',     file:'./g/baseball-bros.html',     icon:'./g/assets/baseball-bros.jpg' },
+    { tag:'Horror',   name:'Granny',            file:'./g/granny.html',            icon:'./g/assets/granny.jpg' },
+    { tag:'Horror',   name:'Granny 2',          file:'./g/granny-2.html',          icon:'./g/assets/granny-2.jpg' },
+    { tag:'Horror',   name:'FNAF 3',            file:'./g/fnaf3.html',             icon:'./g/assets/fnaf3.jpg' },
+  ];
+  let allGames = BASE_GAMES.slice();
+  let games = allGames.slice();
 
-  function filterGamesBySource(list, source){
-    if (source === 'local') return list.filter(g => !g.source || g.source === 'local');
-    if (source === 'gamepix') return list.filter(g => g.source === 'gamepix');
-    return list;
+  // ---- games.json catalog (fallback to the hardcoded list when fetch is blocked) ----
+  // Filter to exclude external links and only load actual HTML files
+  function isExternalLink(url) {
+    if (!url) return false;
+    const lowerUrl = url.toLowerCase();
+    // Exclude http/https external links, but allow relative paths
+    return lowerUrl.startsWith('http://') || lowerUrl.startsWith('https://');
   }
 
-  // ---- games.json catalog ----
-  function loadGamesFromJson(){
-    return fetch('https://cdn.jsdelivr.net/gh/vaultgamesdevelopment/thevault.github.io@latest/games.json', {
-      cache: 'no-store'
-    })
-      .then(r => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then(rows => {
-        const list = (Array.isArray(rows) ? rows : [])
-          .filter(g => g && g.name && g.file);
+  function filterGamesBySource(list, source){
+    // Always filter out external links (no iframe support)
+    const filtered = list.filter(g => g && g.name && g.file && !isExternalLink(g.file));
+    
+    if (source === 'local') return filtered.filter(g => !g.source || g.source === 'local');
+    if (source === 'gamepix') return filtered.filter(g => g.source === 'gamepix');
+    return filtered;
+  }
 
-        // No hardcoded fallback games.
+  function loadGamesFromJson(){
+    return fetch('./games.json', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(rows => {
+        const list = (Array.isArray(rows) ? rows : []).filter(g => g && g.name && g.file);
+        if (!list.length) return null;
         allGames = list;
         games = filterGamesBySource(allGames, state.gameSource);
         renderGrid();
-
-        return list.length;
+        return games.length; // Return filtered count, not total
       })
-      .catch(error => {
-        console.error('Failed to load games.json:', error);
-
-        // Keep the game grid empty if the catalog cannot be loaded.
-        allGames = [];
-        games = [];
-        renderGrid();
-
-        return null;
-      });
+      .catch(() => null);
   }
 
   // ---- Google Sheets game database ----
@@ -423,19 +431,45 @@
   function isRawGithubHtml(url){
     return RAW_GH_HOST_RE.test(url) && /\.html?($|\?)/i.test(url);
   }
-function loadGameFrame(game, iframe) {
-  const url = new URL(game.file, document.baseURI).href;
+  async function loadGameFrame(game, iframe){
+    const url = new URL(game.file, document.baseURI).href;
 
-  iframe.setAttribute('frameborder', '0');
-  iframe.setAttribute('scrolling', 'no');
-  iframe.setAttribute('width', '100%');
-  iframe.setAttribute('height', '100%');
-  iframe.setAttribute('referrerpolicy', 'no-referrer');
+    iframe.setAttribute('frameborder', '0');
+    iframe.setAttribute('scrolling', 'no');
+    iframe.setAttribute('width', '100%');
+    iframe.setAttribute('height', '100%');
+    iframe.setAttribute('referrerpolicy', 'no-referrer');
 
-  // Load the game URL directly.
-  // This is important for Google Apps Script deployments,
-  // which may redirect to their actual web-app URL.
-  iframe.src = url;
+    const gameBase = new URL('./', url).href;
+
+    try {
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) {
+        throw new Error('HTTP ' + response.status);
+      }
+
+      let html = await response.text();
+      
+      // Simple approach: just inject base tag if not present
+      if (!html.includes('<base')) {
+        html = html.replace('<head>', `<head><base href="${gameBase}">`);
+        if (!html.includes('<head>')) {
+          html = `<head><base href="${gameBase}"></head>` + html;
+        }
+      }
+
+      // Create a blob URL for the modified HTML
+      const blob = new Blob([html], { type: 'text/html' });
+      const blobUrl = URL.createObjectURL(blob);
+      
+      // Load the blob URL in the iframe
+      iframe.src = blobUrl;
+      
+    } catch (error) {
+      console.error('Failed to load game:', error);
+      // Fallback: try to load directly with src
+      iframe.src = url;
+    }
 }
 
   function openGame(game){
