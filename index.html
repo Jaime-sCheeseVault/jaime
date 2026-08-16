@@ -94,7 +94,7 @@
   </main>
 
   <footer class="edu-footer">
-    © Fairview Unified School District — Digital Learning Portal. For technical support, contact the IT help desk.
+    &copy; Fairview Unified School District &mdash; Digital Learning Portal. For technical support, contact the IT help desk.
   </footer>
 
   <div class="edu-hint">press e</div>
@@ -115,6 +115,7 @@
     <div class="arc-logo">DOOMSDAY</div>
     <nav class="arc-nav">
       <a href="#" id="request-btn">Request a Game</a>
+      <a href="#" id="browser-btn">Browser</a>
       <a href="#" id="settings-btn">Settings</a>
     </nav>
   </header>
@@ -141,7 +142,7 @@
 
   <div id="settings-view">
     <div class="settings-page-inner">
-      <button type="button" id="settings-back" class="settings-back-btn">← back to archive</button>
+      <button type="button" id="settings-back" class="settings-back-btn">&larr; back to archive</button>
 
       <div class="settings-panel">
         <div class="settings-header">
@@ -233,12 +234,78 @@
               <button type="button" class="game-btn" id="cloak-open-btn">open about:blank</button>
             </div>
           </div>
+
+          <div class="settings-group">
+            <h4>Browser Proxy (Ultraviolet)</h4>
+            <div class="settings-row">
+              <span class="label">Enable proxy<small>Route traffic through Ultraviolet proxy</small></span>
+              <div class="toggle" id="toggle-browser-proxy"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <footer class="arc-footer">DOOMSDAY — this device leaves no logs</footer>
+  <div id="browser-view">
+    <div class="browser-page-inner">
+      <button type="button" id="browser-back" class="settings-back-btn">&larr; back to archive</button>
+
+      <div class="browser-panel">
+        <div class="browser-toolbar">
+          <div class="browser-nav-buttons">
+            <button type="button" class="browser-btn" id="browser-back-btn" title="Back" disabled>&larr;</button>
+            <button type="button" class="browser-btn" id="browser-forward-btn" title="Forward" disabled>&rarr;</button>
+            <button type="button" class="browser-btn" id="browser-reload-btn" title="Reload">&#x21bb;</button>
+            <button type="button" class="browser-btn" id="browser-home-btn" title="Home">&#x2302;</button>
+          </div>
+          <div class="browser-url-bar">
+            <input type="text" class="browser-url-input" id="browser-url-input" placeholder="Enter URL (e.g. example.com, https://example.com)" spellcheck="false" autocomplete="off">
+            <button type="button" class="browser-btn browser-go-btn" id="browser-go-btn" title="Go">Go</button>
+          </div>
+          <div class="browser-action-buttons">
+            <button type="button" class="browser-btn" id="browser-proxy-toggle" title="Toggle Ultraviolet Proxy">UV</button>
+            <button type="button" class="browser-btn" id="browser-fullscreen-btn" title="Fullscreen">&#x2922;</button>
+          </div>
+        </div>
+        <div class="browser-content" id="browser-content">
+          <div class="browser-placeholder">
+            <div class="browser-placeholder-icon">&#x1f310;</div>
+            <h3>Browser Tools</h3>
+            <p>Enter a URL above to browse. Supports sites that allow embedding.</p>
+            <div class="browser-quick-links">
+              <a href="#" data-url="https://www.google.com">Google</a>
+              <a href="#" data-url="https://www.github.com">GitHub</a>
+              <a href="#" data-url="https://www.youtube.com">YouTube</a>
+              <a href="#" data-url="https://www.wikipedia.org">Wikipedia</a>
+              <a href="#" data-url="https://www.reddit.com">Reddit</a>
+              <a href="#" data-url="https://www.twitter.com">X (Twitter)</a>
+            </div>
+          </div>
+          <div class="browser-loading" id="browser-loading" style="display: none;">
+            <div class="browser-spinner"></div>
+            <span>Loading...</span>
+          </div>
+          <div class="browser-error" id="browser-error" style="display: none;">
+            <div class="browser-error-icon">&#x26a0;</div>
+            <h3>Unable to Load</h3>
+            <p id="browser-error-message"></p>
+            <div class="browser-error-actions">
+              <button type="button" class="browser-btn" id="browser-error-retry">Retry</button>
+              <button type="button" class="browser-btn" id="browser-error-open-new">Open in New Tab</button>
+            </div>
+          </div>
+          <iframe class="browser-frame" id="browser-frame" src="about:blank" allow="fullscreen; gamepad; autoplay" allowfullscreen referrerpolicy="no-referrer"></iframe>
+        </div>
+        <div class="browser-statusbar" id="browser-statusbar">
+          <span class="browser-status-text" id="browser-status-text">Ready</span>
+          <span class="browser-security" id="browser-security"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="arc-footer">DOOMSDAY &mdash; this device leaves no logs</footer>
 </div>
 
 <div class="request-scrim" id="request-scrim" aria-hidden="true">

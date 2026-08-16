@@ -816,10 +816,301 @@
     });
   }
 
+if (browserProxyEnabledToggle){
+    browserProxyEnabledToggle.classList.toggle('on', UV_CONFIG.enabled);
+    browserProxyEnabledToggle.addEventListener('click', () => setProxyEnabled(!UV_CONFIG.enabled));
+  }
+
   applyCloak();
 
   applyTheme();
   document.body.classList.toggle('reduce-motion', state.reduceMotion);
+
+  // ---- Browser/Tools ----
+  const browserBtn = document.getElementById('browser-btn');
+  const browserBackBtn = document.getElementById('browser-back');
+  const browserNavBack = document.getElementById('browser-back-btn');
+  const browserNavForward = document.getElementById('browser-forward-btn');
+  const browserNavReload = document.getElementById('browser-reload-btn');
+  const browserNavHome = document.getElementById('browser-home-btn');
+  const browserUrlInput = document.getElementById('browser-url-input');
+  const browserGoBtn = document.getElementById('browser-go-btn');
+  const browserFullscreenBtn = document.getElementById('browser-fullscreen-btn');
+  const browserProxyToggle = document.getElementById('browser-proxy-toggle');
+  const browserFrame = document.getElementById('browser-frame');
+  const browserContent = document.getElementById('browser-content');
+  const browserPlaceholder = browserContent.querySelector('.browser-placeholder');
+  const browserLoading = document.getElementById('browser-loading');
+  const browserError = document.getElementById('browser-error');
+  const browserErrorMessage = document.getElementById('browser-error-message');
+  const browserErrorRetry = document.getElementById('browser-error-retry');
+  const browserErrorOpenNew = document.getElementById('browser-error-open-new');
+  const browserStatusText = document.getElementById('browser-status-text');
+  const browserSecurity = document.getElementById('browser-security');
+  const quickLinks = browserContent.querySelectorAll('.browser-quick-links a');
+
+  // Settings elements for browser proxy
+  const browserProxyEnabledToggle = document.getElementById('toggle-browser-proxy');
+
+  const BROWSER_HOME = 'https://www.google.com';
+  let browserHistory = [];
+  let browserHistoryIndex = -1;
+  let isNavigating = false;
+
+  // Ultraviolet Proxy Configuration - Hardcoded proxy URL
+  // Deploy the proxy backend separately and update this URL
+  const UV_CONFIG = {
+    enabled: true,
+    baseUrl: 'https://sramjet-test.onrender.com/service/',
+    prefixes: {
+      http: '/http/',
+      https: '/https/',
+      ws: '/ws/',
+      wss: '/wss/'
+    }
+  };
+
+  function loadProxySettings(){
+    try {
+      const savedEnabled = localStorage.getItem('browser.proxyEnabled');
+      if (savedEnabled !== null) UV_CONFIG.enabled = savedEnabled === 'true';
+    } catch (_) {}
+    if (browserProxyToggle) browserProxyToggle.classList.toggle('on', UV_CONFIG.enabled);
+    if (browserProxyEnabledToggle) browserProxyEnabledToggle.classList.toggle('on', UV_CONFIG.enabled);
+  }
+
+  function saveProxySettings(){
+    try {
+      localStorage.setItem('browser.proxyEnabled', String(UV_CONFIG.enabled));
+    } catch (_) {}
+  }
+
+  function setProxyEnabled(enabled){
+    UV_CONFIG.enabled = enabled;
+    if (browserProxyToggle) browserProxyToggle.classList.toggle('on', enabled);
+    if (browserProxyEnabledToggle) browserProxyEnabledToggle.classList.toggle('on', enabled);
+    saveProxySettings();
+  }
+
+  function getProxyUrl(targetUrl){
+    if (!UV_CONFIG.enabled || !UV_CONFIG.baseUrl) return targetUrl;
+    try {
+      const url = new URL(targetUrl);
+      const prefix = UV_CONFIG.prefixes[url.protocol.replace(':', '')] || UV_CONFIG.prefixes.https;
+      const encoded = btoa(url.href).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+      return UV_CONFIG.baseUrl.replace(/\/$/, '') + prefix + encoded;
+    } catch (_) {
+      return targetUrl;
+    }
+  }
+
+  function normalizeUrl(input){
+    const trimmed = (input || '').trim();
+    if (!trimmed) return null;
+    try {
+      const url = new URL(trimmed);
+      return url.href;
+    } catch (_) {
+      try {
+        const url = new URL('https://' + trimmed);
+        return url.href;
+      } catch (_) {
+        return null;
+      }
+    }
+  }
+
+  function updateBrowserUrl(url){
+    if (browserUrlInput) browserUrlInput.value = url;
+  }
+
+  function updateNavButtons(){
+    if (browserNavBack) browserNavBack.disabled = browserHistoryIndex <= 0;
+    if (browserNavForward) browserNavForward.disabled = browserHistoryIndex >= browserHistory.length - 1;
+  }
+
+  function updateSecurityIndicator(url){
+    if (!browserSecurity) return;
+    try {
+      const u = new URL(url);
+      browserSecurity.className = 'browser-security';
+      if (u.protocol === 'https:') browserSecurity.classList.add('secure');
+      else if (u.protocol === 'http:') browserSecurity.classList.add('insecure');
+      else browserSecurity.classList.add('warning');
+    } catch (_) {
+      browserSecurity.className = 'browser-security warning';
+    }
+  }
+
+  function showPlaceholder(){
+    if (browserPlaceholder) browserPlaceholder.style.display = 'flex';
+    if (browserLoading) browserLoading.style.display = 'none';
+    if (browserError) browserError.style.display = 'none';
+    if (browserFrame) browserFrame.classList.remove('loaded');
+    if (browserStatusText) browserStatusText.textContent = 'Ready';
+  }
+
+  function showLoading(){
+    if (browserPlaceholder) browserPlaceholder.style.display = 'none';
+    if (browserLoading) browserLoading.style.display = 'flex';
+    if (browserError) browserError.style.display = 'none';
+    if (browserFrame) browserFrame.classList.remove('loaded');
+    if (browserStatusText) browserStatusText.textContent = 'Loading...';
+  }
+
+  function showError(message){
+    if (browserPlaceholder) browserPlaceholder.style.display = 'none';
+    if (browserLoading) browserLoading.style.display = 'none';
+    if (browserError) browserError.style.display = 'flex';
+    if (browserFrame) browserFrame.classList.remove('loaded');
+    if (browserErrorMessage) browserErrorMessage.textContent = message;
+    if (browserStatusText) browserStatusText.textContent = 'Error';
+  }
+
+  function showFrame(){
+    if (browserPlaceholder) browserPlaceholder.style.display = 'none';
+    if (browserLoading) browserLoading.style.display = 'none';
+    if (browserError) browserError.style.display = 'none';
+    if (browserFrame) browserFrame.classList.add('loaded');
+    if (browserStatusText) browserStatusText.textContent = 'Done';
+  }
+
+  function navigateTo(url, pushHistory = true){
+    const normalized = normalizeUrl(url);
+    if (!normalized){
+      showError('Invalid URL. Please enter a valid address (e.g. example.com or https://example.com)');
+      return;
+    }
+
+    if (pushHistory && !isNavigating){
+      browserHistory = browserHistory.slice(0, browserHistoryIndex + 1);
+      browserHistory.push(normalized);
+      browserHistoryIndex = browserHistory.length - 1;
+    }
+
+    updateBrowserUrl(normalized);
+    updateNavButtons();
+    updateSecurityIndicator(normalized);
+    showLoading();
+
+    const proxyUrl = getProxyUrl(normalized);
+    browserFrame.src = proxyUrl;
+
+    const loadTimeout = setTimeout(() => {
+      if (!browserFrame.classList.contains('loaded')){
+        showError('The page took too long to load. The site may be blocking embedding.');
+      }
+    }, 30000);
+
+    browserFrame.onload = () => {
+      clearTimeout(loadTimeout);
+      try {
+        const frameUrl = browserFrame.contentWindow.location.href;
+        if (frameUrl && frameUrl !== 'about:blank'){
+          updateBrowserUrl(frameUrl);
+          updateSecurityIndicator(frameUrl);
+        }
+      } catch (_) {}
+      showFrame();
+    };
+
+    browserFrame.onerror = () => {
+      clearTimeout(loadTimeout);
+      showError('Failed to load the page. The site may be blocking embedding or the URL is unreachable.');
+    };
+  }
+
+  function goBack(){
+    if (browserHistoryIndex > 0){
+      isNavigating = true;
+      browserHistoryIndex--;
+      navigateTo(browserHistory[browserHistoryIndex], false);
+      setTimeout(() => { isNavigating = false; }, 100);
+    }
+  }
+
+  function goForward(){
+    if (browserHistoryIndex < browserHistory.length - 1){
+      isNavigating = true;
+      browserHistoryIndex++;
+      navigateTo(browserHistory[browserHistoryIndex], false);
+      setTimeout(() => { isNavigating = false; }, 100);
+    }
+  }
+
+  function reload(){
+    if (browserHistoryIndex >= 0 && browserHistory[browserHistoryIndex]){
+      navigateTo(browserHistory[browserHistoryIndex], false);
+    } else {
+      navigateTo(BROWSER_HOME);
+    }
+  }
+
+  function goHome(){
+    navigateTo(BROWSER_HOME);
+  }
+
+  function browserToggleFullscreen(){
+    if (document.fullscreenElement){
+      document.exitFullscreen().catch(() => {});
+    } else if (browserFrame.requestFullscreen){
+      browserFrame.requestFullscreen().catch(() => {});
+    }
+  }
+
+  if (browserBtn){
+    browserBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('archive-site').classList.add('browser-open');
+      document.getElementById('archive-site').classList.remove('settings-open');
+      loadProxySettings();
+    });
+  }
+
+  if (browserBackBtn){
+    browserBackBtn.addEventListener('click', () => {
+      document.getElementById('archive-site').classList.remove('browser-open');
+    });
+  }
+
+  if (browserNavBack) browserNavBack.addEventListener('click', goBack);
+  if (browserNavForward) browserNavForward.addEventListener('click', goForward);
+  if (browserNavReload) browserNavReload.addEventListener('click', reload);
+  if (browserNavHome) browserNavHome.addEventListener('click', goHome);
+  if (browserFullscreenBtn) browserFullscreenBtn.addEventListener('click', browserToggleFullscreen);
+  if (browserProxyToggle) browserProxyToggle.addEventListener('click', () => setProxyEnabled(!UV_CONFIG.enabled));
+
+  if (browserGoBtn) browserGoBtn.addEventListener('click', () => navigateTo(browserUrlInput.value));
+  if (browserUrlInput){
+    browserUrlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') navigateTo(browserUrlInput.value);
+    });
+  }
+
+  if (browserErrorRetry) browserErrorRetry.addEventListener('click', () => {
+    if (browserHistoryIndex >= 0 && browserHistory[browserHistoryIndex]){
+      navigateTo(browserHistory[browserHistoryIndex], false);
+    }
+  });
+
+  if (browserErrorOpenNew) browserErrorOpenNew.addEventListener('click', () => {
+    if (browserHistoryIndex >= 0 && browserHistory[browserHistoryIndex]){
+      window.open(browserHistory[browserHistoryIndex], '_blank');
+    }
+  });
+
+  quickLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      navigateTo(link.dataset.url);
+    });
+  });
+
+  document.addEventListener('fullscreenchange', () => {
+    if (browserFullscreenBtn){
+      browserFullscreenBtn.textContent = document.fullscreenElement ? '\u2923' : '\u2922';
+    }
+  });
 
   const crest = document.querySelector('.edu-crest');
   let tapCount = 0, tapTimer = null;
