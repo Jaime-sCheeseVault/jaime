@@ -816,7 +816,10 @@
     });
   }
 
-if (browserProxyEnabledToggle){
+  // Settings elements for browser proxy
+  const browserProxyEnabledToggle = document.getElementById('toggle-browser-proxy');
+
+  if (browserProxyEnabledToggle){
     browserProxyEnabledToggle.classList.toggle('on', UV_CONFIG.enabled);
     browserProxyEnabledToggle.addEventListener('click', () => setProxyEnabled(!UV_CONFIG.enabled));
   }
@@ -848,9 +851,6 @@ if (browserProxyEnabledToggle){
   const browserStatusText = document.getElementById('browser-status-text');
   const browserSecurity = document.getElementById('browser-security');
   const quickLinks = browserContent.querySelectorAll('.browser-quick-links a');
-
-  // Settings elements for browser proxy
-  const browserProxyEnabledToggle = document.getElementById('toggle-browser-proxy');
 
   const BROWSER_HOME = 'https://www.google.com';
   let browserHistory = [];
