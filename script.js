@@ -816,6 +816,19 @@
     });
   }
 
+  // Ultraviolet Proxy Configuration - Hardcoded proxy URL
+  // Deploy the proxy backend separately and update this URL
+  const UV_CONFIG = {
+    enabled: true,
+    baseUrl: 'https://sramjet-test.onrender.com/service/',
+    prefixes: {
+      http: '/http/',
+      https: '/https/',
+      ws: '/ws/',
+      wss: '/wss/'
+    }
+  };
+
   // Settings elements for browser proxy
   const browserProxyEnabledToggle = document.getElementById('toggle-browser-proxy');
 
@@ -856,19 +869,6 @@
   let browserHistory = [];
   let browserHistoryIndex = -1;
   let isNavigating = false;
-
-  // Ultraviolet Proxy Configuration - Hardcoded proxy URL
-  // Deploy the proxy backend separately and update this URL
-  const UV_CONFIG = {
-    enabled: true,
-    baseUrl: 'https://sramjet-test.onrender.com/service/',
-    prefixes: {
-      http: '/http/',
-      https: '/https/',
-      ws: '/ws/',
-      wss: '/wss/'
-    }
-  };
 
   function loadProxySettings(){
     try {
