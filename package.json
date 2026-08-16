@@ -1,0 +1,28 @@
+{
+  "name": "doomsday",
+  "version": "1.0.0",
+  "description": "Doomsday - Game archive with Browser Tools and Ultraviolet proxy",
+  "private": true,
+  "workspaces": [
+    "proxy"
+  ],
+  "scripts": {
+    "proxy:install": "npm install --workspace=proxy",
+    "proxy:start": "npm start --workspace=proxy",
+    "proxy:dev": "npm run dev --workspace=proxy",
+    "proxy:build": "docker build -t doomsday-uv-proxy ./proxy",
+    "proxy:deploy": "./proxy/deploy-proxy.sh"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "games",
+    "archive",
+    "proxy",
+    "ultraviolet",
+    "browser"
+  ],
+  "author": "",
+  "license": "MIT"
+}

@@ -341,6 +341,7 @@
   }
   #archive-site.settings-open #browse-view{ display:none; }
   #archive-site.settings-open #settings-view{ display:block; }
+  #archive-site.settings-open #browser-view{ display:none; }
 
   .settings-page-inner{
     display:flex;
@@ -914,6 +915,305 @@
   }
   .request-submit:disabled{ opacity:0.5; cursor:default; }
 
+  /* ===================== BROWSER VIEW ===================== */
+  #browser-view{
+    display:none;
+    padding: 50px 40px 80px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  #archive-site.browser-open #browse-view{ display:none; }
+  #archive-site.browser-open #settings-view{ display:none; }
+  #archive-site.browser-open #browser-view{ display:block; }
+
+  .browser-page-inner{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 22px;
+    width: 100%;
+  }
+
+  .browser-panel{
+    background: var(--void-2);
+    border: 1px solid var(--line-dim);
+    width: 100%;
+    max-width: 1100px;
+    font-family: 'Courier New', monospace;
+    color: var(--phosphor);
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.8), 0 0 0 1px var(--arc-ring);
+    animation: rise-in 0.4s ease backwards;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 140px);
+    min-height: 500px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .browser-toolbar{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--void);
+    border-bottom: 1px solid var(--line-dim);
+    flex-wrap: wrap;
+  }
+
+  .browser-nav-buttons{
+    display: flex;
+    gap: 4px;
+  }
+
+  .browser-btn{
+    background: transparent;
+    border: 1px solid var(--line-dim);
+    color: var(--phosphor);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 8px 12px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    border-radius: 6px;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+  }
+  .browser-btn:hover:not(:disabled){
+    border-color: var(--phosphor-dim);
+    color: #fff;
+    background: rgba(255,255,255,0.04);
+  }
+  .browser-btn:disabled{
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .browser-btn:focus{
+    outline: none;
+    border-color: var(--phosphor-dim);
+    box-shadow: 0 0 0 2px var(--arc-ring);
+  }
+  .browser-btn.on{
+    background: var(--phosphor-dim);
+    border-color: var(--phosphor-dim);
+    color: var(--void);
+  }
+  .browser-btn.on:hover{
+    filter: brightness(0.9);
+    box-shadow: 0 0 20px -4px var(--phosphor-dim);
+  }
+
+  .browser-url-bar{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 300px;
+    max-width: 600px;
+  }
+
+  .browser-url-input{
+    flex: 1;
+    background: var(--void-2);
+    border: 1px solid var(--line-dim);
+    color: var(--phosphor);
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    min-width: 0;
+  }
+  .browser-url-input::placeholder{
+    color: var(--phosphor-dim);
+    opacity: 0.5;
+  }
+  .browser-url-input:focus{
+    border-color: var(--phosphor-dim);
+    box-shadow: 0 0 0 1px var(--arc-ring);
+  }
+
+  .browser-go-btn{
+    background: var(--phosphor-dim);
+    color: var(--void);
+    border: none;
+    padding: 8px 16px;
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: filter 0.15s ease, box-shadow 0.15s ease;
+    white-space: nowrap;
+  }
+  .browser-go-btn:hover{
+    filter: brightness(0.9);
+    box-shadow: 0 0 20px -4px var(--phosphor-dim);
+  }
+
+  .browser-action-buttons{
+    display: flex;
+    gap: 4px;
+  }
+
+  .browser-content{
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: #000;
+  }
+
+  .browser-placeholder{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 40px;
+    text-align: center;
+    color: var(--arc-fg-mid);
+  }
+  .browser-placeholder-icon{
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+  .browser-placeholder h3{
+    font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--arc-fg-bright);
+    margin: 0 0 8px;
+  }
+  .browser-placeholder p{
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    margin: 0 0 24px;
+  }
+  .browser-quick-links{
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .browser-quick-links a{
+    color: var(--phosphor-dim);
+    text-decoration: none;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    padding: 6px 12px;
+    border: 1px solid var(--line-dim);
+    border-radius: 6px;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  }
+  .browser-quick-links a:hover{
+    border-color: var(--phosphor-dim);
+    color: var(--phosphor);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .browser-loading{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 12px;
+    color: var(--phosphor);
+  }
+  .browser-spinner{
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--line-dim);
+    border-top-color: var(--phosphor);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin{
+    to{ transform: rotate(360deg); }
+  }
+
+  .browser-error{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 40px;
+    text-align: center;
+    color: var(--arc-fg-mid);
+  }
+  .browser-error-icon{
+    font-size: 64px;
+    margin-bottom: 16px;
+    color: var(--ember);
+  }
+  .browser-error h3{
+    font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--arc-fg-bright);
+    margin: 0 0 12px;
+  }
+  .browser-error p{
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    margin: 0 0 24px;
+    max-width: 400px;
+  }
+  .browser-error-actions{
+    display: flex;
+    gap: 12px;
+  }
+
+  .browser-frame{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #000;
+    display: none;
+  }
+  .browser-frame.loaded{
+    display: block;
+  }
+
+  .browser-statusbar{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 16px;
+    background: var(--void);
+    border-top: 1px solid var(--line-dim);
+    font-size: 11px;
+    color: var(--arc-fg-dim);
+    font-family: 'Courier New', monospace;
+  }
+  .browser-security{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .browser-security.secure::before{
+    content: '\1F512';
+    font-size: 10px;
+  }
+  .browser-security.warning::before{
+    content: '\26A0';
+    font-size: 10px;
+  }
+  .browser-security.insecure::before{
+    content: '\1F513';
+    font-size: 10px;
+  }
+
   @media (max-width: 720px){
     .edu-main{ grid-template-columns: 1fr; padding: 24px 18px; }
     .edu-cards{ grid-template-columns: 1fr 1fr; }
@@ -942,7 +1242,16 @@
     .game-btn{ padding: 6px 9px; }
 
     #settings-view{ padding: 30px 18px 60px; }
+    #browser-view{ padding: 30px 18px 60px; }
     .settings-row{ flex-wrap:wrap; }
+    .browser-toolbar{ flex-direction: column; gap: 10px; }
+    .browser-nav-buttons{ width: 100%; justify-content: flex-start; }
+    .browser-url-bar{ width: 100%; max-width: none; }
+    .browser-url-input{ flex: 1; min-width: 0; }
+    .browser-action-buttons{ width: 100%; justify-content: flex-end; }
+    .browser-quick-links{ flex-wrap: wrap; }
+    .browser-error-actions{ flex-direction: column; width: 100%; }
+    .browser-error-actions .browser-btn{ width: 100%; }
   }
 
   @media (max-width: 420px){
